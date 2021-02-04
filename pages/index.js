@@ -1,8 +1,9 @@
+
 import Link from 'next/link';
 
 function home() {
     return <div align="center">
-        <h1>Bem Vindos</h1>
+        <h1>Sejam bem vindos</h1>
         <p><h2>site em desenvolvimento</h2></p>
             <p>
                 <h3>
