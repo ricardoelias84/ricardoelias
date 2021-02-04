@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
-function home() {
+function servicos() {
     return <div align="center">
-        <h1>Bem Vindos</h1>
-        <p><h2>site em desenvolvimento</h2></p>
+        <h1>Serviços</h1>
+        <p><h2>Saiba como eu posso te ajudar</h2></p>
             <p>
                 <h3>
             <Link href="/">Home</Link> |
@@ -18,4 +18,4 @@ function home() {
     
 }
 
-export default home
+export default servicos

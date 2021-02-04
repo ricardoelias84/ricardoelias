@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
-function home() {
+function blog() {
     return <div align="center">
-        <h1>Bem Vindos</h1>
-        <p><h2>site em desenvolvimento</h2></p>
+        <h1>Blog no Wordpress</h1>
+        <p><h2>Notícias relevantes sobre Proteção e Privacidade de dados</h2></p>
             <p>
                 <h3>
             <Link href="/">Home</Link> |
@@ -18,4 +18,4 @@ function home() {
     
 }
 
-export default home
+export default blog
