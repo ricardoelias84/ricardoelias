@@ -8,8 +8,7 @@ function depoimentos() {
                 <h3>
             <Link href="/">Home</Link> |
             <Link href="/sobre">Sobre</Link> | 
-            <Link href="/servicos">Serviços</Link> | 
-            <Link href="/blog">Blog</Link> | 
+            <Link href="/servicos">Serviços</Link> |          
             <Link href="/depoimentos">Depoimentos</Link> | 
             <Link href="/contato">Contato</Link>
             </h3>

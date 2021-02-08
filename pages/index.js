@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 export function home() {
     return <div align="center">
+        
         <h1>Sejam bem vindos</h1>
         <p><h2>ricardoelias.com.br em desenvolvimento</h2></p>
         <p>
@@ -9,7 +10,6 @@ export function home() {
             <Link href="/">Home</Link> |
             <Link href="/sobre">Sobre</Link> |
             <Link href="/servicos">Serviços</Link> |
-            <Link href="/blog">Blog</Link> |
             <Link href="/depoimentos">Depoimentos</Link> |
             <Link href="/contato">Contato</Link>
             </h3>
