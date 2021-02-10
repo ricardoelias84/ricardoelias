@@ -48,14 +48,14 @@ export default function Components(props) {
         }}
         {...rest}
       />
-      <Parallax image={require("assets/img/nextjs_header.jpg")}>
+      <Parallax image={require("assets/img/nextjs_hgit eader.jpg")}>
         <div className={classes.container}>
           <GridContainer>
             <GridItem>
               <div className={classes.brand}>
                 <h1 className={classes.title}>Ricardo Elias</h1>
                 <h3 className={classes.subtitle}>
-                  Provacidade e Proteção de Dados
+                  Privacidade e Proteção de Dados
                 </h3>
               </div>
             </GridItem>
