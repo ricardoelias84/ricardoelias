@@ -47,7 +47,7 @@ export default function ProfilePage(props) {
     <div>
       <Header
         color="transparent"
-        brand="NextJS Material Kit"
+        brand="Ricardo Elias"
         rightLinks={<HeaderLinks />}
         fixed
         changeColorOnScroll={{
@@ -73,7 +73,7 @@ export default function ProfilePage(props) {
                       <i className={"fab fa-instagram"} />
                     </Button>
                     <Button justIcon link className={classes.margin5}>
-                      <i className={"fab fa-facebook"} />
+                      <i className={"fab fa-linkedin"} />
                     </Button>
                   </div>
                 </div>
