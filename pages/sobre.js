@@ -81,15 +81,11 @@ export default function ProfilePage(props) {
             </GridContainer>
             <div className={classes.description}>
               <p>
-              Bacharelado em Direito com Pós Graduação em Direito Digital e Compliance,
-              com especialização em Proteção de Dados e Privacidade e certificação internacional EXIN.
-              Iniciei a carreira profissional na área tecnologia de informação, ministrando aulas de informática,
-              posteriormente cursei direito realizando estágio no Ministério Púplico do Estado de São Paulo
+              Bacharelado em Direito com Pós Graduação em Direito Digital e Compliance, com especialização em Proteção de Dados e Privacidade e certificação internacional EXIN.
+              Iniciei a carreira profissional na área tecnologia de informação, ministrando aulas de informática, posteriormente cursei direito realizando estágio no Ministério Púplico do Estado de São Paulo
               e depois trabalhei com restituição de impostos;
-              Atualmente sou professor de informática para concursos públicos, 
-              ajudando diversos alunos a alcançar um cargo público.
-              Segundo metodologia DISC, tenho um perfil sociável e comunicativo, 
-              gosto de estar em contato com as pessoas, sou conservador e diplomático.{" "}
+              Atualmente sou professor de informática para concursos públicos, ajudando diversos alunos a alcançar um cargo público.
+              Segundo metodologia DISC, tenho um perfil sociável e comunicativo, gosto de estar em contato com as pessoas, sou conservador e diplomático.{" "}
               </p>
             </div>
 
