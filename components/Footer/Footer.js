@@ -35,7 +35,7 @@ export default function Footer(props) {
               <a
                 href="https://ricardoelias.com.br"
                 className={classes.block}
-                target="_blank"
+                target="_self"
               >
                 Ricardo Elias
               </a>
@@ -44,7 +44,7 @@ export default function Footer(props) {
               <a
                 href="https://ricardoelias.com.br/sobre"
                 className={classes.block}
-                target="_blank"
+                target="_self"
               >
                 Sobre
               </a>
@@ -53,7 +53,7 @@ export default function Footer(props) {
               <a
                 href="https://ricardoelias.com.br/servicos"
                 className={classes.block}
-                target="_blank"
+                target="_self"
               >
                 Serviços
               </a>
@@ -62,7 +62,7 @@ export default function Footer(props) {
               <a
                 href="https://ricardoelias.com.br/depoimentos"
                 className={classes.block}
-                target="_blank"
+                target="_self"
               >
                 Depoimentos
               </a>
@@ -71,7 +71,7 @@ export default function Footer(props) {
               <a
                 href="https://ricardoelias.com.br/contato"
                 className={classes.block}
-                target="_blank"
+                target="_self"
               >
                 Contato
               </a>

@@ -29,6 +29,17 @@ export default function HeaderLinks(props) {
       
       <ListItem className={classes.listItem}>
         <Button
+          href="https://ricardoelias.com.br"
+          color="transparent"
+          target="_self"
+          className={classes.navLink}
+        >
+          <CloudDownload className={classes.icons} /> Home
+        </Button>
+      </ListItem>
+
+      <ListItem className={classes.listItem}>
+        <Button
           href="https://ricardoelias.com.br/sobre"
           color="transparent"
           target="_self"
