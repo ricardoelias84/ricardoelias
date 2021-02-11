@@ -33,54 +33,52 @@ export default function Footer(props) {
           <List className={classes.list}>
             <ListItem className={classes.inlineBlock}>
               <a
-                href="https://www.creative-tim.com/?ref=njsmk-footer"
+                href="https://ricardoelias.com.br"
                 className={classes.block}
                 target="_blank"
               >
-                Creative Tim
+                Ricardo Elias
               </a>
             </ListItem>
             <ListItem className={classes.inlineBlock}>
               <a
-                href="https://www.creative-tim.com/presentation?ref=njsmk-footer"
+                href="https://ricardoelias.com.br/sobre"
                 className={classes.block}
                 target="_blank"
               >
-                About us
+                Sobre
               </a>
             </ListItem>
             <ListItem className={classes.inlineBlock}>
               <a
-                href="http://blog.creative-tim.com/?ref=njsmk-footer"
+                href="https://ricardoelias.com.br/servicos"
                 className={classes.block}
                 target="_blank"
               >
-                Blog
+                Serviços
               </a>
             </ListItem>
             <ListItem className={classes.inlineBlock}>
               <a
-                href="https://www.creative-tim.com/license?ref=njsmk-footer"
+                href="https://ricardoelias.com.br/depoimentos"
                 className={classes.block}
                 target="_blank"
               >
-                Licenses
+                Depoimentos
+              </a>
+            </ListItem>
+            <ListItem className={classes.inlineBlock}>
+              <a
+                href="https://ricardoelias.com.br/contato"
+                className={classes.block}
+                target="_blank"
+              >
+                Contato
               </a>
             </ListItem>
           </List>
         </div>
-        <div className={classes.right}>
-          &copy; {1900 + new Date().getYear()} , made with{" "}
-          <Favorite className={classes.icon} /> by{" "}
-          <a
-            href="https://www.creative-tim.com?ref=njsmk-footer"
-            className={aClasses}
-            target="_blank"
-          >
-            Creative Tim
-          </a>{" "}
-          for a better web.
-        </div>
+
       </div>
     </footer>
   );

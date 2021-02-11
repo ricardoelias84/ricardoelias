@@ -29,7 +29,7 @@ export default function HeaderLinks(props) {
       
       <ListItem className={classes.listItem}>
         <Button
-          href="./pages/sobre.js"
+          href="https://ricardoelias.com.br/sobre"
           color="transparent"
           target="_blank"
           className={classes.navLink}
@@ -40,7 +40,7 @@ export default function HeaderLinks(props) {
 
       <ListItem className={classes.listItem}>
         <Button
-          href="./pages/servicos.js"
+          href="https://ricardoelias.com.br/servicos"
           color="transparent"
           target="_blank"
           className={classes.navLink}
@@ -51,7 +51,7 @@ export default function HeaderLinks(props) {
 
       <ListItem className={classes.listItem}>
         <Button
-          href="./pages/depoimentos.js"
+          href="https://ricardoelias.com.br/depoimentos"
           color="transparent"
           target="_blank"
           className={classes.navLink}
@@ -62,7 +62,7 @@ export default function HeaderLinks(props) {
 
       <ListItem className={classes.listItem}>
         <Button
-          href="./pages/contato.js"
+          href="https://ricardoelias.com.br/contato"
           color="transparent"
           target="_blank"
           className={classes.navLink}
