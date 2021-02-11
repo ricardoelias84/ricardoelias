@@ -31,7 +31,7 @@ export default function HeaderLinks(props) {
         <Button
           href="https://ricardoelias.com.br/sobre"
           color="transparent"
-          target="_blank"
+          target="_self"
           className={classes.navLink}
         >
           <CloudDownload className={classes.icons} /> Sobre
@@ -42,7 +42,7 @@ export default function HeaderLinks(props) {
         <Button
           href="https://ricardoelias.com.br/servicos"
           color="transparent"
-          target="_blank"
+          target="_self"
           className={classes.navLink}
         >
           <CloudDownload className={classes.icons} /> Serviços
@@ -53,7 +53,7 @@ export default function HeaderLinks(props) {
         <Button
           href="https://ricardoelias.com.br/depoimentos"
           color="transparent"
-          target="_blank"
+          target="_self"
           className={classes.navLink}
         >
           <CloudDownload className={classes.icons} /> Depoimentos
@@ -64,7 +64,7 @@ export default function HeaderLinks(props) {
         <Button
           href="https://ricardoelias.com.br/contato"
           color="transparent"
-          target="_blank"
+          target="_self"
           className={classes.navLink}
         >
           <CloudDownload className={classes.icons} /> Contato
