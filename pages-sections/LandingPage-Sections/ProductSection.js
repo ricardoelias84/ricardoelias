@@ -21,13 +21,10 @@ export default function ProductSection() {
     <div className={classes.section}>
       <GridContainer justify="center">
         <GridItem xs={12} sm={12} md={8}>
-          <h2 className={classes.title}>Let{"'"}s talk product</h2>
+          <h2 className={classes.title}>Por que investir em segurança de dados?</h2>
           <h5 className={classes.description}>
-            This is the paragraph where you can write more details about your
-            product. Keep you user engaged by providing meaningful information.
-            Remember that by this time, the user is curious, otherwise he wouldn
-            {"'"}t scroll to get here. Add a button if you want the user to see
-            more.
+          Com a chegada da LGPD surgiu a necessidade de estar em conformidade, e notório a quantidade cada vez mais abundantes de dados vazados e as multas chegarão em breve.
+          Mostre que você se importa com os dados de seus clientes e ganhe credibilidade.
           </h5>
         </GridItem>
       </GridContainer>
@@ -35,8 +32,8 @@ export default function ProductSection() {
         <GridContainer>
           <GridItem xs={12} sm={12} md={4}>
             <InfoArea
-              title="Free Chat"
-              description="Divide details about your product or agency work into parts. Write a few lines about each one. A paragraph describing a feature will be enough."
+              title="DPIA"
+              description="Levantamento de ameças e riscos"
               icon={Chat}
               iconColor="info"
               vertical
@@ -44,8 +41,8 @@ export default function ProductSection() {
           </GridItem>
           <GridItem xs={12} sm={12} md={4}>
             <InfoArea
-              title="Verified Users"
-              description="Divide details about your product or agency work into parts. Write a few lines about each one. A paragraph describing a feature will be enough."
+              title="DPO"
+              description="Pense em segurança desde o começo de seus projetos"
               icon={VerifiedUser}
               iconColor="success"
               vertical
@@ -53,8 +50,8 @@ export default function ProductSection() {
           </GridItem>
           <GridItem xs={12} sm={12} md={4}>
             <InfoArea
-              title="Fingerprint"
-              description="Divide details about your product or agency work into parts. Write a few lines about each one. A paragraph describing a feature will be enough."
+              title="Treinamentos"
+              description="Concientizar é muito importante"
               icon={Fingerprint}
               iconColor="danger"
               vertical
