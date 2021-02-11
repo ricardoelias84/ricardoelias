@@ -11,6 +11,10 @@ import Icon from "@material-ui/core/Icon";
 
 // @material-ui/icons
 import { Apps, CloudDownload } from "@material-ui/icons";
+import FaceIcon from '@material-ui/icons/Face';
+import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
+import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
+import MailIcon from '@material-ui/icons/Mail';
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 
@@ -27,25 +31,14 @@ export default function HeaderLinks(props) {
   return (
     <List className={classes.list}>
       
-      <ListItem className={classes.listItem}>
-        <Button
-          href="https://ricardoelias.com.br"
-          color="transparent"
-          target="_self"
-          className={classes.navLink}
-        >
-          <CloudDownload className={classes.icons} /> Home
-        </Button>
-      </ListItem>
-
-      <ListItem className={classes.listItem}>
+          <ListItem className={classes.listItem}>
         <Button
           href="https://ricardoelias.com.br/sobre"
           color="transparent"
           target="_self"
           className={classes.navLink}
         >
-          <CloudDownload className={classes.icons} /> Sobre
+          <FaceIcon  className={classes.icons} /> Sobre
         </Button>
       </ListItem>
 
@@ -56,7 +49,7 @@ export default function HeaderLinks(props) {
           target="_self"
           className={classes.navLink}
         >
-          <CloudDownload className={classes.icons} /> Serviços
+          <BusinessCenterIcon className={classes.icons} /> Serviços
         </Button>
       </ListItem>
 
@@ -67,7 +60,7 @@ export default function HeaderLinks(props) {
           target="_self"
           className={classes.navLink}
         >
-          <CloudDownload className={classes.icons} /> Depoimentos
+          <RecordVoiceOverIcon className={classes.icons} /> Depoimentos
         </Button>
       </ListItem>
 
@@ -78,7 +71,7 @@ export default function HeaderLinks(props) {
           target="_self"
           className={classes.navLink}
         >
-          <CloudDownload className={classes.icons} /> Contato
+          <MailIcon className={classes.icons} /> Contato
         </Button>
       </ListItem>
       
