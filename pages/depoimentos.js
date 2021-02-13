@@ -47,21 +47,12 @@ export default function LandingPage(props) {
         <div className={classes.container}>
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
-              <h1 className={classes.title}>Serviços</h1>
+              <h1 className={classes.title}>Depoimentos</h1>
               <h4>
-              Saiba como posso te ajudar a manter seus dados mais seguros.
+              O que pessoas que já trabalharam comigo tem a falar sobre mim
               </h4>
               <br />
-              <Button
-                color="danger"
-                size="lg"
-                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ref=creativetim"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i className="fas fa-play" />
-                Serviços
-              </Button>
+              
             </GridItem>
           </GridContainer>
         </div>

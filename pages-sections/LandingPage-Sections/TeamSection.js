@@ -31,7 +31,7 @@ export default function TeamSection() {
   );
   return (
     <div className={classes.section}>
-      <h2 className={classes.title}>Here is our team</h2>
+      <h2 className={classes.title}>Amigos</h2>
       <div>
         <GridContainer>
           <GridItem xs={12} sm={12} md={4}>
@@ -40,9 +40,9 @@ export default function TeamSection() {
                 <img src={team1} alt="..." className={imageClasses} />
               </GridItem>
               <h4 className={classes.cardTitle}>
-                Gigi Hadid
+                Mark Z.
                 <br />
-                <small className={classes.smallTitle}>Model</small>
+                <small className={classes.smallTitle}>Desenvolvedor</small>
               </h4>
               <CardBody>
                 <p className={classes.description}>
@@ -83,9 +83,9 @@ export default function TeamSection() {
                 <img src={team2} alt="..." className={imageClasses} />
               </GridItem>
               <h4 className={classes.cardTitle}>
-                Christian Louboutin
+                Bill G.
                 <br />
-                <small className={classes.smallTitle}>Designer</small>
+                <small className={classes.smallTitle}>Empresário</small>
               </h4>
               <CardBody>
                 <p className={classes.description}>
@@ -119,9 +119,9 @@ export default function TeamSection() {
                 <img src={team3} alt="..." className={imageClasses} />
               </GridItem>
               <h4 className={classes.cardTitle}>
-                Kendall Jenner
+                Jeff B.
                 <br />
-                <small className={classes.smallTitle}>Model</small>
+                <small className={classes.smallTitle}>CEO</small>
               </h4>
               <CardBody>
                 <p className={classes.description}>
