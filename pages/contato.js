@@ -34,7 +34,7 @@ export default function LandingPage(props) {
       <Header
         color="transparent"
         routes={dashboardRoutes}
-        brand="NextJS Material Kit"
+        brand="Ricardo Elias"
         rightLinks={<HeaderLinks />}
         fixed
         changeColorOnScroll={{
@@ -48,20 +48,7 @@ export default function LandingPage(props) {
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
               <h1 className={classes.title}>Fala que eu te escuto</h1>
-              <h4>
-                Estou esperando seu e-mail
-              </h4>
-              <br />
-              <Button
-                color="danger"
-                size="lg"
-                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ref=creativetim"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i className="fas fa-play" />
-                Watch video
-              </Button>
+              
             </GridItem>
           </GridContainer>
         </div>
