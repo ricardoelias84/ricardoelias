@@ -19,6 +19,8 @@ import Parallax from "components/Parallax/Parallax.js";
 
 import profile from "assets/img/faces/elias.jpg";
 
+import SectionBasics from "pages-sections/Components-Sections/SectionBasics.js";
+
 import studio1 from "assets/img/examples/studio-1.jpg";
 import studio2 from "assets/img/examples/studio-2.jpg";
 import studio3 from "assets/img/examples/studio-3.jpg";
@@ -88,6 +90,11 @@ export default function ProfilePage(props) {
               Segundo metodologia DISC, tenho um perfil sociável e comunicativo, gosto de estar em contato com as pessoas, sou conservador e diplomático.{" "}
               </p>
             </div>
+
+<div>
+<SectionBasics />
+
+</div>
 
           </div>
         </div>
