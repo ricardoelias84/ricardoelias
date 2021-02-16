@@ -92,7 +92,7 @@ export default function ProfilePage(props) {
             </div>
 
 <div>
-
+<SectionBasics />
 
 </div>
 

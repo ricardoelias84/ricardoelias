@@ -90,29 +90,7 @@ export default function SectionBasics() {
                 color="primary"
                 value={30}
               />
-              <CustomLinearProgress
-                variant="determinate"
-                color="info"
-                value={60}
-              />
-              <CustomLinearProgress
-                variant="determinate"
-                color="success"
-                value={100}
-                style={{ width: "35%", display: "inline-block" }}
-              />
-              <CustomLinearProgress
-                variant="determinate"
-                color="warning"
-                value={100}
-                style={{ width: "20%", display: "inline-block" }}
-              />
-              <CustomLinearProgress
-                variant="determinate"
-                color="danger"
-                value={25}
-                style={{ width: "45%", display: "inline-block" }}
-              />
+              
             </GridItem>
             </GridContainer>
             </div>
