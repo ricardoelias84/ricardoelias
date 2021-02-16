@@ -114,11 +114,12 @@ export default function SectionBasics() {
                 style={{ width: "45%", display: "inline-block" }}
               />
             </GridItem>
+            </GridContainer>
             </div>
             
         
         
       </div>
-    </div>
+    
   );
 }
