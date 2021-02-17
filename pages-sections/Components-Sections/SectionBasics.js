@@ -71,10 +71,7 @@ export default function SectionBasics() {
   return (
     <div className={classes.sections}>
       <div className={classes.container}>
-      
-
         <div className={classes.space70} />
-
         <div className={classes.space70} />
         <div id="progress">
           <GridContainer>
@@ -82,11 +79,24 @@ export default function SectionBasics() {
               <div className={classes.title}>
                 <h3>Conhecimento Técnico</h3>
               </div>
+
+              <div className={classes.title}>
+                <h4>Windows</h4>
+              </div>
               <CustomLinearProgress
                 variant="determinate"
                 color="primary"
-                value={30}
+                value={90}
               />
+              <div className={classes.title}>
+                <h4>Word</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={95}
+              />
+
               <CustomLinearProgress
                 variant="determinate"
                 color="info"
