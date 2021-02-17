@@ -94,7 +94,7 @@ export default function SectionBasics() {
               <CustomLinearProgress
                 variant="determinate"
                 color="primary"
-                value={95}
+                value={85}
               />
 
               <CustomLinearProgress
@@ -102,29 +102,64 @@ export default function SectionBasics() {
                 color="info"
                 value={60}
               />
-              <CustomLinearProgress
-                variant="determinate"
-                color="success"
-                value={100}
-                style={{ width: "35%", display: "inline-block" }}
+              
+            </GridItem>
+            <GridItem xs={12} sm={12} md={6}>
+              <div className={classes.title}>
+                <h3>Pagination</h3>
+              </div>
+              <Paginations
+                pages={[
+                  { text: 1 },
+                  { text: "..." },
+                  { text: 5 },
+                  { text: 6 },
+                  { active: true, text: 7 },
+                  { text: 8 },
+                  { text: 9 },
+                  { text: "..." },
+                  { text: 12 }
+                ]}
               />
-              <CustomLinearProgress
-                variant="determinate"
-                color="warning"
-                value={100}
-                style={{ width: "20%", display: "inline-block" }}
-              />
-              <CustomLinearProgress
-                variant="determinate"
-                color="danger"
-                value={25}
-                style={{ width: "45%", display: "inline-block" }}
+              <Paginations
+                pages={[
+                  { text: "PREV" },
+                  { text: 1 },
+                  { text: 2 },
+                  { active: true, text: 3 },
+                  { text: 4 },
+                  { text: 5 },
+                  { text: "NEXT" }
+                ]}
+                color="info"
               />
             </GridItem>
-
           </GridContainer>
         </div>
-
+        <div id="sliders">
+          <GridContainer>
+            <GridItem xs={12} sm={12} md={6}>
+              <div className={classes.title}>
+                <h3>Sliders</h3>
+              </div>
+              <div id="sliderRegular" className="slider-primary" />
+              <br />
+              <div id="sliderDouble" className="slider-info" />
+            </GridItem>
+            <GridItem xs={12} sm={12} md={6}>
+              <div className={classes.title}>
+                <h3>Badges</h3>
+              </div>
+              <Badge>default</Badge>
+              <Badge color="primary">primary</Badge>
+              <Badge color="info">info</Badge>
+              <Badge color="success">success</Badge>
+              <Badge color="warning">warning</Badge>
+              <Badge color="danger">danger</Badge>
+              <Badge color="rose">rose</Badge>
+            </GridItem>
+          </GridContainer>
+        </div>
       </div>
     </div>
   );
