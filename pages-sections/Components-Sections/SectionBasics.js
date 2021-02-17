@@ -520,7 +520,7 @@ export default function SectionBasics() {
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
               <div className={classes.title}>
-                <h3>Progress Bars</h3>
+                <h3>Conhecimento Técnico</h3>
               </div>
               <CustomLinearProgress
                 variant="determinate"
