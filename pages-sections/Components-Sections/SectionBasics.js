@@ -104,36 +104,7 @@ export default function SectionBasics() {
               />
               
             </GridItem>
-            <GridItem xs={12} sm={12} md={6}>
-              <div className={classes.title}>
-                <h3>Pagination</h3>
-              </div>
-              <Paginations
-                pages={[
-                  { text: 1 },
-                  { text: "..." },
-                  { text: 5 },
-                  { text: 6 },
-                  { active: true, text: 7 },
-                  { text: 8 },
-                  { text: 9 },
-                  { text: "..." },
-                  { text: 12 }
-                ]}
-              />
-              <Paginations
-                pages={[
-                  { text: "PREV" },
-                  { text: 1 },
-                  { text: 2 },
-                  { active: true, text: 3 },
-                  { text: 4 },
-                  { text: 5 },
-                  { text: "NEXT" }
-                ]}
-                color="info"
-              />
-            </GridItem>
+     
           </GridContainer>
         </div>
         <div id="sliders">
