@@ -71,9 +71,7 @@ export default function SectionBasics() {
   return (
     <div className={classes.sections}>
       <div className={classes.container}>
-        <div className={classes.title}>
-          <h2>Basic Elements</h2>
-        </div>
+        
         <div id="buttons">
           <div className={classes.title}>
             <h3>
