@@ -416,6 +416,36 @@ export default function SectionBasics() {
                 color="primary"
                 value={75}
               />
+
+              <div className={classes.title}>
+                <h2>Línguas</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Inglês</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={70}
+              />
+              <div className={classes.title}>
+                <h4>Espanhol</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={30}
+              />
+              <div className={classes.title}>
+                <h4>Francês</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={15}
+              />
+             
               
 
 
