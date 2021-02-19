@@ -71,10 +71,15 @@ export default function ProfilePage(props) {
                   <div className={classes.name}>
                     <h3 className={classes.title}>Ricardo Elias</h3>
                     <h6>Proteção de dados</h6>
-                    <Button justIcon link className={classes.margin5}>
+                    <Button justIcon link className={classes.margin5} 
+                    href="https://www.instagram.com/ricardoselias/"
+                    >
                       <i className={"fab fa-instagram"} />
+                      
                     </Button>
-                    <Button justIcon link className={classes.margin5}>
+                    <Button justIcon link className={classes.margin5}
+                    href="https://www.linkedin.com/in/ricardo-elias-7a62a640/"
+                    >
                       <i className={"fab fa-linkedin"} />
                     </Button>
                   </div>
