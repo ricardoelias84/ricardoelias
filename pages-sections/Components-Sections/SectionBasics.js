@@ -246,8 +246,43 @@ export default function SectionBasics() {
                 value={55}
               />
 
+            <div className={classes.title}>
+                <h2>Organizacionais</h2>
+              </div>
 
-
+              <div className={classes.title}>
+                <h4>COBIL</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={10}
+              />
+              <div className={classes.title}>
+                <h4>Data Protection Officer</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={100}
+              />
+              <div className={classes.title}>
+                <h4>Information Security Officer</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={75}
+              />
+              <div className={classes.title}>
+                <h4>ITIL</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={35}
+              />
+              
 
 
             </GridItem>
