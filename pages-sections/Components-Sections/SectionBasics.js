@@ -144,9 +144,114 @@ export default function SectionBasics() {
                 color="primary"
                 value={60}
               />
-                            
+
+              <div className={classes.title}>
+                <h2>Lógica</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>ASP.NET</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={30}
+              />
+              <div className={classes.title}>
+                <h4>C#</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={35}
+              />
+              <div className={classes.title}>
+                <h4>CSS</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={85}
+              />
+              <div className={classes.title}>
+                <h4>Adobe Dreamweaver</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={90}
+              />
+              <div className={classes.title}>
+                <h4>HTML</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={95}
+              />
+              <div className={classes.title}>
+                <h4>MySQL</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={90}
+              />
+             <div className={classes.title}>
+                <h4>Next.js</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={30}
+              />
+             <div className={classes.title}>
+                <h4>Oracle</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={40}
+              />
+            <div className={classes.title}>
+                <h4>PHP</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={75}
+              />
+              <div className={classes.title}>
+                <h4>REACT</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={30}
+              />
+             <div className={classes.title}>
+                <h4>SQL SERVER</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={70}
+              />
+             <div className={classes.title}>
+                <h4>VS STUDIO</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={55}
+              />
+
+
+
+
+
             </GridItem>
-     
+
           </GridContainer>
         </div>
 
