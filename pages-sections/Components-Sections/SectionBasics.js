@@ -99,6 +99,51 @@ export default function SectionBasics() {
                 color="primary"
                 value={90}
               />
+
+              <div className={classes.title}>
+                <h2>Audiovisual</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Adobe After Effects</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={20}
+              />
+              <div className={classes.title}>
+                <h4>Adobe Illustrator</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={60}
+              />
+              <div className={classes.title}>
+                <h4>Adobe Lightroom</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={95}
+              />
+              <div className={classes.title}>
+                <h4>Adobe Photoshop</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={90}
+              />
+              <div className={classes.title}>
+                <h4>Adobe Premiere</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={60}
+              />
                             
             </GridItem>
      
