@@ -52,11 +52,23 @@ export default function SectionBasics() {
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
               <div className={classes.title}>
-                <h3>Conhecimento Técnico</h3>
+                <h1>Conhecimentos</h1>
               </div>
 
               <div className={classes.title}>
-                <h4>Windows</h4>
+                <h2>Escritório</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Microsoft Access</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={60}
+              />
+              <div className={classes.title}>
+                <h4>Microsoft Excel</h4>
               </div>
               <CustomLinearProgress
                 variant="determinate"
@@ -64,20 +76,30 @@ export default function SectionBasics() {
                 value={90}
               />
               <div className={classes.title}>
-                <h4>Word</h4>
+                <h4>Microsoft PowerPoint</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={95}
+              />
+              <div className={classes.title}>
+                <h4>Microsoft Windows</h4>
               </div>
               <CustomLinearProgress
                 variant="determinate"
                 color="primary"
                 value={85}
               />
-
+              <div className={classes.title}>
+                <h4>Microsoft Word</h4>
+              </div>
               <CustomLinearProgress
                 variant="determinate"
-                color="info"
-                value={60}
+                color="primary"
+                value={90}
               />
-              
+                            
             </GridItem>
      
           </GridContainer>
