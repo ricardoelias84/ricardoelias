@@ -282,6 +282,51 @@ export default function SectionBasics() {
                 color="primary"
                 value={35}
               />
+
+            <div className={classes.title}>
+                <h2>Jurídicos</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Civil</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={40}
+              />
+              <div className={classes.title}>
+                <h4>Compliance</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={75}
+              />
+              <div className={classes.title}>
+                <h4>Constitucional</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={60}
+              />
+              <div className={classes.title}>
+                <h4>Consumidor</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={35}
+              />
+              <div className={classes.title}>
+                <h4>Digital</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={90}
+              />
               
 
 
