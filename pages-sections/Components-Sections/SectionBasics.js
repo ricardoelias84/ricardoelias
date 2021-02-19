@@ -327,7 +327,97 @@ export default function SectionBasics() {
                 color="primary"
                 value={90}
               />
+              <div className={classes.title}>
+                <h2>Comportamental (DISC)</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Dominância</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={24}
+              />
+              <div className={classes.title}>
+                <h4>Influência</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={87}
+              />
+              <div className={classes.title}>
+                <h4>Estabilidade</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={64}
+              />
+              <div className={classes.title}>
+                <h4>Conformidade</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={80}
+              />
+
+            <div className={classes.title}>
+                <h2>Talentos</h2>
+              </div>
+
+              <div className={classes.title}>
+                <h4>Articulador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={78}
+              />
+              <div className={classes.title}>
+                <h4>Conciliador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={76}
+              />
+              <div className={classes.title}>
+                <h4>Facilitador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={89}
+              />
+              <div className={classes.title}>
+                <h4>Integrador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={71}
+              />
+              <div className={classes.title}>
+                <h4>Observador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={81}
+              />
+              <div className={classes.title}>
+                <h4>Orientador</h4>
+              </div>
+              <CustomLinearProgress
+                variant="determinate"
+                color="primary"
+                value={75}
+              />
               
+
 
 
             </GridItem>
