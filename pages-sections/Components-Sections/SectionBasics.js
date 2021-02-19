@@ -71,8 +71,7 @@ export default function SectionBasics() {
   return (
     <div className={classes.sections}>
       <div className={classes.container}>
-        <div className={classes.space70} />
-        <div className={classes.space70} />
+        
         <div id="progress">
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
