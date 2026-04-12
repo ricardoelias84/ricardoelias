@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const content = window.NAVE_CONTENT;
   const app = document.getElementById('app');
 
@@ -254,7 +254,7 @@
   }
 
   function formatScore(value) {
-    return Number.isFinite(value) ? scoreFormatter.format(value) : '—';
+    return Number.isFinite(value) ? scoreFormatter.format(value) : 'â€”';
   }
 
   function formatPercent(value) {
@@ -342,12 +342,12 @@
     if (firstName || state.profile.role || state.profile.size) {
       return {
         title: `${firstName || 'Vamos'} montar uma leitura mais aderente a sua realidade.`,
-        body: 'Com algumas informações de contexto, a experiência fica menos genérica e mais útil para quem decide.',
+        body: 'Com algumas informaÃ§Ãµes de contexto, a experiÃªncia fica menos genÃ©rica e mais Ãºtil para quem decide.',
       };
     }
     return {
-      title: 'Vamos personalizar a experiência antes de começar.',
-      body: 'São poucos dados, mas eles ajudam a tornar a jornada mais consultiva, mais clara e mais relevante para o seu cenário.',
+      title: 'Vamos personalizar a experiÃªncia antes de comeÃ§ar.',
+      body: 'SÃ£o poucos dados, mas eles ajudam a tornar a jornada mais consultiva, mais clara e mais relevante para o seu cenÃ¡rio.',
     };
   }
 
@@ -355,10 +355,10 @@
     const firstName = getFirstName();
     const contextLine = getPersonalContextLine();
     if (firstName && contextLine) {
-      return `${firstName}, este checkpoint foi guiado para alguém ${contextLine}. O objetivo aqui é transformar o técnico em resposta segura de negócio.`;
+      return `${firstName}, este checkpoint foi guiado para alguÃ©m ${contextLine}. O objetivo aqui Ã© transformar o tÃ©cnico em resposta segura de negÃ³cio.`;
     }
     if (state.profile.role || state.profile.size) {
-      return 'Este checkpoint foi suavizado para uma leitura executiva, especialmente útil para quem precisa decidir sem mergulhar no detalhe técnico.';
+      return 'Este checkpoint foi suavizado para uma leitura executiva, especialmente Ãºtil para quem precisa decidir sem mergulhar no detalhe tÃ©cnico.';
     }
     return functionMeta.executiveSubtitle || functionMeta.heroText;
   }
@@ -367,27 +367,27 @@
     const role = String(state.profile.role || '').trim();
     const size = String(state.profile.size || '').trim();
     if (role && size) {
-      return `Para uma liderança ${role.toLowerCase()} em uma empresa de ${size.toLowerCase()}, esta leitura prioriza clareza, contexto e decisão.`;
+      return `Para uma lideranÃ§a ${role.toLowerCase()} em uma empresa de ${size.toLowerCase()}, esta leitura prioriza clareza, contexto e decisÃ£o.`;
     }
     if (role) {
-      return `Para quem atua como ${role.toLowerCase()}, esta leitura foi suavizada para apoiar decisão sem excesso de tecnicismo.`;
+      return `Para quem atua como ${role.toLowerCase()}, esta leitura foi suavizada para apoiar decisÃ£o sem excesso de tecnicismo.`;
     }
     if (size) {
-      return `Este conteúdo foi ajustado para uma leitura executiva, especialmente útil em empresas de ${size.toLowerCase()}.`;
+      return `Este conteÃºdo foi ajustado para uma leitura executiva, especialmente Ãºtil em empresas de ${size.toLowerCase()}.`;
     }
-    return 'Esta leitura foi organizada para ajudar lideranças a responder com segurança, mesmo sem mergulhar no detalhe técnico.';
+    return 'Esta leitura foi organizada para ajudar lideranÃ§as a responder com seguranÃ§a, mesmo sem mergulhar no detalhe tÃ©cnico.';
   }
 
   function getQuestionPersonalization(question) {
     const role = String(state.profile.role || '').trim();
     const size = String(state.profile.size || '').trim();
     if (role && size) {
-      return `Para alguém em ${role} numa empresa de ${size.toLowerCase()}, este ponto costuma depender de TI, governança e dos donos do processo para validação final.`;
+      return `Para alguÃ©m em ${role} numa empresa de ${size.toLowerCase()}, este ponto costuma depender de TI, governanÃ§a e dos donos do processo para validaÃ§Ã£o final.`;
     }
     if (role) {
-      return `Para ${role}, este ponto costuma ser respondido melhor quando a visão de negócio é combinada com a validação técnica adequada.`;
+      return `Para ${role}, este ponto costuma ser respondido melhor quando a visÃ£o de negÃ³cio Ã© combinada com a validaÃ§Ã£o tÃ©cnica adequada.`;
     }
-    return `Se esta pergunta parecer técnica demais, tudo bem: ${question.whoCanAnswer.toLowerCase()} costuma ajudar bastante aqui.`;
+    return `Se esta pergunta parecer tÃ©cnica demais, tudo bem: ${question.whoCanAnswer.toLowerCase()} costuma ajudar bastante aqui.`;
   }
 
   function getBrandName() {
@@ -395,7 +395,7 @@
   }
 
   function getBrandSubtitle() {
-    return `${content.appMeta.subtitle || ''} · By ${content.appMeta.company || 'Active Solutions'}`;
+    return `${content.appMeta.subtitle || ''} Â· By ${content.appMeta.company || 'Active Solutions'}`;
   }
 
   function getHelpDrawerState(questionId) {
@@ -535,7 +535,7 @@
         return {
           id: question.id,
           title: question.title,
-          shortTitle: question.title.replace(/^Q\d+\s·\s/, ''),
+          shortTitle: question.title.replace(/^Q\d+\sÂ·\s/, ''),
           prompt: question.prompt,
           functionKeys: question.functionKeys,
           functionNames: question.functionKeys.map((key) => functionsByKey[key].label),
@@ -561,13 +561,13 @@
       let label = 'Prioridade alta';
       let tone = 'critical';
       if (score >= 3.7) {
-        label = 'Domínio adaptativo';
+        label = 'DomÃ­nio adaptativo';
         tone = 'elite';
       } else if (score >= 3) {
         label = 'Badge liberado';
         tone = 'strong';
       } else if (score >= 2) {
-        label = 'Em evolução';
+        label = 'Em evoluÃ§Ã£o';
         tone = 'mid';
       }
       return { ...capability, score, tone, statusLabel: label, unlocked: score >= 3 };
@@ -614,7 +614,7 @@
         return;
       }
       (content.functionServiceMap[metric.key] || []).forEach((serviceKey) => {
-        bump(serviceKey, (3 - metric.score) * 2.4, null, `função ${metric.meta.label}`);
+        bump(serviceKey, (3 - metric.score) * 2.4, null, `funÃ§Ã£o ${metric.meta.label}`);
       });
     });
 
@@ -653,36 +653,36 @@
     return [
       {
         phase: '30 dias',
-        title: 'Fechar exposições mais sensíveis',
+        title: 'Fechar exposiÃ§Ãµes mais sensÃ­veis',
         items: gaps.slice(0, 2).map(
           (gap) =>
-            `Atacar ${gap.shortTitle.toLowerCase()} com dono definido, prazo e evidência simples de execução.`
+            `Atacar ${gap.shortTitle.toLowerCase()} com dono definido, prazo e evidÃªncia simples de execuÃ§Ã£o.`
         ),
       },
       {
         phase: '60 dias',
-        title: 'Dar padrão e escala ao que hoje depende de esforço manual',
+        title: 'Dar padrÃ£o e escala ao que hoje depende de esforÃ§o manual',
         items: lowCapabilities.length
           ? lowCapabilities.map(
               (item) =>
-                `Padronizar ${item.label.toLowerCase()} com processo, revisão periódica e apoio de ${item.serviceKeys
+                `Padronizar ${item.label.toLowerCase()} com processo, revisÃ£o periÃ³dica e apoio de ${item.serviceKeys
                   .map((key) => servicesByKey[key].name)
                   .slice(0, 2)
                   .join(' + ')}.`
             )
-          : ['Consolidar processo, indicador e rotina de revisão para as capacidades mais críticas.'],
+          : ['Consolidar processo, indicador e rotina de revisÃ£o para as capacidades mais crÃ­ticas.'],
       },
       {
         phase: '90 dias',
         title: 'Testar, medir e transformar maturidade em vantagem operacional',
         items: [
           services.length
-            ? `Transformar o diagnóstico em plano priorizado com apoio consultivo de ${services
+            ? `Transformar o diagnÃ³stico em plano priorizado com apoio consultivo de ${services
                 .map((service) => service.name)
                 .slice(0, 2)
                 .join(' e ')}.`
-            : 'Transformar o diagnóstico em um plano priorizado de evolução trimestral.',
-          'Executar teste de resposta e recuperação para validar se a operação volta rápida e com segurança mínima garantida.',
+            : 'Transformar o diagnÃ³stico em um plano priorizado de evoluÃ§Ã£o trimestral.',
+          'Executar teste de resposta e recuperaÃ§Ã£o para validar se a operaÃ§Ã£o volta rÃ¡pida e com seguranÃ§a mÃ­nima garantida.',
         ],
       },
     ];
@@ -701,7 +701,7 @@
       weakestFunction ? `Hoje o maior atrito aparece em ${weakestFunction.meta.label.toLowerCase()}` : '',
       weakestCapability ? `e na capacidade de ${weakestCapability.meta.label.toLowerCase()}.` : '.',
       strongestFunction
-        ? `A base mais consistente está em ${strongestFunction.meta.label.toLowerCase()}, o que acelera a próxima etapa.`
+        ? `A base mais consistente estÃ¡ em ${strongestFunction.meta.label.toLowerCase()}, o que acelera a prÃ³xima etapa.`
         : '',
     ]
       .filter(Boolean)
@@ -807,7 +807,7 @@
           if (!settings.silent) {
             setNotice(
               'warning',
-              'Não conseguimos enviar ao adapter agora. Seu progresso continua salvo localmente e pode ser reenviado nesta sessão.'
+              'NÃ£o conseguimos enviar ao adapter agora. Seu progresso continua salvo localmente e pode ser reenviado nesta sessÃ£o.'
             );
           }
           break;
@@ -838,7 +838,7 @@
     if (!String(config.rdAdapterUrl || '').trim()) {
       setNotice(
         'muted',
-        'Integração preparada para RD Station via adapter. Como o endpoint ainda não foi configurado, o progresso segue salvo localmente.'
+        'IntegraÃ§Ã£o preparada para RD Station via adapter. Como o endpoint ainda nÃ£o foi configurado, o progresso segue salvo localmente.'
       );
     }
     persistAndRender();
@@ -895,14 +895,14 @@
         state.submissionQueue = state.submissionQueue.filter((entry) => entry.status !== 'completed');
         setNotice(
           'warning',
-          incompleteNotice || 'O relatório ficou em pausa até você concluir novamente as respostas pendentes.'
+          incompleteNotice || 'O relatÃ³rio ficou em pausa atÃ© vocÃª concluir novamente as respostas pendentes.'
         );
         persistAndRender();
         return;
       }
       state.completedAt = Date.now();
       state.reportDirty = false;
-      setNotice('success', 'Relatório atualizado com a resposta mais recente.');
+      setNotice('success', 'RelatÃ³rio atualizado com a resposta mais recente.');
       queueSubmission('completed');
       return;
     }
@@ -922,7 +922,7 @@
       evidence: state.answers[questionId]?.evidence || '',
     };
     afterAnswerMutation(
-      'Você alterou uma resposta. O relatório volta a ficar completo assim que todas as respostas estiverem preenchidas novamente.'
+      'VocÃª alterou uma resposta. O relatÃ³rio volta a ficar completo assim que todas as respostas estiverem preenchidas novamente.'
     );
   }
 
@@ -931,7 +931,7 @@
       return;
     }
     delete state.answers[questionId];
-    afterAnswerMutation('Você limpou uma resposta. Complete este ponto novamente para reabrir o relatório final.');
+    afterAnswerMutation('VocÃª limpou uma resposta. Complete este ponto novamente para reabrir o relatÃ³rio final.');
   }
 
   function resetMissionAnswers(functionKey) {
@@ -940,7 +940,7 @@
     });
     state.modal = null;
     state.currentQuestionIndex = getQuestionIndex(getMissionQuestions(functionKey)[0]?.id || questions[0]?.id);
-    afterAnswerMutation('A missão foi resetada. O relatório final será reaberto assim que a missão voltar a ficar completa.');
+    afterAnswerMutation('A missÃ£o foi resetada. O relatÃ³rio final serÃ¡ reaberto assim que a missÃ£o voltar a ficar completa.');
   }
 
   function restartAssessment(keepLead) {
@@ -978,11 +978,11 @@
   }
 
   function getCheckpointRewardCopy(checkpointQuestions) {
-    return checkpointQuestions[checkpointQuestions.length - 1]?.microRewardCopy || 'Seu relatório ganha mais precisão a cada checkpoint concluído.';
+    return checkpointQuestions[checkpointQuestions.length - 1]?.microRewardCopy || 'Seu relatÃ³rio ganha mais precisÃ£o a cada checkpoint concluÃ­do.';
   }
 
   function getCheckpointLossCopy(checkpointQuestions) {
-    return checkpointQuestions[checkpointQuestions.length - 1]?.lossIfSkippedCopy || 'Se você parar aqui, perde a leitura que já estava quase pronta para esta missão.';
+    return checkpointQuestions[checkpointQuestions.length - 1]?.lossIfSkippedCopy || 'Se vocÃª parar aqui, perde a leitura que jÃ¡ estava quase pronta para esta missÃ£o.';
   }
 
   function getLevelMeta() {
@@ -994,10 +994,10 @@
       return { level: 2, label: 'Blindagem emergente', progress: 45 };
     }
     if (overall < 3) {
-      return { level: 3, label: 'Blindagem avançando', progress: 68 };
+      return { level: 3, label: 'Blindagem avanÃ§ando', progress: 68 };
     }
     if (overall < 3.7) {
-      return { level: 4, label: 'Operação consistente', progress: 84 };
+      return { level: 4, label: 'OperaÃ§Ã£o consistente', progress: 84 };
     }
     return { level: 5, label: 'Postura adaptativa', progress: 100 };
   }
@@ -1021,12 +1021,12 @@
       return `
         <div class="modal-overlay" data-action="close-modal">
           <div class="service-modal surface-card modal-dialog" role="dialog" aria-modal="true">
-            <button class="modal-close" type="button" data-action="close-modal">×</button>
-            <span class="eyebrow eyebrow-soft">Resetar missão</span>
-            <h2>${escapeHtml(functionMeta?.label || 'Missão atual')}</h2>
-            <p>Essa ação limpa apenas as respostas desta missão. Seu lead, sua sessão e as demais missões permanecem intactos.</p>
+            <button class="modal-close" type="button" data-action="close-modal">Ã—</button>
+            <span class="eyebrow eyebrow-soft">Resetar missÃ£o</span>
+            <h2>${escapeHtml(functionMeta?.label || 'MissÃ£o atual')}</h2>
+            <p>Essa aÃ§Ã£o limpa apenas as respostas desta missÃ£o. Seu lead, sua sessÃ£o e as demais missÃµes permanecem intactos.</p>
             <div class="modal-cta">
-              <button class="btn btn-danger" type="button" data-action="confirm-reset-mission" data-function-key="${escapeHtml(state.modal.functionKey || '')}">Resetar missão atual</button>
+              <button class="btn btn-danger" type="button" data-action="confirm-reset-mission" data-function-key="${escapeHtml(state.modal.functionKey || '')}">Resetar missÃ£o atual</button>
               <button class="btn btn-secondary" type="button" data-action="close-modal">Cancelar</button>
             </div>
           </div>
@@ -1037,18 +1037,18 @@
       return `
         <div class="modal-overlay" data-action="close-modal">
           <div class="service-modal surface-card modal-dialog" role="dialog" aria-modal="true">
-            <button class="modal-close" type="button" data-action="close-modal">×</button>
+            <button class="modal-close" type="button" data-action="close-modal">Ã—</button>
             <span class="eyebrow eyebrow-soft">Reiniciar assessment</span>
             <h2>Escolha como reiniciar a jornada</h2>
-            <p>Você pode começar uma nova sessão mantendo seus dados de lead ou apagar tudo e voltar ao início absoluto.</p>
+            <p>VocÃª pode comeÃ§ar uma nova sessÃ£o mantendo seus dados de lead ou apagar tudo e voltar ao inÃ­cio absoluto.</p>
             <div class="reset-choice-grid">
               <button class="reset-choice-card" type="button" data-action="reset-all-keep-lead">
                 <strong>Manter lead</strong>
-                <span>Gera uma nova sessão, preserva seu nome, cargo e empresa e já reabre o assessment desde a primeira missão.</span>
+                <span>Gera uma nova sessÃ£o, preserva seu nome, cargo e empresa e jÃ¡ reabre o assessment desde a primeira missÃ£o.</span>
               </button>
               <button class="reset-choice-card danger" type="button" data-action="reset-all-clear-lead">
-                <strong>Apagar lead também</strong>
-                <span>Gera uma nova sessão, limpa respostas e contexto e volta para o formulário inicial.</span>
+                <strong>Apagar lead tambÃ©m</strong>
+                <span>Gera uma nova sessÃ£o, limpa respostas e contexto e volta para o formulÃ¡rio inicial.</span>
               </button>
             </div>
             <div class="modal-cta">
@@ -1112,7 +1112,7 @@
   function renderSpecialistFab(extraContext) {
     return `
       <a class="specialist-fab" href="${buildWhatsAppUrl(extraContext)}" target="_blank" rel="noreferrer">
-        <span class="specialist-fab-label">ajuda humana disponível</span>
+        <span class="specialist-fab-label">ajuda humana disponÃ­vel</span>
         <strong>Falar com um especialista</strong>
       </a>
     `;
@@ -1128,22 +1128,22 @@
           ${renderNotice()}
           <section class="hero hero-landing">
             <div class="hero-copy surface-card surface-card-dark">
-              <span class="eyebrow">N.A.V.E · By Active Solutions</span>
-              <h1>${escapeHtml(firstName ? `${firstName}, esta avaliação foi desenhada para dar clareza sem pesar.` : 'Uma avaliação mais clara, respirada e útil para transformar maturidade em decisão.')}</h1>
+              <span class="eyebrow">N.A.V.E Â· By Active Solutions</span>
+              <h1>${escapeHtml(firstName ? `${firstName}, esta avaliaÃ§Ã£o foi desenhada para dar clareza sem pesar.` : 'Uma avaliaÃ§Ã£o mais clara, respirada e Ãºtil para transformar maturidade em decisÃ£o.')}</h1>
               <p>${escapeHtml(content.appMeta.tagline)}</p>
               <div class="button-row">
-                <button class="btn btn-primary" data-action="start-flow">${isLeadReady() ? 'Retomar jornada' : 'Começar assessment completo'}</button>
+                <button class="btn btn-primary" data-action="start-flow">${isLeadReady() ? 'Retomar jornada' : 'ComeÃ§ar assessment completo'}</button>
                 <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero ajuda para iniciar o assessment N.A.V.E.')}" target="_blank" rel="noreferrer">Falar com especialista</a>
               </div>
               <div class="hero-highlights">
                 <span>checkpoints leves</span>
-                <span>revisão fácil</span>
-                <span>relatório consultivo</span>
+                <span>revisÃ£o fÃ¡cil</span>
+                <span>relatÃ³rio consultivo</span>
               </div>
               <div class="stats-row stats-row-compact">
                 <article class="stat-card">
                   <strong>${checkpoints.length}</strong>
-                  <span>checkpoints distribuídos nas 6 funções do CSF 2.0</span>
+                  <span>checkpoints distribuÃ­dos nas 6 funÃ§Ãµes do CSF 2.0</span>
                 </article>
                 <article class="stat-card">
                   <strong>${formatPercent(progress)}</strong>
@@ -1156,19 +1156,19 @@
                 ${renderLogo('color', 'hero-brand-logo', 'Logo Active Solutions colorido')}
               </div>
               <span class="eyebrow eyebrow-soft">Como funciona</span>
-              <h2>Você responde em blocos leves, revisa quando quiser e vê o relatório ganhar forma enquanto avança.</h2>
+              <h2>VocÃª responde em blocos leves, revisa quando quiser e vÃª o relatÃ³rio ganhar forma enquanto avanÃ§a.</h2>
               <div class="landing-steps">
                 <article>
                   <strong>1. Entramos no seu contexto</strong>
-                  <span>Nome, cargo e porte ajudam a traduzir melhor o conteúdo para quem decide.</span>
+                  <span>Nome, cargo e porte ajudam a traduzir melhor o conteÃºdo para quem decide.</span>
                 </article>
                 <article>
-                  <strong>2. Guiamos sem tecnicês desnecessário</strong>
-                  <span>Cada checkpoint mostra o que importa, quem costuma saber responder e qual evidência ajuda.</span>
+                  <strong>2. Guiamos sem tecnicÃªs desnecessÃ¡rio</strong>
+                  <span>Cada checkpoint mostra o que importa, quem costuma saber responder e qual evidÃªncia ajuda.</span>
                 </article>
                 <article>
-                  <strong>3. Transformamos em ação</strong>
-                  <span>O relatório final mostra maturidade, prioridades e onde a Active pode acelerar a próxima etapa.</span>
+                  <strong>3. Transformamos em aÃ§Ã£o</strong>
+                  <span>O relatÃ³rio final mostra maturidade, prioridades e onde a Active pode acelerar a prÃ³xima etapa.</span>
                 </article>
               </div>
               <div class="mission-preview mission-preview-compact">
@@ -1221,8 +1221,8 @@
               <h1>${escapeHtml(personalization.title)}</h1>
               <p>${escapeHtml(personalization.body)}</p>
               <div class="bonus-card">
-                <strong>Bônus de início</strong>
-                <span>Assim que você concluir esta etapa, o assessment já abre com checkpoint salvo e revisão disponível a qualquer momento.</span>
+                <strong>BÃ´nus de inÃ­cio</strong>
+                <span>Assim que vocÃª concluir esta etapa, o assessment jÃ¡ abre com checkpoint salvo e revisÃ£o disponÃ­vel a qualquer momento.</span>
               </div>
               <div class="mini-points">
                 <span>menos de 30 segundos</span>
@@ -1233,7 +1233,7 @@
             <form class="surface-card lead-form" data-form="lead">
               <div class="form-intro">
                 <strong>Vamos personalizar sua leitura</strong>
-                <span>Quanto melhor entendermos o seu contexto, mais humana e útil fica a explicação ao longo da jornada.</span>
+                <span>Quanto melhor entendermos o seu contexto, mais humana e Ãºtil fica a explicaÃ§Ã£o ao longo da jornada.</span>
               </div>
               <div class="personal-note" data-personalized-preview>
                 <strong>${escapeHtml(personalization.title)}</strong>
@@ -1254,14 +1254,14 @@
                 </label>
                 <label class="field field-wide">
                   <span>Empresa</span>
-                  <input data-profile-input="company" name="company" value="${escapeHtml(state.profile.company)}" placeholder="Nome da organização" required />
+                  <input data-profile-input="company" name="company" value="${escapeHtml(state.profile.company)}" placeholder="Nome da organizaÃ§Ã£o" required />
                 </label>
                 <label class="field">
                   <span>Porte</span>
                   <select data-profile-input="size" name="size" required>
                     <option value="">Selecione</option>
                     ${[
-                      'Até 50 colaboradores',
+                      'AtÃ© 50 colaboradores',
                       '51 a 200 colaboradores',
                       '201 a 500 colaboradores',
                       '501 a 1.000 colaboradores',
@@ -1277,13 +1277,13 @@
                     <option value="">Selecione</option>
                     ${[
                       'Tecnologia',
-                      'Indústria',
-                      'Saúde',
-                      'Serviços',
+                      'IndÃºstria',
+                      'SaÃºde',
+                      'ServiÃ§os',
                       'Varejo',
                       'Financeiro',
                       'Agro',
-                      'Setor público',
+                      'Setor pÃºblico',
                       'Outro',
                     ]
                       .map((value) => `<option value="${escapeHtml(value)}" ${state.profile.segment === value ? 'selected' : ''}>${escapeHtml(value)}</option>`)
@@ -1293,12 +1293,12 @@
                 <label class="field field-wide">
                   <span>Telefone / WhatsApp (opcional)</span>
                   <input data-profile-input="phone" name="phone" value="${escapeHtml(state.profile.phone)}" placeholder="(11) 99155-9361" inputmode="tel" />
-                  <small>Se você quiser apoio durante o preenchimento ou no relatório, esse contato acelera a conversa.</small>
+                  <small>Se vocÃª quiser apoio durante o preenchimento ou no relatÃ³rio, esse contato acelera a conversa.</small>
                 </label>
               </div>
               <div class="button-row">
                 <button type="button" class="btn btn-secondary" data-action="go-landing">Voltar</button>
-                <button type="submit" class="btn btn-primary">${isLeadReady() ? 'Salvar contexto e continuar' : 'Começar missão 1'}</button>
+                <button type="submit" class="btn btn-primary">${isLeadReady() ? 'Salvar contexto e continuar' : 'ComeÃ§ar missÃ£o 1'}</button>
               </div>
             </form>
           </section>
@@ -1319,7 +1319,7 @@
     }
     const submitButton = app.querySelector('[data-form="lead"] button[type="submit"]');
     if (submitButton) {
-      submitButton.textContent = isLeadReady() ? 'Salvar contexto e continuar' : 'Começar missão 1';
+      submitButton.textContent = isLeadReady() ? 'Salvar contexto e continuar' : 'ComeÃ§ar missÃ£o 1';
     }
   }
 
@@ -1327,8 +1327,8 @@
     return `
       <div class="surface-card mission-nav">
         <div class="section-mini-head">
-          <span class="eyebrow eyebrow-soft">Missões</span>
-          <button class="btn btn-ghost btn-compact" type="button" data-action="open-review">Central de revisão</button>
+          <span class="eyebrow eyebrow-soft">MissÃµes</span>
+          <button class="btn btn-ghost btn-compact" type="button" data-action="open-review">Central de revisÃ£o</button>
         </div>
         ${content.functions
           .map((item) => {
@@ -1363,7 +1363,7 @@
               const tone = stats.complete ? 'is-complete' : checkpoint.id === currentCheckpoint.id ? 'is-current' : '';
               return `
                 <button class="checkpoint-rail-item ${tone}" type="button" data-jump-checkpoint="${checkpoint.id}">
-                  <span class="checkpoint-rail-badge">${stats.complete ? '✓' : String(checkpoint.order).padStart(2, '0')}</span>
+                  <span class="checkpoint-rail-badge">${stats.complete ? 'âœ“' : String(checkpoint.order).padStart(2, '0')}</span>
                   <div>
                     <strong>${escapeHtml(checkpoint.label)}</strong>
                     <span>${stats.answered}/${stats.total} respondidas</span>
@@ -1424,7 +1424,7 @@
                           <p>${escapeHtml(question.whoCanAnswer)}</p>
                         </div>
                         <div class="help-card">
-                          <span>Dica prática</span>
+                          <span>Dica prÃ¡tica</span>
                           <p>${escapeHtml(question.learnTip)}</p>
                         </div>
                       </div>
@@ -1462,15 +1462,15 @@
           answer && (answer.selectedOption === 'D' || answer.selectedOption === 'E')
             ? `
               <label class="evidence-box">
-                <span>Se quiser, cite a evidência mais simples que comprova essa resposta.</span>
+                <span>Se quiser, cite a evidÃªncia mais simples que comprova essa resposta.</span>
                 <textarea data-evidence-input="${question.id}" placeholder="${escapeHtml(question.evidenceExpected)}">${escapeHtml(answer.evidence || '')}</textarea>
               </label>
             `
             : ''
         }
         <div class="question-footer-line">
-          <span>Responda pela realidade de hoje, sem tentar “embelezar” o cenário.</span>
-          <span>${escapeHtml(question.capabilityLabels.slice(0, 2).join(' · '))}</span>
+          <span>Responda pela realidade de hoje, sem tentar â€œembelezarâ€ o cenÃ¡rio.</span>
+          <span>${escapeHtml(question.capabilityLabels.slice(0, 2).join(' Â· '))}</span>
         </div>
       </article>
     `;
@@ -1486,7 +1486,7 @@
     const pending = questions.length - getAnsweredCount();
     const isLast = state.currentQuestionIndex === questions.length - 1;
     const nextAction = isLast ? (pending ? 'next-unanswered' : 'finish-assessment') : 'next-question';
-    const nextLabel = isLast ? (pending ? `Faltam ${pending} respostas` : 'Revelar relatório') : 'Próxima pergunta';
+    const nextLabel = isLast ? (pending ? `Faltam ${pending} respostas` : 'Revelar relatÃ³rio') : 'PrÃ³xima pergunta';
     const feedback =
       !answer
         ? null
@@ -1499,9 +1499,9 @@
         : { tone: 'strong', text: content.feedbackMessages.strong };
     const checkpointLabel =
       missionIndex === 0
-        ? 'Abertura da missão'
+        ? 'Abertura da missÃ£o'
         : missionIndex + 1 === missionQuestions.length
-        ? 'Fechamento da missão'
+        ? 'Fechamento da missÃ£o'
         : missionIndex + 1 === Math.ceil(missionQuestions.length / 2)
         ? 'Checkpoint'
         : `Etapa ${missionIndex + 1}`;
@@ -1517,8 +1517,8 @@
                 <span class="eyebrow eyebrow-soft">Sua jornada</span>
                 <strong>${getAnsweredCount()} de ${questions.length}</strong>
                 <div class="progress-track"><div class="progress-bar" style="width:${getCompletionPercent()}%"></div></div>
-                <span>${formatPercent(getCompletionPercent())} concluído</span>
-                ${getAnsweredCount() < 3 ? '<div class="bonus-inline">Você já começou a desenhar o mapa de maturidade da empresa.</div>' : ''}
+                <span>${formatPercent(getCompletionPercent())} concluÃ­do</span>
+                ${getAnsweredCount() < 3 ? '<div class="bonus-inline">VocÃª jÃ¡ comeÃ§ou a desenhar o mapa de maturidade da empresa.</div>' : ''}
               </div>
               <div class="surface-card mission-nav">
                 ${content.functions
@@ -1540,14 +1540,14 @@
             <section class="assessment-stage">
               <article class="mission-hero surface-card" style="--mission-accent:${currentMission.accent}; --mission-soft:${currentMission.accentSoft}; --mission-glow:${currentMission.glow};">
                 <div class="mission-hero-copy">
-                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} · ${escapeHtml(currentMission.label)}</span>
+                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} Â· ${escapeHtml(currentMission.label)}</span>
                   <h1>${escapeHtml(currentMission.label)}</h1>
                   <p>${escapeHtml(currentMission.heroText)}</p>
                 </div>
                 <div class="mission-hero-meta">
                   <div class="checkpoint-pill">${escapeHtml(checkpointLabel)}</div>
                   <div class="mission-progress-block">
-                    <span>Missão ${missionIndex + 1}/${missionQuestions.length}</span>
+                    <span>MissÃ£o ${missionIndex + 1}/${missionQuestions.length}</span>
                     <div class="progress-track"><div class="progress-bar" style="width:${missionStats.percent}%"></div></div>
                   </div>
                   <div class="mission-guidance">${escapeHtml(currentMission.guidance)}</div>
@@ -1570,11 +1570,11 @@
                   <span class="question-meta-inline">responda pela realidade de hoje</span>
                 </div>
                 <details class="learn-panel">
-                  <summary>Ver ajuda para responder com mais segurança</summary>
+                  <summary>Ver ajuda para responder com mais seguranÃ§a</summary>
                   <div class="learn-panel-body">
                     <p>${escapeHtml(question.learnWhy)}</p>
                     <p>${escapeHtml(question.learnTip)}</p>
-                    <p><strong>Evidência simples:</strong> ${escapeHtml(question.evidenceExpected)}</p>
+                    <p><strong>EvidÃªncia simples:</strong> ${escapeHtml(question.evidenceExpected)}</p>
                     <p><strong>Pergunta completa:</strong> ${escapeHtml(question.prompt)}</p>
                   </div>
                 </details>
@@ -1596,7 +1596,7 @@
                   answer && (answer.selectedOption === 'D' || answer.selectedOption === 'E')
                     ? `
                       <label class="evidence-box">
-                        <span>Se quiser, cite a evidência mais simples que comprova essa resposta.</span>
+                        <span>Se quiser, cite a evidÃªncia mais simples que comprova essa resposta.</span>
                         <textarea data-evidence-input="${question.id}" placeholder="${escapeHtml(question.evidenceExpected)}">${escapeHtml(answer.evidence || '')}</textarea>
                       </label>
                     `
@@ -1641,14 +1641,14 @@
             <article class="surface-card surface-card-dark results-copy">
               <div class="results-brand-line">
                 ${renderLogo('negative', 'results-logo', 'Logo Active Solutions negativo')}
-                <span class="eyebrow">Relatório NAVE</span>
+                <span class="eyebrow">RelatÃ³rio NAVE</span>
               </div>
-              <h1>${escapeHtml(companyName)} está em ${escapeHtml(band.label)}.</h1>
+              <h1>${escapeHtml(companyName)} estÃ¡ em ${escapeHtml(band.label)}.</h1>
               <p>${escapeHtml(getNarrative())}</p>
               <div class="button-row">
                 <button class="btn btn-primary" data-action="export-report">Salvar em PDF</button>
                 <button class="btn btn-secondary" data-action="review-answers">Revisar respostas</button>
-                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatório final do assessment NAVE.')}">Falar sobre o relatório</a>
+                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatÃ³rio final do assessment NAVE.')}">Falar sobre o relatÃ³rio</a>
               </div>
             </article>
             <aside class="surface-card score-card">
@@ -1663,8 +1663,8 @@
           </section>
           <section class="report-section">
             <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Panorama por missão</span>
-              <h2>Onde a jornada já está sólida e onde vale concentrar energia primeiro.</h2>
+              <span class="eyebrow eyebrow-soft">Panorama por missÃ£o</span>
+              <h2>Onde a jornada jÃ¡ estÃ¡ sÃ³lida e onde vale concentrar energia primeiro.</h2>
             </div>
             <div class="function-score-grid">
               ${functionMetrics
@@ -1677,7 +1677,7 @@
                     <div class="metric-bar"><div class="metric-bar-fill" style="width:${scoreToPercent(item.score || 0)}%"></div></div>
                     <div class="metric-caption">
                       <span>${formatScore(item.score)}</span>
-                      <span>${item.answered}/${item.total} evidências respondidas</span>
+                      <span>${item.answered}/${item.total} evidÃªncias respondidas</span>
                     </div>
                   </article>
                 `)
@@ -1687,7 +1687,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Capacidades em destaque</span>
-              <h2>Os pontos em que a empresa já opera com consistência e onde ainda existe mais espaço para evoluir.</h2>
+              <h2>Os pontos em que a empresa jÃ¡ opera com consistÃªncia e onde ainda existe mais espaÃ§o para evoluir.</h2>
             </div>
             <div class="capability-grid">
               ${capabilityBadges
@@ -1707,12 +1707,12 @@
           </section>
           <section class="report-section">
             <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Heatmap função × capacidade</span>
+              <span class="eyebrow eyebrow-soft">Heatmap funÃ§Ã£o Ã— capacidade</span>
               <h2>Uma leitura cruzada, mais leve, do que pesa mais na maturidade operacional.</h2>
             </div>
             <div class="surface-card heatmap-shell">
               <div class="heatmap-grid" style="grid-template-columns: 220px repeat(${content.capabilities.length}, minmax(100px, 1fr));">
-                <div class="heatmap-corner">Função</div>
+                <div class="heatmap-corner">FunÃ§Ã£o</div>
                 ${content.capabilities.map((item) => `<div class="heatmap-head">${escapeHtml(item.shortLabel)}</div>`).join('')}
                 ${heatmap
                   .map(
@@ -1730,7 +1730,7 @@
                               : cell.score < 3.7
                               ? 'mid'
                               : 'strong';
-                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : '—'}</div>`;
+                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : 'â€”'}</div>`;
                         })
                         .join('')}
                     `
@@ -1742,14 +1742,14 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Prioridades do momento</span>
-              <h2>Os temas que hoje merecem atenção primeiro para acelerar a evolução.</h2>
+              <h2>Os temas que hoje merecem atenÃ§Ã£o primeiro para acelerar a evoluÃ§Ã£o.</h2>
             </div>
             <div class="gap-grid">
               ${gaps
                 .map((gap) => `
                   <article class="surface-card gap-card">
                     <div class="gap-card-top">
-                      <span class="pill">${escapeHtml(gap.functionNames.join(' · '))}</span>
+                      <span class="pill">${escapeHtml(gap.functionNames.join(' Â· '))}</span>
                       <span class="gap-score">Prioridade ${formatScore(gap.gapScore)}</span>
                     </div>
                     <h3>${escapeHtml(gap.shortTitle)}</h3>
@@ -1766,7 +1766,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Roadmap 30-60-90</span>
-              <h2>Uma sequência prática para sair do diagnóstico e entrar em execução com clareza.</h2>
+              <h2>Uma sequÃªncia prÃ¡tica para sair do diagnÃ³stico e entrar em execuÃ§Ã£o com clareza.</h2>
             </div>
             <div class="roadmap-grid">
               ${roadmap
@@ -1785,7 +1785,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Onde a Active pode ajudar agora</span>
-              <h2>Os serviços mais aderentes para transformar este relatório em movimento real.</h2>
+              <h2>Os serviÃ§os mais aderentes para transformar este relatÃ³rio em movimento real.</h2>
             </div>
             <div class="service-grid">
               ${services
@@ -1794,7 +1794,7 @@
                     <article class="surface-card service-card">
                       <div class="service-card-top">
                         <span class="pill">${escapeHtml(service.area)}</span>
-                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderência</span>
+                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderÃªncia</span>
                       </div>
                       <h3>${escapeHtml(service.name)}</h3>
                       <p>${escapeHtml(service.summary)}</p>
@@ -1811,14 +1811,14 @@
           </section>
           <section class="surface-card cta-strip report-section">
             <div>
-              <span class="eyebrow eyebrow-soft">Próximo passo comercial</span>
-              <h2>Transforme o diagnóstico em plano de ação com a Active Solutions.</h2>
-              <p>Se quiser, já podemos aprofundar o relatório, priorizar quick wins e desenhar a próxima onda de implementação com um especialista.</p>
+              <span class="eyebrow eyebrow-soft">PrÃ³ximo passo comercial</span>
+              <h2>Transforme o diagnÃ³stico em plano de aÃ§Ã£o com a Active Solutions.</h2>
+              <p>Se quiser, jÃ¡ podemos aprofundar o relatÃ³rio, priorizar quick wins e desenhar a prÃ³xima onda de implementaÃ§Ã£o com um especialista.</p>
             </div>
-            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment NAVE em um plano de ação com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
+            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment NAVE em um plano de aÃ§Ã£o com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
           </section>
         </main>
-        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendações do relatório.')}
+        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendaÃ§Ãµes do relatÃ³rio.')}
         ${renderServiceModal()}
       </div>
     `;
@@ -1834,18 +1834,18 @@
     if (!service) {
       return '';
     }
-    const contactUrl = buildWhatsAppUrl(`Quero entender melhor o serviço ${service.name}.`);
+    const contactUrl = buildWhatsAppUrl(`Quero entender melhor o serviÃ§o ${service.name}.`);
     return `
       <div class="modal-overlay" data-action="close-service">
         <div class="service-modal surface-card" role="dialog" aria-modal="true">
-          <button class="modal-close" type="button" data-action="close-service">×</button>
+          <button class="modal-close" type="button" data-action="close-service">Ã—</button>
           <div class="service-modal-brand">${renderLogo('color', 'service-modal-logo', 'Logo Active Solutions colorido')}</div>
           <span class="eyebrow eyebrow-soft">${escapeHtml(service.area)}</span>
           <h2>${escapeHtml(service.name)}</h2>
           <p>${escapeHtml(service.description)}</p>
           <div class="modal-columns">
             <div>
-              <h3>Como esse serviço ajuda</h3>
+              <h3>Como esse serviÃ§o ajuda</h3>
               <p>${escapeHtml(service.contactPitch)}</p>
               <h3>Dor que ele resolve</h3>
               <p>${escapeHtml(service.pain)}</p>
@@ -1859,7 +1859,7 @@
             service.relatedGaps && service.relatedGaps.length
               ? `
                 <div class="modal-related">
-                  <h3>Por que apareceu no seu relatório</h3>
+                  <h3>Por que apareceu no seu relatÃ³rio</h3>
                   <div class="pill-cloud">${service.relatedGaps.map((gap) => `<span class="pill">${escapeHtml(gap.shortTitle)}</span>`).join('')}</div>
                 </div>
               `
@@ -1867,7 +1867,7 @@
           }
           <div class="modal-cta">
             <a class="btn btn-primary" href="${contactUrl}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
-            <button class="btn btn-secondary" type="button" data-action="close-service">Voltar ao relatório</button>
+            <button class="btn btn-secondary" type="button" data-action="close-service">Voltar ao relatÃ³rio</button>
           </div>
         </div>
       </div>
@@ -1921,27 +1921,27 @@
                 <span class="eyebrow eyebrow-soft">Jornada ativa</span>
                 <strong>${getAnsweredCount()} de ${questions.length}</strong>
                 <div class="progress-track"><div class="progress-bar" style="width:${overallPercent}%"></div></div>
-                <span>${formatPercent(overallPercent)} concluído · ${missionStats.completedCheckpoints}/${missionStats.totalCheckpoints} checkpoints desta missão</span>
+                <span>${formatPercent(overallPercent)} concluÃ­do Â· ${missionStats.completedCheckpoints}/${missionStats.totalCheckpoints} checkpoints desta missÃ£o</span>
                 <div class="sidebar-personal-note">${escapeHtml(getExecutivePersonaLine())}</div>
               </div>
               ${renderFunctionNav(currentMission.key)}
               ${renderCheckpointRail(currentMission, currentCheckpoint)}
               <div class="surface-card support-card">
-                <span class="eyebrow eyebrow-soft">Suporte rápido</span>
+                <span class="eyebrow eyebrow-soft">Suporte rÃ¡pido</span>
                 <strong>${escapeHtml(currentMission.supportPrompt)}</strong>
-                <p>Se travar em qualquer ponto, a Active pode ajudar a traduzir a pergunta e orientar a evidência mais simples para seguir com confiança.</p>
-                <a class="btn btn-primary" href="${buildWhatsAppUrl(`Quero apoio para responder o checkpoint ${currentCheckpoint.label} da missão ${currentMission.label}.`)}" target="_blank" rel="noreferrer">Fale com um especialista</a>
+                <p>Se travar em qualquer ponto, a Active pode ajudar a traduzir a pergunta e orientar a evidÃªncia mais simples para seguir com confianÃ§a.</p>
+                <a class="btn btn-primary" href="${buildWhatsAppUrl(`Quero apoio para responder o checkpoint ${currentCheckpoint.label} da missÃ£o ${currentMission.label}.`)}" target="_blank" rel="noreferrer">Fale com um especialista</a>
               </div>
               <div class="surface-card utility-panel">
-                <button class="btn btn-secondary" type="button" data-action="open-review">Central de revisão</button>
-                <button class="btn btn-secondary" type="button" data-action="open-reset-mission" data-function-key="${escapeHtml(currentMission.key)}">Resetar missão atual</button>
+                <button class="btn btn-secondary" type="button" data-action="open-review">Central de revisÃ£o</button>
+                <button class="btn btn-secondary" type="button" data-action="open-reset-mission" data-function-key="${escapeHtml(currentMission.key)}">Resetar missÃ£o atual</button>
                 <button class="btn btn-ghost" type="button" data-action="open-reset-all">Reiniciar assessment</button>
               </div>
             </aside>
             <section class="assessment-stage">
               <article class="surface-card mission-console" style="--mission-accent:${currentMission.accent}; --mission-soft:${currentMission.accentSoft}; --mission-glow:${currentMission.glow};">
                 <div class="mission-console-copy">
-                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} · ${escapeHtml(currentMission.label)}</span>
+                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} Â· ${escapeHtml(currentMission.label)}</span>
                   <div class="context-card">
                     <strong>Por que isso importa</strong>
                     <p>${escapeHtml(currentCheckpoint.intro || question.learnWhy)}</p>
@@ -1978,11 +1978,11 @@
                     </div>
                     <div class="checkpoint-stat">
                       <strong>${formatPercent(missionStats.percent)}</strong>
-                      <span>missão concluída</span>
+                      <span>missÃ£o concluÃ­da</span>
                     </div>
                     <div class="checkpoint-stat">
                       <strong>${escapeHtml(completionBand.tierLabel)}</strong>
-                      <span>leitura atual do relatório</span>
+                      <span>leitura atual do relatÃ³rio</span>
                     </div>
                   </div>
                 </div>
@@ -2017,7 +2017,7 @@
                 </div>
                 <div>
                   <button class="btn btn-primary" type="button" data-action="${nextCheckpointId ? 'next-checkpoint' : isAssessmentComplete() ? 'finish-assessment' : 'go-first-missing'}">${escapeHtml(
-                    nextCheckpointId ? 'Próximo checkpoint' : isAssessmentComplete() ? 'Revelar relatório' : `Faltam ${remainingAnswers} respostas`
+                    nextCheckpointId ? 'PrÃ³ximo checkpoint' : isAssessmentComplete() ? 'Revelar relatÃ³rio' : `Faltam ${remainingAnswers} respostas`
                   )}</button>
                 </div>
               </div>
@@ -2038,7 +2038,7 @@
             </section>
             <aside class="assessment-sidecar">
               <div class="surface-card sidecar-card">
-                <span class="eyebrow eyebrow-soft">Seu avanço</span>
+                <span class="eyebrow eyebrow-soft">Seu avanÃ§o</span>
                 <div class="sidecar-shield">
                   <div class="sidecar-shield-core"></div>
                 </div>
@@ -2048,11 +2048,11 @@
               </div>
               <div class="surface-card sidecar-card">
                 <span class="eyebrow eyebrow-soft">Ganho do checkpoint</span>
-                <strong>${escapeHtml(currentMission.rewardTitle || 'Relatório ficando mais preciso')}</strong>
+                <strong>${escapeHtml(currentMission.rewardTitle || 'RelatÃ³rio ficando mais preciso')}</strong>
                 <p>${escapeHtml(checkpointReward)}</p>
               </div>
               <div class="surface-card sidecar-card">
-                <span class="eyebrow eyebrow-soft">Dica prática</span>
+                <span class="eyebrow eyebrow-soft">Dica prÃ¡tica</span>
                 <p>${escapeHtml(question.learnWhy)}</p>
               </div>
             </aside>
@@ -2075,12 +2075,12 @@
           ${renderNotice()}
           <section class="surface-card review-hero">
             <div>
-              <span class="eyebrow eyebrow-soft">Central de revisão</span>
+              <span class="eyebrow eyebrow-soft">Central de revisÃ£o</span>
               <h1>Revise, ajuste e volte exatamente para o ponto que precisar.</h1>
               <p>${escapeHtml(
                 missing
-                  ? `Ainda faltam ${missing} respostas para liberar o relatório final com total precisão.`
-                  : 'Tudo foi respondido. Se você editar algo agora, o relatório será atualizado sem reiniciar a jornada.'
+                  ? `Ainda faltam ${missing} respostas para liberar o relatÃ³rio final com total precisÃ£o.`
+                  : 'Tudo foi respondido. Se vocÃª editar algo agora, o relatÃ³rio serÃ¡ atualizado sem reiniciar a jornada.'
               )}</p>
             </div>
             <div class="review-hero-card">
@@ -2090,8 +2090,8 @@
               <span>${formatPercent(getCompletionPercent())} do assessment consolidado</span>
             </div>
             <div class="review-hero-actions">
-              <button class="btn btn-secondary" type="button" data-action="return-from-review">${canReturnResults ? 'Voltar ao relatório' : 'Voltar ao assessment'}</button>
-              <button class="btn btn-primary" type="button" data-action="${isAssessmentComplete() ? 'go-results' : 'go-first-missing'}">${isAssessmentComplete() ? 'Atualizar relatório' : 'Ir para pendências'}</button>
+              <button class="btn btn-secondary" type="button" data-action="return-from-review">${canReturnResults ? 'Voltar ao relatÃ³rio' : 'Voltar ao assessment'}</button>
+              <button class="btn btn-primary" type="button" data-action="${isAssessmentComplete() ? 'go-results' : 'go-first-missing'}">${isAssessmentComplete() ? 'Atualizar relatÃ³rio' : 'Ir para pendÃªncias'}</button>
             </div>
           </section>
           ${
@@ -2099,8 +2099,8 @@
               ? `
                 <section class="surface-card continuity-card">
                   <span class="eyebrow eyebrow-soft">Continuidade</span>
-                  <strong>Seu relatório continua vivo.</strong>
-                  <p>Ao editar respostas, recalculamos maturidade, prioridades, roadmap e serviços recomendados na mesma sessão.</p>
+                  <strong>Seu relatÃ³rio continua vivo.</strong>
+                  <p>Ao editar respostas, recalculamos maturidade, prioridades, roadmap e serviÃ§os recomendados na mesma sessÃ£o.</p>
                 </section>
               `
               : ''
@@ -2123,7 +2123,7 @@
                       </div>
                       <div class="review-mission-stats">
                         <span>${missionStats.answered}/${missionStats.total} respondidas</span>
-                        <span>${criticalMissing ? `${criticalMissing} críticas faltando` : 'sem pendência crítica'}</span>
+                        <span>${criticalMissing ? `${criticalMissing} crÃ­ticas faltando` : 'sem pendÃªncia crÃ­tica'}</span>
                       </div>
                     </div>
                     <div class="review-checkpoint-list">
@@ -2137,7 +2137,7 @@
                                   <strong>${escapeHtml(checkpoint.label)}</strong>
                                   <div class="review-checkpoint-meta">
                                     <span>${checkpointStats.answered}/${checkpointStats.total} respondidas</span>
-                                    <span>${checkpointStats.highRiskCount ? `${checkpointStats.highRiskCount} crítica(s)` : 'sem alerta crítico'}</span>
+                                    <span>${checkpointStats.highRiskCount ? `${checkpointStats.highRiskCount} crÃ­tica(s)` : 'sem alerta crÃ­tico'}</span>
                                   </div>
                                 </div>
                                 <button class="btn btn-ghost btn-compact" type="button" data-jump-checkpoint="${checkpoint.id}">Editar checkpoint</button>
@@ -2156,7 +2156,7 @@
                                       <div class="review-question-item ${tone}">
                                         <div>
                                           <strong>${escapeHtml(item.uiPromptShort || item.businessPlainLanguage || item.prompt)}</strong>
-                                          <span>${escapeHtml(answerLabel)} · peso ${item.weight}</span>
+                                          <span>${escapeHtml(answerLabel)} Â· peso ${item.weight}</span>
                                         </div>
                                         <button class="btn btn-ghost btn-compact" type="button" data-action="edit-question" data-question-id="${item.id}">Editar</button>
                                       </div>
@@ -2202,9 +2202,9 @@
             <article class="surface-card surface-card-dark results-copy">
               <div class="results-brand-line">
                 ${renderLogo('negative', 'results-logo', 'Logo Active Solutions negativo')}
-                <span class="eyebrow">Relatório N.A.V.E</span>
+                <span class="eyebrow">RelatÃ³rio N.A.V.E</span>
               </div>
-              <h1>${escapeHtml(companyName)} está em ${escapeHtml(band.label)}.</h1>
+              <h1>${escapeHtml(companyName)} estÃ¡ em ${escapeHtml(band.label)}.</h1>
               <p>${escapeHtml(
                 firstName
                   ? `${firstName}, ${getNarrative()}`
@@ -2214,7 +2214,7 @@
                 <button class="btn btn-primary" data-action="export-report">Salvar em PDF</button>
                 <button class="btn btn-secondary" data-action="open-review-from-results">Revisar respostas</button>
                 <button class="btn btn-secondary" data-action="edit-context">Editar contexto</button>
-                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatório final do assessment N.A.V.E.')}">Falar sobre o relatório</a>
+                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatÃ³rio final do assessment N.A.V.E.')}">Falar sobre o relatÃ³rio</a>
               </div>
             </article>
             <aside class="surface-card score-card">
@@ -2229,13 +2229,13 @@
           </section>
           <section class="surface-card continuity-card report-section">
             <span class="eyebrow eyebrow-soft">Continuidade executiva</span>
-            <strong>Este relatório pode evoluir sem perder o que já foi construído.</strong>
-            <p>Se você revisar qualquer resposta, recalculamos maturidade, tier, roadmap, heatmap e serviços recomendados na mesma sessão.</p>
+            <strong>Este relatÃ³rio pode evoluir sem perder o que jÃ¡ foi construÃ­do.</strong>
+            <p>Se vocÃª revisar qualquer resposta, recalculamos maturidade, tier, roadmap, heatmap e serviÃ§os recomendados na mesma sessÃ£o.</p>
           </section>
           <section class="report-section">
             <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Panorama por missão</span>
-              <h2>Onde a jornada já está sólida e onde vale concentrar energia primeiro.</h2>
+              <span class="eyebrow eyebrow-soft">Panorama por missÃ£o</span>
+              <h2>Onde a jornada jÃ¡ estÃ¡ sÃ³lida e onde vale concentrar energia primeiro.</h2>
             </div>
             <div class="function-score-grid">
               ${functionMetrics
@@ -2248,7 +2248,7 @@
                     <div class="metric-bar"><div class="metric-bar-fill" style="width:${scoreToPercent(item.score || 0)}%"></div></div>
                     <div class="metric-caption">
                       <span>${formatScore(item.score)}</span>
-                      <span>${item.answered}/${item.total} evidências respondidas</span>
+                      <span>${item.answered}/${item.total} evidÃªncias respondidas</span>
                     </div>
                   </article>
                 `)
@@ -2258,7 +2258,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Capacidades em destaque</span>
-              <h2>Os pontos em que a empresa já opera com consistência e onde ainda existe mais espaço para evoluir.</h2>
+              <h2>Os pontos em que a empresa jÃ¡ opera com consistÃªncia e onde ainda existe mais espaÃ§o para evoluir.</h2>
             </div>
             <div class="capability-grid">
               ${capabilityBadges
@@ -2278,12 +2278,12 @@
           </section>
           <section class="report-section">
             <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Heatmap função × capacidade</span>
+              <span class="eyebrow eyebrow-soft">Heatmap funÃ§Ã£o Ã— capacidade</span>
               <h2>Uma leitura cruzada, mais leve, do que pesa mais na maturidade operacional.</h2>
             </div>
             <div class="surface-card heatmap-shell">
               <div class="heatmap-grid" style="grid-template-columns: 220px repeat(${content.capabilities.length}, minmax(100px, 1fr));">
-                <div class="heatmap-corner">Função</div>
+                <div class="heatmap-corner">FunÃ§Ã£o</div>
                 ${content.capabilities.map((item) => `<div class="heatmap-head">${escapeHtml(item.shortLabel)}</div>`).join('')}
                 ${heatmap
                   .map(
@@ -2301,7 +2301,7 @@
                               : cell.score < 3.7
                               ? 'mid'
                               : 'strong';
-                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : '—'}</div>`;
+                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : 'â€”'}</div>`;
                         })
                         .join('')}
                     `
@@ -2313,14 +2313,14 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Prioridades do momento</span>
-              <h2>Os temas que hoje merecem atenção primeiro para acelerar a evolução.</h2>
+              <h2>Os temas que hoje merecem atenÃ§Ã£o primeiro para acelerar a evoluÃ§Ã£o.</h2>
             </div>
             <div class="gap-grid">
               ${gaps
                 .map((gap) => `
                   <article class="surface-card gap-card">
                     <div class="gap-card-top">
-                      <span class="pill">${escapeHtml(gap.functionNames.join(' · '))}</span>
+                      <span class="pill">${escapeHtml(gap.functionNames.join(' Â· '))}</span>
                       <span class="gap-score">Prioridade ${formatScore(gap.gapScore)}</span>
                     </div>
                     <h3>${escapeHtml(gap.shortTitle)}</h3>
@@ -2337,7 +2337,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Roadmap 30-60-90</span>
-              <h2>Uma sequência prática para sair do diagnóstico e entrar em execução com clareza.</h2>
+              <h2>Uma sequÃªncia prÃ¡tica para sair do diagnÃ³stico e entrar em execuÃ§Ã£o com clareza.</h2>
             </div>
             <div class="roadmap-grid">
               ${roadmap
@@ -2356,7 +2356,7 @@
           <section class="report-section">
             <div class="section-head">
               <span class="eyebrow eyebrow-soft">Onde a Active pode ajudar agora</span>
-              <h2>Os serviços mais aderentes para transformar este relatório em movimento real.</h2>
+              <h2>Os serviÃ§os mais aderentes para transformar este relatÃ³rio em movimento real.</h2>
             </div>
             <div class="service-grid">
               ${services
@@ -2365,7 +2365,7 @@
                     <article class="surface-card service-card">
                       <div class="service-card-top">
                         <span class="pill">${escapeHtml(service.area)}</span>
-                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderência</span>
+                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderÃªncia</span>
                       </div>
                       <h3>${escapeHtml(service.name)}</h3>
                       <p>${escapeHtml(service.summary)}</p>
@@ -2382,14 +2382,14 @@
           </section>
           <section class="surface-card cta-strip report-section">
             <div>
-              <span class="eyebrow eyebrow-soft">Próximo passo comercial</span>
-              <h2>Transforme o diagnóstico em plano de ação com a Active Solutions.</h2>
-              <p>Se quiser, já podemos aprofundar o relatório, priorizar quick wins e desenhar a próxima onda de implementação com um especialista.</p>
+              <span class="eyebrow eyebrow-soft">PrÃ³ximo passo comercial</span>
+              <h2>Transforme o diagnÃ³stico em plano de aÃ§Ã£o com a Active Solutions.</h2>
+              <p>Se quiser, jÃ¡ podemos aprofundar o relatÃ³rio, priorizar quick wins e desenhar a prÃ³xima onda de implementaÃ§Ã£o com um especialista.</p>
             </div>
-            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment N.A.V.E em um plano de ação com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
+            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment N.A.V.E em um plano de aÃ§Ã£o com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
           </section>
         </main>
-        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendações do relatório.')}
+        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendaÃ§Ãµes do relatÃ³rio.')}
         ${renderAppModal()}
       </div>
     `;
@@ -2479,9 +2479,13 @@
         'reset-all-clear-lead',
         'close-modal',
         'close-service',
+        'open-service',
         'review-answers',
         'edit-context',
         'toggle-help',
+        'retry-submissions',
+        'close-notice',
+        'export-report',
       ]);
 
       if (!handledActions.has(action)) {
@@ -2536,7 +2540,7 @@
       if (action === 'next-checkpoint') {
         const nextCheckpointId = getNextCheckpointId(currentCheckpoint.id);
         if (!getCheckpointStats(currentCheckpoint.id).complete) {
-          setNotice('warning', 'Este checkpoint ainda tem pendências, mas você pode seguir e revisar depois na Central de revisão.');
+          setNotice('warning', 'Este checkpoint ainda tem pendÃªncias, mas vocÃª pode seguir e revisar depois na Central de revisÃ£o.');
         }
         if (nextCheckpointId) {
           navigateToCheckpoint(nextCheckpointId);
@@ -2547,7 +2551,7 @@
       if (action === 'go-first-missing') {
         const nextMissing = firstIncompleteCheckpointId();
         if (nextMissing) {
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
+          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatÃ³rio completo.`);
           navigateToCheckpoint(nextMissing);
         }
         return;
@@ -2556,7 +2560,7 @@
       if (action === 'go-results') {
         if (!isAssessmentComplete()) {
           const nextMissing = firstIncompleteCheckpointId();
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
+          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatÃ³rio completo.`);
           if (nextMissing) {
             navigateToCheckpoint(nextMissing);
           }
@@ -2575,7 +2579,7 @@
       if (action === 'finish-assessment') {
         if (!isAssessmentComplete()) {
           const nextMissing = firstIncompleteCheckpointId();
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
+          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatÃ³rio completo.`);
           if (nextMissing) {
             navigateToCheckpoint(nextMissing);
           }
@@ -2586,7 +2590,7 @@
       }
 
       if (action === 'save-checkpoint') {
-        setNotice('success', `Checkpoint salvo às ${formatTime(Date.now())}.`);
+        setNotice('success', `Checkpoint salvo Ã s ${formatTime(Date.now())}.`);
         persistAndRender();
         return;
       }
@@ -2631,6 +2635,28 @@
       if (action === 'edit-context') {
         state.screen = 'lead';
         persistAndRender();
+        return;
+      }
+
+      if (action === 'open-service') {
+        state.serviceDetailKey = actionButton.getAttribute('data-service-key') || '';
+        persistAndRender();
+        return;
+      }
+
+      if (action === 'retry-submissions') {
+        flushPendingSubmissions();
+        return;
+      }
+
+      if (action === 'close-notice') {
+        state.notice = null;
+        persistAndRender();
+        return;
+      }
+
+      if (action === 'export-report') {
+        window.print();
         return;
       }
 
@@ -2718,161 +2744,7 @@
     true
   );
 
-  app.addEventListener('click', function (event) {
-    const optionButton = event.target.closest('[data-option]');
-    if (optionButton) {
-      const question = getCurrentQuestion();
-      const selectedOption = optionButton.getAttribute('data-option');
-      state.answers[question.id] = {
-        ...(state.answers[question.id] || {}),
-        selectedOption,
-        score: question.scoreMap[selectedOption],
-        evidence: state.answers[question.id]?.evidence || '',
-      };
-      persistAndRender();
-      return;
-    }
-
-    const functionJump = event.target.closest('[data-jump-function]');
-    if (functionJump) {
-      const functionKey = functionJump.getAttribute('data-jump-function');
-      const targetIndex = questions.findIndex((question) => question.primaryFunctionKey === functionKey);
-      if (targetIndex !== -1) {
-        state.screen = isLeadReady() ? 'assessment' : 'lead';
-        state.currentQuestionIndex = targetIndex;
-        persistAndRender();
-      }
-      return;
-    }
-
-    const actionButton = event.target.closest('[data-action]');
-    if (!actionButton) {
-      return;
-    }
-    const action = actionButton.getAttribute('data-action');
-
-    if (action === 'start-flow') {
-      state.screen = isLeadReady() ? 'assessment' : 'lead';
-      if (!state.startedAt && isLeadReady()) {
-        state.startedAt = Date.now();
-      }
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'go-landing') {
-      state.screen = 'landing';
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'prev-question') {
-      state.currentQuestionIndex = clampIndex(state.currentQuestionIndex - 1);
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'next-question') {
-      state.currentQuestionIndex = clampIndex(state.currentQuestionIndex + 1);
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'next-unanswered') {
-      state.currentQuestionIndex = firstUnansweredIndex();
-      setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para revelar o relatório completo.`);
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'finish-assessment') {
-      state.completedAt = Date.now();
-      state.screen = 'results';
-      queueSubmission('completed');
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'review-answers') {
-      state.screen = 'assessment';
-      state.currentQuestionIndex = 0;
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'export-report') {
-      window.print();
-      return;
-    }
-
-    if (action === 'open-service') {
-      state.serviceDetailKey = actionButton.getAttribute('data-service-key') || '';
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'close-service') {
-      state.serviceDetailKey = '';
-      persistAndRender();
-      return;
-    }
-
-    if (action === 'retry-submissions') {
-      flushPendingSubmissions();
-      return;
-    }
-
-    if (action === 'close-notice') {
-      state.notice = null;
-      persistAndRender();
-    }
-  });
-
-  app.addEventListener('submit', function (event) {
-    const form = event.target.closest('[data-form="lead"]');
-    if (!form) {
-      return;
-    }
-    event.preventDefault();
-    const formData = new window.FormData(form);
-    const phone = formatPhoneDisplay(String(formData.get('phone') || '').trim());
-    const phoneDigits = normalizePhoneDigits(phone);
-    if (phone && phoneDigits.length < 12) {
-      setNotice('warning', 'Confira o telefone / WhatsApp informado antes de continuar.');
-      persistAndRender();
-      return;
-    }
-    state.profile = {
-      name: String(formData.get('name') || '').trim(),
-      role: String(formData.get('role') || '').trim(),
-      email: String(formData.get('email') || '').trim(),
-      company: String(formData.get('company') || '').trim(),
-      size: String(formData.get('size') || '').trim(),
-      segment: String(formData.get('segment') || '').trim(),
-      phone,
-    };
-    state.startedAt = state.startedAt || Date.now();
-    state.screen = 'assessment';
-    state.notice = null;
-    persistAndRender();
-    queueSubmission('started');
-  });
-
-  app.addEventListener('input', function (event) {
-    if (event.target.matches('input[name="phone"]')) {
-      event.target.value = formatPhoneDisplay(event.target.value);
-      return;
-    }
-    if (event.target.matches('[data-evidence-input]')) {
-      const questionId = event.target.getAttribute('data-evidence-input');
-      if (state.answers[questionId]) {
-        state.answers[questionId].evidence = event.target.value;
-        saveState();
-      }
-    }
-  });
-
-  window.addEventListener('keydown', function (event) {
+window.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && state.serviceDetailKey) {
       state.serviceDetailKey = '';
       persistAndRender();
@@ -2893,3 +2765,4 @@
   render();
   flushPendingSubmissions({ silent: true });
 })();
+
