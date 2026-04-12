@@ -33,6 +33,14 @@
   ];
   const OPTION_ORDER = ['A', 'B', 'C', 'D'];
   const OPTION_SCORES = { A: 0, B: 1, C: 2, D: 3 };
+  const CATEGORY_LABELS = {
+    GV: 'Governar',
+    ID: 'Identificar',
+    PR: 'Proteger',
+    DE: 'Detectar',
+    RS: 'Responder',
+    RC: 'Recuperar',
+  };
   const FEEDBACK_BY_OPTION = {
     A: 'Isso ajuda a mostrar onde o processo ainda depende de improviso.',
     B: 'Boa. Aqui já existe intenção, mas ainda falta consistência.',
@@ -386,6 +394,62 @@
       .sort((a, b) => b.rankingScore - a.rankingScore);
   }
 
+  function getCategoryLabel(category) {
+    return CATEGORY_LABELS[category] || category;
+  }
+
+  function getCapabilityAction(capability, category) {
+    const capabilityMap = {
+      'access-protection': 'Colocar acessos e privilégios sob um critério claro.',
+      'critical-identity': 'Tratar identidades críticas com mais controle e menos exceção.',
+      'personal-data-governance': 'Dar dono claro ao uso e à proteção de dados sensíveis.',
+      'monitoring-traceability': 'Criar visibilidade mínima para perceber desvios cedo.',
+      'hardening-updates': 'Padronizar atualização e proteção básica dos ativos críticos.',
+      'third-party-response': 'Organizar resposta, escalonamento e dependências com terceiros.',
+      'external-exposure': 'Reduzir exposição externa com revisão contínua do que está aberto.',
+      'application-security': 'Levar critérios de segurança para mudanças e aplicações.',
+    };
+
+    const categoryMap = {
+      GV: 'Definir dono executivo, critério e rotina para este tema.',
+      ID: 'Mapear o que é crítico e manter isso visível para decisão.',
+      PR: 'Fortalecer os controles mínimos que reduzem risco todo dia.',
+      DE: 'Ganhar visibilidade para detectar desvio antes do impacto.',
+      RS: 'Dar forma a uma resposta organizada quando algo sair do normal.',
+      RC: 'Preparar recuperação e continuidade com prioridade clara.',
+    };
+
+    return capabilityMap[capability] || categoryMap[category] || 'Dar dono e rotina a esta frente.';
+  }
+
+  function buildTier3Plan(results) {
+    const gapEntries = results.topGaps.slice(0, 3);
+    const phases = [
+      'Se fizer só uma coisa agora',
+      'Se quiser reduzir risco mais rápido',
+      'Para sustentar o próximo patamar',
+    ];
+
+    return phases.map((phase, index) => {
+      const gap = gapEntries[index] || gapEntries[0] || null;
+      const service = results.topServices[index] || results.topServices[0] || null;
+      const firstCapability = gap?.question?.capacidade?.[0];
+      const title = gap
+        ? getCapabilityAction(firstCapability, gap.question.categoria)
+        : 'Consolidar dono, rotina e evidência mínima.';
+      const body = gap
+        ? `Baseado na lacuna "${gap.question.pergunta}". O objetivo aqui é sair do esforço manual e criar um padrão simples, visível e repetível.`
+        : 'O objetivo é transformar intenção em prática estável, com dono claro e acompanhamento simples.';
+
+      return {
+        phase,
+        title,
+        body,
+        serviceName: service?.name || 'Apoio consultivo Active Solutions',
+      };
+    });
+  }
+
   function computeResults() {
     const leadContext = state.leadContext || buildLeadContext(state.profile);
     const answeredQuestions = content.questions
@@ -505,6 +569,180 @@
     )}`;
   }
 
+  function slugify(value) {
+    return String(value || 'relatorio')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase();
+  }
+
+  function downloadReportPdf() {
+    const jsPDF = window.jspdf?.jsPDF;
+    if (!jsPDF) {
+      setNotice('O gerador de PDF ainda não carregou. Tente novamente em alguns segundos.');
+      return;
+    }
+
+    const lead = state.leadContext || buildLeadContext(state.profile);
+    const results = computeResults();
+    const plan = buildTier3Plan(results);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 48;
+    const contentWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    let y = 56;
+
+    const addParagraph = (text, options = {}) => {
+      const fontSize = options.fontSize || 11;
+      const lineHeight = options.lineHeight || 17;
+      const color = options.color || [71, 85, 105];
+      const weight = options.weight || 'normal';
+      const spacingAfter = options.spacingAfter ?? 12;
+      const lines = doc.splitTextToSize(String(text || ''), contentWidth);
+
+      if (y + lines.length * lineHeight > pageHeight - 56) {
+        doc.addPage();
+        y = 56;
+      }
+
+      doc.setFont('helvetica', weight);
+      doc.setFontSize(fontSize);
+      doc.setTextColor(...color);
+      doc.text(lines, margin, y);
+      y += lines.length * lineHeight + spacingAfter;
+    };
+
+    const addRule = () => {
+      doc.setDrawColor(203, 213, 225);
+      doc.line(margin, y, margin + contentWidth, y);
+      y += 18;
+    };
+
+    doc.setFillColor(10, 26, 47);
+    doc.roundedRect(margin, 32, contentWidth, 92, 22, 22, 'F');
+    doc.setTextColor(248, 250, 252);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('N.A.V.E. · Active Solutions', margin + 20, 58);
+    doc.setFontSize(24);
+    doc.text('Plano executivo até o Tier 3', margin + 20, 90);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.text(
+      `Emitido em ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date())}`,
+      margin + 20,
+      112
+    );
+    y = 148;
+
+    addParagraph(
+      `${lead.name || 'Liderança responsável'}${lead.company ? ` · ${lead.company}` : ''}${lead.role ? ` · ${lead.role}` : ''}`,
+      { fontSize: 12, weight: 'bold', color: [10, 26, 47], spacingAfter: 10 }
+    );
+    addParagraph(
+      `Tier observado: ${results.observedTier.level} · Tier esperado para o contexto: ${results.expectedTier} · Score executivo: ${results.percent}%`,
+      { fontSize: 12, color: [0, 87, 231], weight: 'bold', spacingAfter: 16 }
+    );
+    addParagraph(results.summary, {
+      fontSize: 13,
+      color: [15, 23, 42],
+      lineHeight: 20,
+      spacingAfter: 18,
+    });
+
+    addParagraph('O que precisa acontecer para chegar ao Tier 3', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+
+    plan.forEach((item, index) => {
+      addParagraph(`${index + 1}. ${item.phase}`, {
+        fontSize: 12,
+        weight: 'bold',
+        color: [0, 87, 231],
+        spacingAfter: 6,
+      });
+      addParagraph(item.title, {
+        fontSize: 14,
+        weight: 'bold',
+        color: [10, 26, 47],
+        lineHeight: 20,
+        spacingAfter: 6,
+      });
+      addParagraph(item.body, {
+        fontSize: 11,
+        lineHeight: 18,
+        spacingAfter: 6,
+      });
+      addParagraph(`Serviço que mais acelera essa frente: ${item.serviceName}`, {
+        fontSize: 11,
+        weight: 'bold',
+        color: [89, 118, 108],
+        spacingAfter: 14,
+      });
+    });
+
+    addRule();
+
+    addParagraph('Serviços mais indicados agora', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+
+    results.topServices.slice(0, 3).forEach((service, index) => {
+      addParagraph(`${index + 1}. ${service.name}`, {
+        fontSize: 13,
+        weight: 'bold',
+        color: [10, 26, 47],
+        spacingAfter: 5,
+      });
+      addParagraph(service.summary, {
+        fontSize: 11,
+        lineHeight: 18,
+        spacingAfter: 5,
+      });
+      addParagraph(service.whyAppeared, {
+        fontSize: 11,
+        lineHeight: 18,
+        color: [71, 85, 105],
+        spacingAfter: 12,
+      });
+    });
+
+    addRule();
+
+    addParagraph('Próximo passo recomendado', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 8,
+    });
+    addParagraph(
+      'Use este plano como guia prático. Se quiser acelerar a execução, o melhor movimento agora é validar prioridades, esforço e sequência com um especialista da Active Solutions.',
+      {
+        fontSize: 11,
+        lineHeight: 18,
+        spacingAfter: 12,
+      }
+    );
+    addParagraph(buildWhatsAppMessage(results.primaryService), {
+      fontSize: 10,
+      lineHeight: 16,
+      color: [71, 85, 105],
+      spacingAfter: 0,
+    });
+
+    const fileBase = lead.company || lead.name || 'relatorio-nave';
+    doc.save(`nave-plano-tier-3-${slugify(fileBase)}.pdf`);
+    emitEvent('pdf_download', { company: lead.company || '', score: results.percent });
+  }
+
   function getFeedbackMessage(option) {
     const lead = state.leadContext || buildLeadContext(state.profile);
     const intro = lead.firstName ? `${lead.firstName}, ` : '';
@@ -613,6 +851,7 @@
         : state.screen === 'results'
           ? 'Resultado'
           : 'Entrada';
+    const showProgress = state.screen === 'entry';
 
     return `
       <header class="topbar">
@@ -620,7 +859,7 @@
           <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada">
             <span class="brand__name">${escapeHtml(content.meta.name)}</span>
           </button>
-          <span class="topbar__progress">${escapeHtml(progressLabel)}</span>
+          ${showProgress ? `<span class="topbar__progress">${escapeHtml(progressLabel)}</span>` : ''}
         </div>
       </header>
     `;
@@ -792,8 +1031,14 @@
   function renderQuestionScreen() {
     const question = getCurrentQuestion();
     const answer = getCurrentAnswer();
-    const lead = state.leadContext || buildLeadContext(state.profile);
     const feedback = answer ? getFeedbackMessage(answer) : '';
+    const progressPercent = Math.round(((state.currentIndex + 1) / content.questions.length) * 100);
+    const categoryLabel = getCategoryLabel(question.categoria);
+    const chartBars = [
+      Math.max(20, Math.min(86, progressPercent - 18)),
+      Math.max(30, Math.min(92, progressPercent + 8)),
+      Math.max(24, Math.min(96, progressPercent + 22)),
+    ];
 
     return `
       <main class="app-shell app-shell--question">
@@ -804,10 +1049,31 @@
               <span class="question-card__step">Pergunta ${state.currentIndex + 1} de ${content.questions.length}</span>
             </div>
 
-            <div class="question-card__body">
-              <h1>${escapeHtml(question.pergunta)}</h1>
-              <p class="question-card__subtitle">Responda com base na prática atual.</p>
-              <p class="question-card__personal">${escapeHtml(getPersonalLine(lead))}</p>
+            <div class="question-card__hero">
+              <div class="question-card__body">
+                <span class="question-card__category">${escapeHtml(categoryLabel)}</span>
+                <h1>${escapeHtml(question.pergunta)}</h1>
+              </div>
+
+              <aside class="question-visual" aria-hidden="true">
+                <div class="question-visual__orb">
+                  <strong>${progressPercent}%</strong>
+                  <span>da jornada</span>
+                </div>
+                <div class="question-visual__chart">
+                  ${chartBars
+                    .map(
+                      (size, index) => `
+                        <span class="question-visual__bar question-visual__bar--${index + 1}" style="--bar-size:${size}%"></span>
+                      `
+                    )
+                    .join('')}
+                </div>
+                <div class="question-visual__caption">
+                  <strong>${escapeHtml(categoryLabel)}</strong>
+                  <span>Leitura simples, decisão clara.</span>
+                </div>
+              </aside>
             </div>
 
             <div class="question-card__choices">
@@ -891,9 +1157,7 @@
 
           <div class="results-actions">
             <button class="secondary-button" data-action="back-to-questions">Voltar às perguntas</button>
-            <a class="primary-button" href="${buildWhatsAppLink()}" target="_blank" rel="noreferrer">
-              Falar com especialista
-            </a>
+            <button class="primary-button" data-action="download-pdf">Baixar PDF com plano até o Tier 3</button>
           </div>
         </section>
       </main>
@@ -1063,6 +1327,9 @@
         state.screen = 'questions';
         saveState();
         render();
+        break;
+      case 'download-pdf':
+        downloadReportPdf();
         break;
       case 'close-notice':
         clearNotice();
