@@ -7,6 +7,8 @@
     rdAdapterUrl: '',
     appVersion: '4.0.0',
     productEventHook: '',
+    schedulerAdapterUrl: '',
+    schedulerSlots: [],
     ...(window.NAVE_RUNTIME_CONFIG || {}),
   };
 
@@ -33,13 +35,43 @@
   ];
   const OPTION_ORDER = ['A', 'B', 'C', 'D'];
   const OPTION_SCORES = { A: 0, B: 1, C: 2, D: 3 };
-  const CATEGORY_LABELS = {
-    GV: 'Governar',
-    ID: 'Identificar',
-    PR: 'Proteger',
-    DE: 'Detectar',
-    RS: 'Responder',
-    RC: 'Recuperar',
+  const STAGE_META = {
+    GV: {
+      order: 1,
+      label: 'Estratégia',
+      subtext: 'Dar direção e prioridade ao que mais expõe o negócio.',
+    },
+    ID: {
+      order: 2,
+      label: 'Mapeamento',
+      subtext: 'Entender o que realmente importa na sua operação.',
+    },
+    PR: {
+      order: 3,
+      label: 'Proteção',
+      subtext: 'Fortalecer o básico que evita exposição desnecessária.',
+    },
+    DE: {
+      order: 4,
+      label: 'Monitoramento',
+      subtext: 'Perceber desvios cedo, antes que eles virem impacto.',
+    },
+    RS: {
+      order: 5,
+      label: 'Ação',
+      subtext: 'Responder com clareza quando algo sair do normal.',
+    },
+    RC: {
+      order: 6,
+      label: 'Recuperação',
+      subtext: 'Voltar a operar com menos improviso e mais continuidade.',
+    },
+  };
+  const HUMAN_OPTION_LABELS = {
+    A: 'Não existe ainda',
+    B: 'Está começando',
+    C: 'Já funciona',
+    D: 'Está bem resolvido',
   };
   const FEEDBACK_BY_OPTION = {
     A: 'Isso ajuda a mostrar onde o processo ainda depende de improviso.',
@@ -110,8 +142,12 @@
       leadContext: null,
       answers: {},
       currentIndex: 0,
-      helpPanel: '',
+      tooltipOption: '',
       modalServiceKey: '',
+      schedulerServiceKey: '',
+      schedulerDay: '',
+      schedulerTime: '',
+      schedulerPending: false,
       notice: '',
       touched: {},
       leadAttempted: false,
@@ -147,6 +183,8 @@
     if (state.profile && Object.values(state.profile).some((value) => String(value || '').trim())) {
       state.leadContext = buildLeadContext(state.profile);
     }
+    if (state.modalServiceKey && !services[state.modalServiceKey]) state.modalServiceKey = '';
+    if (state.schedulerServiceKey && !services[state.schedulerServiceKey]) state.schedulerServiceKey = '';
     if (state.currentIndex < 0) state.currentIndex = 0;
     if (content && state.currentIndex >= content.questions.length) {
       state.currentIndex = content.questions.length - 1;
@@ -389,13 +427,60 @@
       };
     });
 
-    return ranking
+    const filtered = ranking
       .filter((item) => item.rankingScore > 0)
       .sort((a, b) => b.rankingScore - a.rankingScore);
+    if (filtered.length) return filtered;
+    return ranking.slice(0, 5).map((item) => ({
+      ...item,
+      rankingScore: 1,
+      whyAppeared: 'Foi recomendado porque ajuda a transformar o diagnóstico em uma frente concreta de evolução.',
+    }));
+  }
+
+  function getStageMeta(category) {
+    return STAGE_META[category] || { order: 0, label: 'Etapa', subtext: '' };
   }
 
   function getCategoryLabel(category) {
-    return CATEGORY_LABELS[category] || category;
+    return getStageMeta(category).label;
+  }
+
+  function getHumanOptionLabel(key) {
+    return HUMAN_OPTION_LABELS[key] || key;
+  }
+
+  function getOptionTooltip(question, key) {
+    const option = getVisibleOption(question, key);
+    return option.desc || option.title || '';
+  }
+
+  function getGapTheme(gap) {
+    if (!gap?.question) return 'clareza operacional';
+    const capability = gap.question.capacidade?.[0];
+    const capabilityThemes = {
+      'access-protection': 'controle de acessos e privilégios',
+      'critical-identity': 'identidades críticas sem proteção suficiente',
+      'personal-data-governance': 'dados sensíveis sem direcionamento claro',
+      'monitoring-traceability': 'baixa visibilidade sobre desvios e sinais de risco',
+      'hardening-updates': 'ativos críticos sem proteção consistente',
+      'third-party-response': 'dependência de terceiros sem resposta organizada',
+      'external-exposure': 'exposição externa acima do necessário',
+      'application-security': 'mudanças digitais sem critério mínimo de segurança',
+    };
+    const categoryThemes = {
+      GV: 'falta de direção e prioridade clara',
+      ID: 'visibilidade insuficiente sobre o que é crítico',
+      PR: 'controles básicos ainda frágeis',
+      DE: 'baixa capacidade de perceber desvio cedo',
+      RS: 'resposta pouco organizada quando algo sai do normal',
+      RC: 'recuperação dependente de improviso',
+    };
+    return capabilityThemes[capability] || categoryThemes[gap.question.categoria] || 'clareza operacional';
+  }
+
+  function getRoleAwareHint() {
+    return 'Considere o que acontece na prática, não no ideal.';
   }
 
   function getCapabilityAction(capability, category) {
@@ -425,14 +510,14 @@
   function buildTier3Plan(results) {
     const gapEntries = results.topGaps.slice(0, 3);
     const phases = [
-      'Se fizer só uma coisa agora',
-      'Se quiser reduzir risco mais rápido',
-      'Para sustentar o próximo patamar',
+      'Prioridade imediata (0–30 dias)',
+      'Estabilização (30–90 dias)',
+      'Estruturação (90+ dias)',
     ];
 
     return phases.map((phase, index) => {
       const gap = gapEntries[index] || gapEntries[0] || null;
-      const service = results.topServices[index] || results.topServices[0] || null;
+      const service = results.recommendedServices[index] || results.recommendedServices[0] || null;
       const firstCapability = gap?.question?.capacidade?.[0];
       const title = gap
         ? getCapabilityAction(firstCapability, gap.question.categoria)
@@ -487,6 +572,7 @@
     const topGaps = answeredQuestions.sort((a, b) => b.gapValue - a.gapValue);
     const rankedServices = rankServices(topGaps);
     const topServices = rankedServices.slice(0, 3);
+    const recommendedServices = rankedServices.slice(0, 5);
 
     const summary =
       observedTier.level <= 1
@@ -496,8 +582,7 @@
           : observedTier.level === 3
             ? 'Você tem uma base mais consistente, mas ainda pode reduzir atrito e exceção em frentes importantes.'
             : 'Você já mostra uma operação mais estruturada, mas ainda vale consolidar o que sustenta crescimento com segurança.';
-
-    return {
+    const results = {
       score,
       percent,
       observedTier,
@@ -505,12 +590,16 @@
       gap,
       topGaps,
       topServices,
+      recommendedServices,
       primaryService: topServices[0] || null,
       secondaryService: topServices[1] || topServices[0] || null,
       strategicService: topServices[2] || topServices[1] || topServices[0] || null,
       mainProblem: topGaps[0]?.question.pergunta || 'maturidade geral',
+      mainRiskTheme: getGapTheme(topGaps[0]),
       summary,
     };
+    results.pdsiPlan = buildTier3Plan(results);
+    return results;
   }
 
   function emitEvent(type, payload) {
@@ -540,32 +629,33 @@
     }
   }
 
-  function buildWhatsAppMessage(service) {
+  function buildWhatsAppMessage(service, extras = {}) {
     const lead = state.leadContext || buildLeadContext(state.profile);
     const results = getAnsweredCount() ? computeResults() : null;
-    const lines = [
-      content.meta.specialistMessage ||
-        'Olá. Concluí o N.A.V.E. e gostaria de falar com um especialista da Active Solutions.',
-    ];
+    const intro = [];
+    if (lead.name) intro.push(lead.name);
+    if (lead.role) intro.push(lead.role);
+    const firstLine = intro.length ? `Sou ${intro.join(', ')}.` : 'Quero orientação sobre o N.A.V.E.';
+    const lines = [firstLine];
 
-    if (lead.name) lines.push(`Nome: ${lead.name}`);
-    if (lead.role) lines.push(`Cargo: ${lead.role}`);
     if (lead.company) lines.push(`Empresa: ${lead.company}`);
     if (lead.size) lines.push(`Porte: ${lead.size}`);
     if (lead.segment) lines.push(`Segmento: ${lead.segment}`);
     if (results) {
-      lines.push(`Nível observado: ${results.observedTier.level}`);
-      lines.push(`Nível esperado: ${results.expectedTier}`);
-      lines.push(`Principal ponto identificado: ${results.mainProblem}`);
+      lines.push(`Meu principal ponto crítico apareceu em ${results.mainRiskTheme}.`);
+      lines.push(`Nível atual: ${results.observedTier.level}.`);
+      lines.push(`Nível esperado: ${results.expectedTier}.`);
     }
-    if (service) lines.push(`Quero entender melhor o serviço: ${service.name}`);
+    if (service) lines.push(`Quero entender melhor o serviço ${service.name}.`);
+    if (extras.slotLabel) lines.push(`Quero agendar para ${extras.slotLabel}.`);
+    lines.push('Quero orientação.');
 
     return lines.join('\n');
   }
 
-  function buildWhatsAppLink(service) {
+  function buildWhatsAppLink(service, extras = {}) {
     return `https://wa.me/${config.specialistWhatsApp}?text=${encodeURIComponent(
-      buildWhatsAppMessage(service)
+      buildWhatsAppMessage(service, extras)
     )}`;
   }
 
@@ -578,16 +668,15 @@
       .toLowerCase();
   }
 
-  function downloadReportPdf() {
+  function createReportPdfDocument() {
     const jsPDF = window.jspdf?.jsPDF;
     if (!jsPDF) {
-      setNotice('O gerador de PDF ainda não carregou. Tente novamente em alguns segundos.');
-      return;
+      return null;
     }
 
     const lead = state.leadContext || buildLeadContext(state.profile);
     const results = computeResults();
-    const plan = buildTier3Plan(results);
+    const plan = results.pdsiPlan;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 48;
@@ -652,7 +741,7 @@
       spacingAfter: 18,
     });
 
-    addParagraph('O que precisa acontecer para chegar ao Tier 3', {
+    addParagraph('Plano Diretor de Segurança da Informação', {
       fontSize: 16,
       weight: 'bold',
       color: [10, 26, 47],
@@ -695,7 +784,7 @@
       spacingAfter: 10,
     });
 
-    results.topServices.slice(0, 3).forEach((service, index) => {
+    results.recommendedServices.slice(0, 5).forEach((service, index) => {
       addParagraph(`${index + 1}. ${service.name}`, {
         fontSize: 13,
         weight: 'bold',
@@ -738,9 +827,215 @@
       spacingAfter: 0,
     });
 
-    const fileBase = lead.company || lead.name || 'relatorio-nave';
-    doc.save(`nave-plano-tier-3-${slugify(fileBase)}.pdf`);
-    emitEvent('pdf_download', { company: lead.company || '', score: results.percent });
+    return { doc, lead, results };
+  }
+
+  function downloadReportPdf() {
+    const built = createReportPdfDocument();
+    if (!built) {
+      setNotice('O gerador de PDF ainda não carregou. Tente novamente em alguns segundos.');
+      return;
+    }
+
+    const fileBase = built.lead.company || built.lead.name || 'relatorio-nave';
+    built.doc.save(`nave-plano-tier-3-${slugify(fileBase)}.pdf`);
+    emitEvent('pdf_download', { company: built.lead.company || '', score: built.results.percent });
+  }
+
+  function generateDefaultSchedulerSlots() {
+    const slots = [];
+    const cursor = new Date();
+
+    while (slots.length < 5) {
+      cursor.setDate(cursor.getDate() + 1);
+      const weekday = cursor.getDay();
+      if (weekday === 0 || weekday === 6) continue;
+
+      const isoDate = cursor.toISOString().slice(0, 10);
+      slots.push({
+        date: isoDate,
+        times: ['09:00', '11:00', '14:00', '16:00'],
+      });
+    }
+
+    return slots;
+  }
+
+  function getSchedulerSlots() {
+    const slots = Array.isArray(config.schedulerSlots) && config.schedulerSlots.length
+      ? config.schedulerSlots
+      : generateDefaultSchedulerSlots();
+
+    return slots
+      .filter((slot) => slot?.date && Array.isArray(slot.times) && slot.times.length)
+      .map((slot) => ({
+        date: slot.date,
+        label: new Intl.DateTimeFormat('pt-BR', {
+          weekday: 'short',
+          day: '2-digit',
+          month: 'short',
+        }).format(new Date(`${slot.date}T12:00:00`)),
+        times: slot.times,
+      }));
+  }
+
+  function openScheduler(serviceKey) {
+    const slots = getSchedulerSlots();
+    if (!slots.length) {
+      setNotice('A agenda ainda não está configurada.');
+      return;
+    }
+
+    state.modalServiceKey = '';
+    state.schedulerServiceKey = serviceKey || computeResults().primaryService?.serviceKey || '';
+    state.schedulerDay = slots[0].date;
+    state.schedulerTime = slots[0].times[0];
+    state.schedulerPending = false;
+    saveState();
+    render();
+  }
+
+  function closeScheduler() {
+    state.schedulerServiceKey = '';
+    state.schedulerDay = '';
+    state.schedulerTime = '';
+    state.schedulerPending = false;
+    saveState();
+    render();
+  }
+
+  function getSelectedScheduleLabel() {
+    if (!state.schedulerDay || !state.schedulerTime) return '';
+    const dateLabel = new Intl.DateTimeFormat('pt-BR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+    }).format(new Date(`${state.schedulerDay}T12:00:00`));
+    return `${dateLabel} às ${state.schedulerTime}`;
+  }
+
+  function getSelectedServiceForSchedule() {
+    return services[state.schedulerServiceKey] || computeResults().primaryService || null;
+  }
+
+  function buildBookingDescription(service, results) {
+    return [
+      'Iniciado via N.A.V.E.',
+      '',
+      'Resumo:',
+      `- Maturidade: ${results.observedTier.level}`,
+      `- Gap principal: ${results.mainRiskTheme}`,
+      `- Prioridade: ${results.primaryService?.name || 'Definir próximos passos'}`,
+      '',
+      'Objetivo:',
+      'Ajudar a transformar diagnóstico em ação.',
+      '',
+      `Serviço em foco: ${service?.name || 'Apoio consultivo Active Solutions'}`,
+    ].join('\n');
+  }
+
+  function buildBookingPayload(service) {
+    const built = createReportPdfDocument();
+    if (!built) return null;
+
+    return {
+      lead: built.lead,
+      score: built.results.percent,
+      levelCurrent: built.results.observedTier.level,
+      levelExpected: built.results.expectedTier,
+      mainGap: built.results.mainRiskTheme,
+      recommendedServices: built.results.recommendedServices.map((item) => item.name),
+      selectedService: service ? { key: service.serviceKey, name: service.name } : null,
+      slot: {
+        date: state.schedulerDay,
+        time: state.schedulerTime,
+        label: getSelectedScheduleLabel(),
+      },
+      reportPdfDataUri: built.doc.output('datauristring'),
+      eventDescription: buildBookingDescription(service, built.results),
+    };
+  }
+
+  function downloadTextFile(filename, contentText, type) {
+    const blob = new Blob([contentText], { type });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function downloadBookingInvite(payload) {
+    const start = `${payload.slot.date.replaceAll('-', '')}T${payload.slot.time.replace(':', '')}00`;
+    const endTime = String(Number(payload.slot.time.slice(0, 2)) + 1).padStart(2, '0') + payload.slot.time.slice(2);
+    const end = `${payload.slot.date.replaceAll('-', '')}T${endTime.replace(':', '')}00`;
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Active Solutions//NAVE//PT-BR',
+      'BEGIN:VEVENT',
+      `UID:${Date.now()}@active-solutions`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')}`,
+      `DTSTART:${start}`,
+      `DTEND:${end}`,
+      `SUMMARY:Conversa sobre ${payload.selectedService?.name || 'N.A.V.E.'}`,
+      `DESCRIPTION:${payload.eventDescription.replace(/\n/g, '\\n')}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    downloadTextFile('nave-agendamento.ics', ics, 'text/calendar;charset=utf-8');
+  }
+
+  async function confirmSchedule() {
+    if (!state.schedulerDay || !state.schedulerTime) {
+      setNotice('Escolha um dia e um horário para continuar.');
+      return;
+    }
+
+    const service = getSelectedServiceForSchedule();
+    const payload = buildBookingPayload(service);
+    if (!payload) {
+      setNotice('Ainda não foi possível preparar o relatório deste agendamento.');
+      return;
+    }
+
+    state.schedulerPending = true;
+    saveState();
+    render();
+
+    try {
+      if (config.schedulerAdapterUrl) {
+        const response = await fetch(config.schedulerAdapterUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao enviar agendamento');
+        }
+      } else {
+        downloadBookingInvite(payload);
+        const built = createReportPdfDocument();
+        if (built) {
+          const fileBase = built.lead.company || built.lead.name || 'relatorio-nave';
+          built.doc.save(`nave-plano-tier-3-${slugify(fileBase)}.pdf`);
+        }
+        window.open(buildWhatsAppLink(service, { slotLabel: payload.slot.label }), '_blank', 'noopener');
+      }
+
+      emitEvent('schedule_confirmed', payload);
+      state.schedulerPending = false;
+      closeScheduler();
+      setNotice('Agendamento preparado com sucesso.');
+    } catch (error) {
+      state.schedulerPending = false;
+      saveState();
+      render();
+      setNotice('Não foi possível concluir o agendamento agora. Você pode tentar novamente.');
+    }
   }
 
   function getFeedbackMessage(option) {
@@ -776,7 +1071,7 @@
     state.entryMode = 'hero';
     state.startedAt = state.startedAt || Date.now();
     state.notice = '';
-    state.helpPanel = '';
+    state.tooltipOption = '';
     saveState();
     render();
     emitEvent('assessment_start', { lead: state.leadContext });
@@ -804,7 +1099,7 @@
   function selectAnswer(option) {
     const question = getCurrentQuestion();
     state.answers[question.id] = option;
-    state.helpPanel = '';
+    state.tooltipOption = '';
     saveState();
     render();
     emitEvent('choice_select', { questionId: question.id, option });
@@ -821,7 +1116,7 @@
       return;
     }
     state.currentIndex += 1;
-    state.helpPanel = '';
+    state.tooltipOption = '';
     saveState();
     render();
   }
@@ -829,17 +1124,17 @@
   function previousQuestion() {
     if (state.currentIndex === 0) return;
     state.currentIndex -= 1;
-    state.helpPanel = '';
+    state.tooltipOption = '';
     saveState();
     render();
   }
 
-  function toggleHelp(panel) {
-    state.helpPanel = state.helpPanel === panel ? '' : panel;
+  function toggleTooltip(option) {
+    state.tooltipOption = state.tooltipOption === option ? '' : option;
     saveState();
     render();
-    if (state.helpPanel) {
-      emitEvent('help_open', { panel, questionId: getCurrentQuestion().id });
+    if (state.tooltipOption) {
+      emitEvent('help_open', { panel: 'option-tooltip', option, questionId: getCurrentQuestion().id });
     }
   }
 
@@ -851,7 +1146,7 @@
         : state.screen === 'results'
           ? 'Resultado'
           : 'Entrada';
-    const showProgress = state.screen === 'entry';
+    const showProgress = state.screen !== 'results';
 
     return `
       <header class="topbar">
@@ -994,106 +1289,60 @@
   }
 
   function renderOptionCard(question, key, selected) {
-    const option = getVisibleOption(question, key);
+    const tooltip = getOptionTooltip(question, key);
     return `
-      <button
-        class="option-card ${selected === key ? 'is-selected' : ''}"
-        data-action="select-answer"
-        data-option="${key}"
-      >
-        <span class="option-card__label">${key} — ${escapeHtml(option.title)}</span>
-        <strong>${escapeHtml(option.desc)}</strong>
-      </button>
-    `;
-  }
-
-  function renderHelpPanel(question) {
-    if (!state.helpPanel) return '';
-    if (state.helpPanel === 'explain') {
-      return `
-        <div class="help-panel">
-          <strong>Em palavras simples</strong>
-          <p>${escapeHtml(question.ajuda || 'Pense no que realmente acontece hoje, e não no desenho ideal do processo.')}</p>
+      <article class="option-card ${selected === key ? 'is-selected' : ''}">
+        <button
+          class="option-card__select"
+          data-action="select-answer"
+          data-option="${key}"
+          aria-pressed="${selected === key ? 'true' : 'false'}"
+        >
+          <span class="option-card__label">${key}</span>
+          <strong class="option-card__title">${escapeHtml(getHumanOptionLabel(key))}</strong>
+        </button>
+        <button
+          class="option-card__info"
+          type="button"
+          data-action="toggle-tooltip"
+          data-option="${key}"
+          aria-label="Ver exemplo prático da opção ${escapeHtml(getHumanOptionLabel(key))}"
+          aria-expanded="${state.tooltipOption === key ? 'true' : 'false'}"
+        >
+          i
+        </button>
+        <div class="option-tooltip ${state.tooltipOption === key ? 'is-open' : ''}">
+          ${escapeHtml(tooltip)}
         </div>
-      `;
-    }
-
-    return `
-      <div class="help-panel">
-        <strong>Exemplos do que pode indicar uma resposta melhor</strong>
-        ${question.exemplos?.length
-          ? `<ul>${question.exemplos.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-          : `<p>${escapeHtml(question.dica || 'Pense em evidências simples, como rotina, aprovação ou registro.')}</p>`}
-      </div>
+      </article>
     `;
   }
 
   function renderQuestionScreen() {
     const question = getCurrentQuestion();
     const answer = getCurrentAnswer();
-    const feedback = answer ? getFeedbackMessage(answer) : '';
-    const progressPercent = Math.round(((state.currentIndex + 1) / content.questions.length) * 100);
-    const categoryLabel = getCategoryLabel(question.categoria);
-    const chartBars = [
-      Math.max(20, Math.min(86, progressPercent - 18)),
-      Math.max(30, Math.min(92, progressPercent + 8)),
-      Math.max(24, Math.min(96, progressPercent + 22)),
-    ];
+    const stage = getStageMeta(question.categoria);
 
     return `
       <main class="app-shell app-shell--question">
         <section class="question-screen">
           <article class="question-card">
             <div class="question-card__header">
-              <span class="question-card__kicker">${escapeHtml(content.meta.name)}</span>
-              <span class="question-card__step">Pergunta ${state.currentIndex + 1} de ${content.questions.length}</span>
+              <span class="question-card__step">Etapa ${stage.order} — ${escapeHtml(stage.label)}</span>
             </div>
 
-            <div class="question-card__hero">
-              <div class="question-card__body">
-                <span class="question-card__category">${escapeHtml(categoryLabel)}</span>
-                <h1>${escapeHtml(question.pergunta)}</h1>
-              </div>
-
-              <aside class="question-visual" aria-hidden="true">
-                <div class="question-visual__orb">
-                  <strong>${progressPercent}%</strong>
-                  <span>da jornada</span>
-                </div>
-                <div class="question-visual__chart">
-                  ${chartBars
-                    .map(
-                      (size, index) => `
-                        <span class="question-visual__bar question-visual__bar--${index + 1}" style="--bar-size:${size}%"></span>
-                      `
-                    )
-                    .join('')}
-                </div>
-                <div class="question-visual__caption">
-                  <strong>${escapeHtml(categoryLabel)}</strong>
-                  <span>Leitura simples, decisão clara.</span>
-                </div>
-              </aside>
+            <div class="question-card__body">
+              <p class="question-card__stage-subtext">${escapeHtml(stage.subtext)}</p>
+              <h1>${escapeHtml(question.pergunta)}</h1>
+              <p class="question-card__guide">${escapeHtml(getRoleAwareHint())}</p>
             </div>
 
             <div class="question-card__choices">
               ${OPTION_ORDER.map((key) => renderOptionCard(question, key, answer)).join('')}
             </div>
 
-            <div class="question-card__help">
-              <button class="link-button" data-action="toggle-help" data-panel="explain">Me explica</button>
-              <button class="link-button" data-action="toggle-help" data-panel="examples">Exemplos</button>
-            </div>
-
-            ${renderHelpPanel(question)}
-
-            ${feedback ? `<div class="feedback-pill">${escapeHtml(feedback)}</div>` : ''}
-
             <div class="question-card__actions">
-              <button class="secondary-button" data-action="previous-question" ${state.currentIndex === 0 ? 'disabled' : ''}>
-                Revisar resposta anterior
-              </button>
-              <button class="primary-button" data-action="next-question" ${answer ? '' : 'disabled'}>
+              <button class="primary-button primary-button--full-mobile" data-action="next-question" ${answer ? '' : 'disabled'}>
                 ${state.currentIndex === content.questions.length - 1 ? 'Ver resultado' : 'Próxima pergunta'}
               </button>
             </div>
@@ -1103,24 +1352,25 @@
     `;
   }
 
-  function renderDirectionCard(label, service, tone) {
-    if (!service) {
-      return `
-        <article class="direction-card direction-card--${tone}">
-          <span class="direction-card__label">${escapeHtml(label)}</span>
-          <h2>Consolidar dono, rotina e critério.</h2>
-          <p>As respostas ainda não geraram uma recomendação forte o suficiente. Vale revisar com um especialista.</p>
-        </article>
-      `;
-    }
-
+  function renderPdsiCard(item, tone) {
     return `
-      <article class="direction-card direction-card--${tone}">
-        <span class="direction-card__label">${escapeHtml(label)}</span>
-        <h2>${escapeHtml(service.name)}</h2>
+      <article class="pdsi-card pdsi-card--${tone}">
+        <span class="pdsi-card__label">${escapeHtml(item.phase)}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.body)}</p>
+        <strong>${escapeHtml(item.serviceName)}</strong>
+      </article>
+    `;
+  }
+
+  function renderServiceRecommendation(service, index) {
+    return `
+      <article class="service-card">
+        <span class="service-card__rank">Serviço ${index + 1}</span>
+        <h3>${escapeHtml(service.name)}</h3>
         <p>${escapeHtml(service.summary)}</p>
-        <div class="direction-card__why">
-          <strong>Por que apareceu</strong>
+        <div class="service-card__why">
+          <strong>Por que foi recomendado</strong>
           <p>${escapeHtml(service.whyAppeared)}</p>
         </div>
         <button class="link-button link-button--strong" data-action="open-service" data-service-key="${service.serviceKey}">
@@ -1132,32 +1382,73 @@
 
   function renderResultsScreen() {
     const results = computeResults();
-    const primary = results.primaryService;
-    const secondary = results.secondaryService;
-    const strategic = results.strategicService;
+    const lead = state.leadContext || buildLeadContext(state.profile);
+    const maturityTitle = `Nível ${results.observedTier.level}`;
+    const intro = lead.firstName ? `${lead.firstName}, ` : '';
 
     return `
       <main class="app-shell app-shell--results">
         <section class="results-screen">
           <article class="results-hero">
-            <span class="results-hero__eyebrow">Resultado</span>
-            <h1>Você está no ${escapeHtml(results.observedTier.title)}</h1>
+            <span class="results-hero__eyebrow">Resumo executivo</span>
+            <h1>${escapeHtml(maturityTitle)}</h1>
             <p>${escapeHtml(results.summary)}</p>
             <div class="results-hero__meta">
-              <span>Score ${results.percent}%</span>
-              <span>Esperado para o seu contexto: nível ${results.expectedTier}</span>
+              <span>Score geral: ${results.percent}%</span>
+              <span>Nível esperado: ${results.expectedTier}</span>
             </div>
           </article>
 
-          <section class="results-direction">
-            ${renderDirectionCard('Se fizer só uma coisa agora, faça isso:', primary, 'primary')}
-            ${renderDirectionCard('Se quiser avançar rápido:', secondary, 'secondary')}
-            ${renderDirectionCard('Para estruturar o futuro:', strategic, 'strategic')}
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Relatório de maturidade</span>
+              <h2>O que esse diagnóstico mostra agora</h2>
+            </div>
+            <div class="maturity-grid">
+              <article class="metric-card">
+                <span>Nível atual</span>
+                <strong>${results.observedTier.level}</strong>
+              </article>
+              <article class="metric-card">
+                <span>Nível esperado</span>
+                <strong>${results.expectedTier}</strong>
+              </article>
+              <article class="metric-card">
+                <span>Gap principal</span>
+                <strong>${results.gap > 0 ? `${results.gap} nível${results.gap > 1 ? 's' : ''}` : 'Sem defasagem relevante'}</strong>
+              </article>
+            </div>
+            <article class="risk-highlight">
+              <strong>Hoje, seu maior risco está em: ${escapeHtml(results.mainRiskTheme)}</strong>
+              <p>${escapeHtml(`${intro}o ponto que mais pede atenção agora aparece em "${results.mainProblem}".`)}</p>
+            </article>
+          </section>
+
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Plano Diretor de Segurança da Informação</span>
+              <h2>O que fazer agora, depois e em seguida</h2>
+            </div>
+            <div class="pdsi-grid">
+              ${renderPdsiCard(results.pdsiPlan[0], 'now')}
+              ${renderPdsiCard(results.pdsiPlan[1], 'soon')}
+              ${renderPdsiCard(results.pdsiPlan[2], 'later')}
+            </div>
+          </section>
+
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Serviços recomendados</span>
+              <h2>O que faz mais sentido contratar primeiro</h2>
+            </div>
+            <div class="services-grid">
+              ${results.recommendedServices.map((service, index) => renderServiceRecommendation(service, index)).join('')}
+            </div>
           </section>
 
           <div class="results-actions">
             <button class="secondary-button" data-action="back-to-questions">Voltar às perguntas</button>
-            <button class="primary-button" data-action="download-pdf">Baixar PDF com plano até o Tier 3</button>
+            <button class="primary-button" data-action="download-pdf">Baixar PDF do relatório</button>
           </div>
         </section>
       </main>
@@ -1181,24 +1472,95 @@
 
           <div class="modal-card__content">
             <section>
-              <strong>O que esse serviço resolve</strong>
-              <p>${escapeHtml(service.pain || service.summary)}</p>
+              <strong>Explicação clara</strong>
+              <p>${escapeHtml(service.summary || service.description)}</p>
             </section>
             <section>
-              <strong>Quando ele faz sentido</strong>
+              <strong>Quando faz sentido</strong>
               <p>${escapeHtml(service.whenItMakesSense || service.description)}</p>
             </section>
             <section>
-              <strong>Entregáveis principais</strong>
-              <ul>
-                ${(service.deliverables || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
-              </ul>
+              <strong>Impacto no negócio</strong>
+              <p>${escapeHtml(service.pain || service.description)}</p>
             </section>
           </div>
 
-          <a class="primary-button primary-button--full" href="${buildWhatsAppLink(service)}" target="_blank" rel="noreferrer">
-            Agendar bate-papo com especialista
-          </a>
+          <button class="primary-button primary-button--full" data-action="open-scheduler" data-service-key="${service.serviceKey}">
+            Agendar conversa sobre isso
+          </button>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderSchedulerModal() {
+    if (!state.schedulerServiceKey) return '';
+    const slots = getSchedulerSlots();
+    const service = getSelectedServiceForSchedule();
+    const selectedDay = slots.find((item) => item.date === state.schedulerDay) || slots[0];
+    const times = selectedDay?.times || [];
+
+    return `
+      <div class="modal-backdrop" data-action="close-scheduler">
+        <section class="modal-card modal-card--scheduler" role="dialog" aria-modal="true" aria-labelledby="scheduler-title">
+          <div class="modal-card__header">
+            <div>
+              <span class="modal-card__eyebrow">Agendar conversa</span>
+              <h2 id="scheduler-title">${escapeHtml(service?.name || 'Especialista Active Solutions')}</h2>
+            </div>
+            <button class="link-button" data-action="close-scheduler">Fechar</button>
+          </div>
+
+          <div class="scheduler-copy">
+            <p>Escolha um dia e um horário. O contexto do diagnóstico segue junto automaticamente.</p>
+          </div>
+
+          <section class="scheduler-group">
+            <strong>Dias disponíveis</strong>
+            <div class="scheduler-slots">
+              ${slots
+                .map(
+                  (slot) => `
+                    <button
+                      class="slot-chip ${state.schedulerDay === slot.date ? 'is-selected' : ''}"
+                      data-action="select-scheduler-day"
+                      data-date="${slot.date}"
+                    >
+                      ${escapeHtml(slot.label)}
+                    </button>
+                  `
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <section class="scheduler-group">
+            <strong>Horários disponíveis</strong>
+            <div class="scheduler-slots">
+              ${times
+                .map(
+                  (time) => `
+                    <button
+                      class="slot-chip ${state.schedulerTime === time ? 'is-selected' : ''}"
+                      data-action="select-scheduler-time"
+                      data-time="${time}"
+                    >
+                      ${escapeHtml(time)}
+                    </button>
+                  `
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <div class="scheduler-summary">
+            <strong>${escapeHtml(getSelectedScheduleLabel())}</strong>
+            <p>Nome, empresa, nível atual, nível esperado, principal gap, serviços recomendados e PDF seguem juntos neste agendamento.</p>
+          </div>
+
+          <button class="primary-button primary-button--full" data-action="confirm-scheduler" ${state.schedulerPending ? 'disabled' : ''}>
+            ${state.schedulerPending ? 'Confirmando...' : 'Confirmar horário'}
+          </button>
         </section>
       </div>
     `;
@@ -1230,6 +1592,7 @@
       ${screenHtml}
       ${renderWhatsAppButton()}
       ${renderServiceModal()}
+      ${renderSchedulerModal()}
     `;
 
     scheduleFabPreview();
@@ -1246,7 +1609,7 @@
 
     if (state.screen !== 'questions' || getCurrentAnswer()) return;
 
-    const panelOpen = state.helpPanel;
+    const panelOpen = state.tooltipOption;
     fabTimer = setTimeout(() => {
       state.fabPreview = panelOpen
         ? 'Se quiser, um especialista traduz isso com você.'
@@ -1262,8 +1625,11 @@
     root.addEventListener('focusout', handleBlur, true);
 
     window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && state.modalServiceKey) {
+      if (event.key === 'Escape' && (state.modalServiceKey || state.schedulerServiceKey)) {
         state.modalServiceKey = '';
+        state.schedulerServiceKey = '';
+        state.schedulerDay = '';
+        state.schedulerTime = '';
         saveState();
         render();
       }
@@ -1278,7 +1644,14 @@
     }
 
     const actionTarget = event.target.closest('[data-action]');
-    if (!actionTarget) return;
+    if (!actionTarget) {
+      if (state.tooltipOption) {
+        state.tooltipOption = '';
+        saveState();
+        render();
+      }
+      return;
+    }
     const action = actionTarget.dataset.action;
 
     if (actionTarget.classList.contains('modal-backdrop') && event.target.closest('.modal-card')) {
@@ -1309,8 +1682,8 @@
       case 'previous-question':
         previousQuestion();
         break;
-      case 'toggle-help':
-        toggleHelp(actionTarget.dataset.panel);
+      case 'toggle-tooltip':
+        toggleTooltip(actionTarget.dataset.option);
         break;
       case 'open-service':
         state.modalServiceKey = actionTarget.dataset.serviceKey;
@@ -1322,6 +1695,26 @@
         state.modalServiceKey = '';
         saveState();
         render();
+        break;
+      case 'open-scheduler':
+        openScheduler(actionTarget.dataset.serviceKey);
+        break;
+      case 'close-scheduler':
+        closeScheduler();
+        break;
+      case 'select-scheduler-day':
+        state.schedulerDay = actionTarget.dataset.date;
+        state.schedulerTime = getSchedulerSlots().find((item) => item.date === state.schedulerDay)?.times?.[0] || '';
+        saveState();
+        render();
+        break;
+      case 'select-scheduler-time':
+        state.schedulerTime = actionTarget.dataset.time;
+        saveState();
+        render();
+        break;
+      case 'confirm-scheduler':
+        confirmSchedule();
         break;
       case 'back-to-questions':
         state.screen = 'questions';
