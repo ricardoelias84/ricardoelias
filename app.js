@@ -1,45 +1,257 @@
 (function () {
-  const content = window.NAVE_CONTENT;
-  const app = document.getElementById('app');
+  const root = document.getElementById('app');
+  const baseContent = window.NAVE_CONTENT;
 
-  if (!content || !app) {
+  if (!root || !baseContent) {
     return;
   }
 
-  const config = window.NAVE_RUNTIME_CONFIG || {};
-  const storageKey = 'nave-active-solutions-v2';
-  const questions = content.questions.slice().sort((left, right) => left.order - right.order);
-  const questionsById = Object.fromEntries(questions.map((item) => [item.id, item]));
-  const checkpoints = (content.checkpoints || [])
-    .slice()
-    .sort(
-      (left, right) =>
-        (questionsById[left.questionIds[0]]?.order || 0) - (questionsById[right.questionIds[0]]?.order || 0)
-    );
-  const checkpointsById = Object.fromEntries(checkpoints.map((item) => [item.id, item]));
-  const functionsByKey = Object.fromEntries(content.functions.map((item) => [item.key, item]));
-  const capabilitiesByKey = Object.fromEntries(content.capabilities.map((item) => [item.key, item]));
-  const servicesByKey = content.services;
+  const runtimeDefaults = {
+    rdAdapterUrl: '',
+    specialistWhatsApp: '5511991559361',
+    rdSource: 'NAVE',
+    rdTag: 'nave-assessment',
+    appVersion: '3.0.0',
+    calendarUrl: '',
+    productEventHook: '',
+  };
+
+  window.NAVE_RUNTIME_CONFIG = {
+    ...runtimeDefaults,
+    ...(window.NAVE_RUNTIME_CONFIG || {}),
+  };
+
+  const config = window.NAVE_RUNTIME_CONFIG;
+  const storageKey = 'nave-active-solutions-v3';
+  const focusableSelector =
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const uiToneByOption = {
+    A: 'critical',
+    B: 'warning',
+    C: 'mid',
+    D: 'strong',
+    E: 'elite',
+  };
+  const uiLabelByOption = {
+    A: 'Sem padrão',
+    B: 'Parcial',
+    C: 'Funciona',
+    D: 'Consistente',
+    E: 'Evolução contínua',
+  };
   const scoreFormatter = new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
-  const integerFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
+  const percentFormatter = new Intl.NumberFormat('pt-BR', {
+    maximumFractionDigits: 0,
+  });
   const timeFormatter = new Intl.DateTimeFormat('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const mobileQuery =
-    typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 760px)') : null;
 
-  let state = loadState();
+  let content = null;
+  let questions = [];
+  let questionsById = {};
+  let functionsByKey = {};
+  let capabilitiesByKey = {};
+  let servicesByKey = {};
+  let state = null;
+  let fabIdleTimer = 0;
+  let fabHelpTimer = 0;
+  let focusRestoreSelector = '';
+  let lastQuestionViewId = '';
 
-  function createSessionId() {
-    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
-      return window.crypto.randomUUID();
+  boot();
+
+  async function boot() {
+    const [segmentRiskMap, serviceEnhancements] = await Promise.all([
+      fetchJsonMaybe('./segmentRiskMap.json'),
+      fetchJsonMaybe('./services.ptbr.json'),
+    ]);
+
+    content = hydrateContent(baseContent, {
+      segmentRiskMap,
+      serviceEnhancements,
+    });
+    questions = content.questions.slice().sort((left, right) => left.order - right.order);
+    questionsById = Object.fromEntries(questions.map((item) => [item.id, item]));
+    functionsByKey = Object.fromEntries(content.functions.map((item) => [item.key, item]));
+    capabilitiesByKey = Object.fromEntries(content.capabilities.map((item) => [item.key, item]));
+    servicesByKey = content.services;
+
+    state = loadState();
+    syncDerivedState();
+    bindEvents();
+    render();
+    if (state.startedAt && (isLeadReady(state.profile) || getAnsweredCount(state.answers))) {
+      emitProductEvent('resume_session', {
+        answered: getAnsweredCount(state.answers),
+        screen: state.screen,
+      });
     }
-    return `nave-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+    flushPendingSubmissions({ silent: true });
   }
+
+  /* CONTENT */
+
+  function hydrateContent(base, external) {
+    const riskMap = external.segmentRiskMap || getDefaultSegmentRiskMap();
+    const services = hydrateServices(
+      base.services,
+      base.capabilities,
+      external.serviceEnhancements || {}
+    );
+    const hydratedQuestions = base.questions.map((question) => hydrateQuestion(question));
+
+    return {
+      ...base,
+      appMeta: {
+        ...base.appMeta,
+        dataVersion: '3.0.0',
+        tagline:
+          'Assessment executivo gamificado para traduzir risco em prioridade, clareza e próximo passo comercial.',
+        promise:
+          'Uma pergunta por vez, sem tecnês, com leitura personalizada pelo seu contexto e um fechamento em ação.',
+      },
+      segmentRiskMap: riskMap,
+      services,
+      questions: hydratedQuestions,
+    };
+  }
+
+  function hydrateQuestion(question) {
+    return {
+      ...question,
+      shortTitle: cleanQuestionTitle(question),
+      help: {
+        explain: question.learnWhy || question.businessPlainLanguage || question.prompt,
+        examples: question.evidenceExamples || [],
+        whoCanAnswer: question.whoCanAnswer || '',
+        learnTip: question.learnTip || question.evidenceExpected || '',
+      },
+      uiOptions: [
+        {
+          uiKey: 'A',
+          title: uiLabelByOption.A,
+          subtitle: question.options.A,
+          mapsToInternalScore: 0,
+        },
+        {
+          uiKey: 'B',
+          title: uiLabelByOption.B,
+          subtitle: question.options.B,
+          mapsToInternalScore: 1,
+        },
+        {
+          uiKey: 'C',
+          title: uiLabelByOption.C,
+          subtitle: question.options.C,
+          mapsToInternalScore: 2,
+        },
+        {
+          uiKey: 'Dplus',
+          title: 'Consistente',
+          subtitle: question.options.D,
+          mapsToInternalScore: 3,
+          followUp: {
+            label: 'Evolução contínua',
+            subtitle: question.options.E,
+            mapsToInternalScore: 4,
+            microcopy:
+              'Excelente. Aqui já existe base para uma leitura próxima de Tier 4 quando a melhoria contínua é comprovada.',
+          },
+        },
+      ],
+      evidenceHint: question.evidenceExpected || '',
+    };
+  }
+
+  function hydrateServices(baseServices, capabilities, enhancements) {
+    const capabilityServiceMap = {};
+    capabilities.forEach((capability) => {
+      capability.serviceKeys.forEach((serviceKey) => {
+        if (!capabilityServiceMap[serviceKey]) {
+          capabilityServiceMap[serviceKey] = [];
+        }
+        capabilityServiceMap[serviceKey].push(capability.key);
+      });
+    });
+
+    return Object.fromEntries(
+      Object.entries(baseServices).map(([serviceKey, service]) => {
+        const extra = enhancements[serviceKey] || {};
+        const fallbackFunctions = inferFunctionsByArea(service.area);
+        const fallbackSignals = capabilityServiceMap[serviceKey] || [];
+
+        return [
+          serviceKey,
+          {
+            ...service,
+            ...extra,
+            serviceKey,
+            nistFunctions: extra.nistFunctions || fallbackFunctions,
+            fitSignals: extra.fitSignals || fallbackSignals,
+            whenItMakesSense:
+              extra.whenItMakesSense || service.contactPitch || service.description || service.summary,
+            cta: {
+              learnMoreLabel: 'Saiba mais',
+              scheduleLabel: 'Agendar bate-papo',
+              ...((extra && extra.cta) || {}),
+            },
+          },
+        ];
+      })
+    );
+  }
+
+  function inferFunctionsByArea(area) {
+    const areaMap = {
+      Govern: ['GV'],
+      Identify: ['ID'],
+      Protect: ['PR'],
+      Detect: ['DE'],
+      Respond: ['RS'],
+      Recover: ['RC'],
+    };
+    return areaMap[area] || [];
+  }
+
+  function cleanQuestionTitle(question) {
+    const base =
+      question.businessPlainLanguage ||
+      question.uiPromptShort ||
+      question.prompt ||
+      question.title ||
+      '';
+    return base.replace(/\s+/g, ' ').trim();
+  }
+
+  async function fetchJsonMaybe(path) {
+    if (typeof window.fetch !== 'function') {
+      return null;
+    }
+    try {
+      const response = await window.fetch(path, { cache: 'no-store' });
+      if (!response.ok) {
+        return null;
+      }
+      return await response.json();
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getDefaultSegmentRiskMap() {
+    return {
+      high: ['saude', 'financeiro', 'governo', 'setor publico', 'educacao'],
+      medium: ['tecnologia', 'industria', 'varejo', 'servicos', 'logistica'],
+      low: ['agro', 'construcao', 'imobiliario', 'turismo'],
+    };
+  }
+
+  /* STATE */
 
   function defaultProfile() {
     return {
@@ -53,25 +265,40 @@
     };
   }
 
+  function createSessionId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return `nave-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+  }
+
   function defaultState() {
     return {
       version: content.appMeta.dataVersion,
-      screen: 'landing',
       sessionId: createSessionId(),
+      screen: 'landing',
       profile: defaultProfile(),
+      leadContext: null,
       answers: {},
-      currentQuestionIndex: 0,
+      currentQuestionId: questions[0]?.id || '',
       startedAt: null,
       completedAt: null,
       lastSavedAt: null,
       submissionQueue: [],
-      sentStatuses: { started: false, completed: false },
-      notice: null,
-      modal: null,
-      reviewOrigin: 'assessment',
+      sentStatuses: {
+        started: false,
+        completed: false,
+      },
       reportDirty: false,
-      helpDrawers: {},
+      notice: null,
+      helpPanel: '',
+      reviewOpen: false,
+      reviewOrigin: 'assessment',
       serviceDetailKey: '',
+      fabNudge: '',
+      touchedFields: {},
+      leadAttempted: false,
+      online: typeof navigator === 'undefined' ? true : navigator.onLine !== false,
     };
   }
 
@@ -86,49 +313,74 @@
         return defaultState();
       }
       const base = defaultState();
-      const next = {
+      return {
         ...base,
         ...parsed,
         profile: { ...base.profile, ...(parsed.profile || {}) },
+        leadContext: parsed.leadContext || null,
         answers: parsed.answers || {},
         sentStatuses: { ...base.sentStatuses, ...(parsed.sentStatuses || {}) },
         submissionQueue: Array.isArray(parsed.submissionQueue) ? parsed.submissionQueue : [],
-        modal: null,
+        online: typeof navigator === 'undefined' ? true : navigator.onLine !== false,
+        notice: null,
+        helpPanel: '',
+        reviewOpen: false,
         reviewOrigin: parsed.reviewOrigin || 'assessment',
-        reportDirty: Boolean(parsed.reportDirty),
-        helpDrawers: parsed.helpDrawers && typeof parsed.helpDrawers === 'object' ? parsed.helpDrawers : {},
+        serviceDetailKey: '',
+        fabNudge: '',
+        touchedFields: {},
+        leadAttempted: false,
       };
-      if (next.screen === 'results' && !isAssessmentComplete(next.answers)) {
-        next.screen = 'assessment';
-      }
-      if (next.screen === 'review' && !isLeadReady(next.profile)) {
-        next.screen = 'lead';
-      }
-      return next;
     } catch (error) {
       return defaultState();
     }
   }
 
+  function syncDerivedState() {
+    if (state.profile && Object.values(state.profile).some((value) => String(value || '').trim())) {
+      state.leadContext = buildLeadContext(state.profile);
+    }
+
+    if (!questionsById[state.currentQuestionId]) {
+      state.currentQuestionId = questions[0]?.id || '';
+    }
+
+    if (state.screen === 'results' && !allQuestionsAnswered()) {
+      state.screen = 'assessment';
+    }
+
+    if (state.screen === 'assessment' && !isLeadReady()) {
+      state.screen = 'lead';
+    }
+  }
+
+  function getPersistableState() {
+    return {
+      version: content.appMeta.dataVersion,
+      sessionId: state.sessionId,
+      screen: state.screen,
+      profile: state.profile,
+      leadContext: state.leadContext,
+      answers: state.answers,
+      currentQuestionId: state.currentQuestionId,
+      startedAt: state.startedAt,
+      completedAt: state.completedAt,
+      lastSavedAt: Date.now(),
+      submissionQueue: state.submissionQueue,
+      sentStatuses: state.sentStatuses,
+      reportDirty: state.reportDirty,
+      reviewOrigin: state.reviewOrigin,
+    };
+  }
+
   function saveState() {
     state.lastSavedAt = Date.now();
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        ...state,
-        modal: null,
-      })
-    );
+    window.localStorage.setItem(storageKey, JSON.stringify(getPersistableState()));
   }
 
   function persistAndRender() {
     saveState();
     render();
-  }
-
-  function resetState() {
-    state = defaultState();
-    persistAndRender();
   }
 
   function escapeHtml(value) {
@@ -140,137 +392,12 @@
       .replaceAll("'", '&#039;');
   }
 
-  function clampIndex(index) {
-    return Math.min(Math.max(index, 0), questions.length - 1);
-  }
-
-  function getCurrentQuestion() {
-    state.currentQuestionIndex = clampIndex(state.currentQuestionIndex);
-    return questions[state.currentQuestionIndex];
-  }
-
-  function getQuestion(questionId) {
-    return questionsById[questionId] || null;
-  }
-
-  function getQuestionIndex(questionId) {
-    return questionsById[questionId] ? clampIndex(questionsById[questionId].order - 1) : 0;
-  }
-
-  function getCheckpointById(checkpointId) {
-    return checkpointsById[checkpointId] || null;
-  }
-
-  function getCheckpointQuestions(checkpointId) {
-    const checkpoint = getCheckpointById(checkpointId);
-    return checkpoint ? checkpoint.questionIds.map((questionId) => questionsById[questionId]).filter(Boolean) : [];
-  }
-
-  function getCurrentCheckpoint() {
-    const currentQuestion = getCurrentQuestion();
-    return getCheckpointById(currentQuestion.checkpointId) || checkpoints[0] || null;
-  }
-
-  function getMissionCheckpoints(functionKey) {
-    return checkpoints.filter((checkpoint) => checkpoint.functionKey === functionKey);
-  }
-
-  function getCheckpointStats(checkpointId, answers) {
-    const checkpointQuestions = getCheckpointQuestions(checkpointId);
-    const answered = checkpointQuestions.filter((question) => getAnswer(question.id, answers)).length;
-    const highRiskCount = checkpointQuestions.filter((question) => {
-      const answer = getAnswer(question.id, answers);
-      return answer && (answer.selectedOption === 'A' || answer.selectedOption === 'B') && question.weight === 3;
-    }).length;
-    return {
-      answered,
-      total: checkpointQuestions.length,
-      missing: checkpointQuestions.length - answered,
-      highRiskCount,
-      complete: checkpointQuestions.length > 0 && answered === checkpointQuestions.length,
-    };
-  }
-
-  function getAnswerMap(answers) {
-    return answers || state.answers;
-  }
-
-  function getAnswer(questionId, answers) {
-    const answer = getAnswerMap(answers)[questionId];
-    return answer && answer.selectedOption ? answer : null;
-  }
-
-  function getAnsweredCount(answers) {
-    return questions.filter((question) => getAnswer(question.id, answers)).length;
-  }
-
-  function getCompletionPercent(answers) {
-    return (getAnsweredCount(answers) / questions.length) * 100;
-  }
-
-  function isAssessmentComplete(answers) {
-    return getAnsweredCount(answers) === questions.length;
-  }
-
-  function getMissionQuestions(functionKey) {
-    return questions.filter((question) => question.primaryFunctionKey === functionKey);
-  }
-
-  function getMissionStats(functionKey) {
-    const missionQuestions = getMissionQuestions(functionKey);
-    const answered = missionQuestions.filter((question) => getAnswer(question.id)).length;
-    const missionCheckpoints = getMissionCheckpoints(functionKey);
-    const completedCheckpoints = missionCheckpoints.filter((checkpoint) =>
-      getCheckpointStats(checkpoint.id).complete
-    ).length;
-    return {
-      answered,
-      total: missionQuestions.length,
-      percent: missionQuestions.length ? (answered / missionQuestions.length) * 100 : 0,
-      completedCheckpoints,
-      totalCheckpoints: missionCheckpoints.length,
-    };
-  }
-
-  function firstUnansweredIndex() {
-    const index = questions.findIndex((question) => !getAnswer(question.id));
-    return index === -1 ? questions.length - 1 : index;
-  }
-
-  function firstIncompleteCheckpointId(functionKey) {
-    const list = functionKey ? getMissionCheckpoints(functionKey) : checkpoints;
-    const target = list.find((checkpoint) => !getCheckpointStats(checkpoint.id).complete);
-    return target ? target.id : list[0]?.id || checkpoints[0]?.id || '';
-  }
-
-  function getNextCheckpointId(checkpointId) {
-    const index = checkpoints.findIndex((checkpoint) => checkpoint.id === checkpointId);
-    return index === -1 ? '' : checkpoints[index + 1]?.id || '';
-  }
-
-  function getPreviousCheckpointId(checkpointId) {
-    const index = checkpoints.findIndex((checkpoint) => checkpoint.id === checkpointId);
-    return index <= 0 ? '' : checkpoints[index - 1]?.id || '';
-  }
-
-  function formatScore(value) {
-    return Number.isFinite(value) ? scoreFormatter.format(value) : '—';
-  }
-
-  function formatPercent(value) {
-    return `${integerFormatter.format(Math.round(value))}%`;
-  }
-
-  function scoreToPercent(value) {
-    return (value / 4) * 100;
-  }
-
-  function formatTime(timestamp) {
-    return timestamp ? timeFormatter.format(new Date(timestamp)) : 'agora';
-  }
-
-  function isMobileLayout() {
-    return Boolean(mobileQuery && mobileQuery.matches);
+  function normalizeLookup(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   function normalizePhoneDigits(rawValue) {
@@ -308,787 +435,1175 @@
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   }
 
-  function getPhonePayloadValue() {
-    return normalizePhoneDigits(state.profile.phone);
+  /* CONTEXT */
+
+  function getSizeBand(size) {
+    const normalized = normalizeLookup(size);
+    if (!normalized) {
+      return 'unknown';
+    }
+    if (normalized.includes('ate 50') || normalized.includes('<50')) {
+      return 'micro';
+    }
+    if (normalized.includes('51 a 200') || normalized.includes('200')) {
+      return 'small';
+    }
+    if (normalized.includes('201 a 500') || normalized.includes('500')) {
+      return 'mid';
+    }
+    if (normalized.includes('501 a 1000') || normalized.includes('1.000')) {
+      return 'large';
+    }
+    if (normalized.includes('acima de 1000')) {
+      return 'enterprise';
+    }
+    return 'mid';
   }
 
-  function getFirstName() {
-    return String(state.profile.name || '').trim().split(/\s+/).filter(Boolean)[0] || '';
+  function getRoleGroup(role) {
+    const normalized = normalizeLookup(role);
+    if (
+      normalized.includes('ti') ||
+      normalized.includes('security') ||
+      normalized.includes('infra') ||
+      normalized.includes('ciso') ||
+      normalized.includes('tecnologia')
+    ) {
+      return 'tech';
+    }
+    return 'exec';
   }
 
-  function getPersonalContextLine() {
-    const parts = [];
-    if (state.profile.role) {
-      parts.push(state.profile.role);
+  function getSegmentRisk(segment) {
+    const normalized = normalizeLookup(segment);
+    const riskMap = content.segmentRiskMap || getDefaultSegmentRiskMap();
+    const groups = ['high', 'medium', 'low'];
+    for (const group of groups) {
+      const matches = riskMap[group] || [];
+      if (matches.some((item) => normalized.includes(normalizeLookup(item)))) {
+        return group;
+      }
     }
-    if (state.profile.company) {
-      parts.push(`na ${state.profile.company}`);
-    }
-    if (state.profile.size) {
-      parts.push(`em uma empresa de ${state.profile.size.toLowerCase()}`);
-    }
-    return parts.join(' ');
+    return 'medium';
   }
 
-  function getLeadPersonalization() {
-    const firstName = getFirstName();
-    const contextLine = getPersonalContextLine();
-    if (firstName && state.profile.role && state.profile.size) {
-      return {
-        title: `${firstName}, vamos calibrar a jornada para o seu contexto.`,
-        body: `Usaremos o seu papel ${contextLine || 'atual'} para explicar melhor o assessment e deixar a leitura final mais consultiva.`,
-      };
+  function getExpectedTierForLead(leadContext) {
+    if (!leadContext) {
+      return 2;
     }
-    if (firstName || state.profile.role || state.profile.size) {
-      return {
-        title: `${firstName || 'Vamos'} montar uma leitura mais aderente a sua realidade.`,
-        body: 'Com algumas informações de contexto, a experiência fica menos genérica e mais útil para quem decide.',
-      };
+    if (leadContext.segmentRisk === 'high') {
+      return 3;
     }
-    return {
-      title: 'Vamos personalizar a experiência antes de começar.',
-      body: 'São poucos dados, mas eles ajudam a tornar a jornada mais consultiva, mais clara e mais relevante para o seu cenário.',
+    if (leadContext.sizeBand === 'micro') {
+      return 2;
+    }
+    if (leadContext.sizeBand === 'enterprise') {
+      return 3;
+    }
+    return 3;
+  }
+
+  function buildLeadContext(profile) {
+    const firstName = String(profile.name || '').trim().split(/\s+/).filter(Boolean)[0] || '';
+    const sizeBand = getSizeBand(profile.size);
+    const segmentRisk = getSegmentRisk(profile.segment);
+    const roleGroup = getRoleGroup(profile.role);
+    const toneStyle = roleGroup === 'tech' ? 'executivo-com-contexto-tecnico' : 'executivo-direto';
+    const assessmentMode = sizeBand === 'micro' ? 'compact' : 'complete';
+
+    const leadContext = {
+      name: String(profile.name || '').trim(),
+      firstName,
+      role: String(profile.role || '').trim(),
+      company: String(profile.company || '').trim(),
+      size: String(profile.size || '').trim(),
+      sizeBand,
+      segment: String(profile.segment || '').trim(),
+      email: String(profile.email || '').trim(),
+      phone: String(profile.phone || '').trim(),
+      phoneDigits: normalizePhoneDigits(profile.phone),
+      segmentRisk,
+      roleGroup,
+      toneStyle,
+      assessmentMode,
+      expectedTier: 2,
     };
+
+    leadContext.expectedTier = getExpectedTierForLead(leadContext);
+    return leadContext;
   }
 
-  function getMissionPersonalization(functionMeta) {
-    const firstName = getFirstName();
-    const contextLine = getPersonalContextLine();
-    if (firstName && contextLine) {
-      return `${firstName}, este checkpoint foi guiado para alguém ${contextLine}. O objetivo aqui é transformar o técnico em resposta segura de negócio.`;
-    }
-    if (state.profile.role || state.profile.size) {
-      return 'Este checkpoint foi suavizado para uma leitura executiva, especialmente útil para quem precisa decidir sem mergulhar no detalhe técnico.';
-    }
-    return functionMeta.executiveSubtitle || functionMeta.heroText;
-  }
+  function validateLead(profile) {
+    const errors = {};
+    const email = String(profile.email || '').trim();
+    const phoneDigits = normalizePhoneDigits(profile.phone);
 
-  function getExecutivePersonaLine() {
-    const role = String(state.profile.role || '').trim();
-    const size = String(state.profile.size || '').trim();
-    if (role && size) {
-      return `Para uma liderança ${role.toLowerCase()} em uma empresa de ${size.toLowerCase()}, esta leitura prioriza clareza, contexto e decisão.`;
+    if (!String(profile.name || '').trim()) {
+      errors.name = 'Digite seu nome.';
     }
-    if (role) {
-      return `Para quem atua como ${role.toLowerCase()}, esta leitura foi suavizada para apoiar decisão sem excesso de tecnicismo.`;
+    if (!String(profile.role || '').trim()) {
+      errors.role = 'Digite seu cargo.';
     }
-    if (size) {
-      return `Este conteúdo foi ajustado para uma leitura executiva, especialmente útil em empresas de ${size.toLowerCase()}.`;
+    if (!email) {
+      errors.email = 'Digite seu e-mail profissional.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = 'Use um e-mail válido.';
     }
-    return 'Esta leitura foi organizada para ajudar lideranças a responder com segurança, mesmo sem mergulhar no detalhe técnico.';
-  }
-
-  function getQuestionPersonalization(question) {
-    const role = String(state.profile.role || '').trim();
-    const size = String(state.profile.size || '').trim();
-    if (role && size) {
-      return `Para alguém em ${role} numa empresa de ${size.toLowerCase()}, este ponto costuma depender de TI, governança e dos donos do processo para validação final.`;
+    if (!String(profile.company || '').trim()) {
+      errors.company = 'Digite o nome da empresa.';
     }
-    if (role) {
-      return `Para ${role}, este ponto costuma ser respondido melhor quando a visão de negócio é combinada com a validação técnica adequada.`;
+    if (!String(profile.size || '').trim()) {
+      errors.size = 'Selecione o porte.';
     }
-    return `Se esta pergunta parecer técnica demais, tudo bem: ${question.whoCanAnswer.toLowerCase()} costuma ajudar bastante aqui.`;
-  }
-
-  function getBrandName() {
-    return content.appMeta.name || 'N.A.V.E';
-  }
-
-  function getBrandSubtitle() {
-    return `${content.appMeta.subtitle || ''} · By ${content.appMeta.company || 'Active Solutions'}`;
-  }
-
-  function getHelpDrawerState(questionId) {
-    return state.helpDrawers[questionId] || '';
-  }
-
-  function toggleHelpDrawer(questionId, drawerKey) {
-    const current = getHelpDrawerState(questionId);
-    if (current === drawerKey) {
-      delete state.helpDrawers[questionId];
-    } else {
-      state.helpDrawers[questionId] = drawerKey;
+    if (!String(profile.segment || '').trim()) {
+      errors.segment = 'Selecione o segmento.';
     }
-    persistAndRender();
-  }
-
-  function buildWhatsAppMessage(extraContext) {
-    const lines = [content.appMeta.specialistMessage];
-    if (state.profile.name) {
-      lines.push(`Nome: ${state.profile.name}`);
+    if (String(profile.phone || '').trim() && phoneDigits.length < 12) {
+      errors.phone = 'Confira o telefone ou WhatsApp informado.';
     }
-    if (state.profile.company) {
-      lines.push(`Empresa: ${state.profile.company}`);
-    }
-    if (extraContext) {
-      lines.push(extraContext);
-    }
-    return lines.join('\n');
-  }
-
-  function buildWhatsAppUrl(extraContext) {
-    const number = normalizePhoneDigits(config.specialistWhatsApp || '5511991559361');
-    return `https://wa.me/${number}?text=${encodeURIComponent(buildWhatsAppMessage(extraContext))}`;
+    return errors;
   }
 
   function isLeadReady(profile) {
-    const subject = profile || state.profile;
-    return ['name', 'role', 'email', 'company', 'size', 'segment'].every(
-      (field) => String(subject[field] || '').trim() !== ''
-    );
+    return Object.keys(validateLead(profile || state.profile)).length === 0;
   }
 
-  function getQuestionScore(question, answers) {
-    const answer = getAnswer(question.id, answers);
-    return answer ? Number(answer.score) : null;
+  function getCurrentQuestion() {
+    return questionsById[state.currentQuestionId] || questions[0] || null;
   }
 
-  function getWeightedAverage(questionList, answers) {
-    let weightTotal = 0;
+  function getCurrentQuestionIndex() {
+    const currentQuestion = getCurrentQuestion();
+    return currentQuestion ? questions.findIndex((item) => item.id === currentQuestion.id) : 0;
+  }
+
+  function getQuestionsInMission(functionKey) {
+    return questions.filter((question) => question.primaryFunctionKey === functionKey);
+  }
+
+  function getCurrentMission() {
+    const currentQuestion = getCurrentQuestion();
+    return currentQuestion ? functionsByKey[currentQuestion.primaryFunctionKey] : content.functions[0];
+  }
+
+  function getAnswer(questionId, answers) {
+    const map = answers || state.answers;
+    const answer = map[questionId];
+    return answer && typeof answer.score === 'number' ? answer : null;
+  }
+
+  function getAnsweredCount(answers) {
+    return questions.filter((question) => getAnswer(question.id, answers)).length;
+  }
+
+  function allQuestionsAnswered(answers) {
+    return getAnsweredCount(answers) === questions.length;
+  }
+
+  function getCompletionPercent(answers) {
+    return (getAnsweredCount(answers) / questions.length) * 100;
+  }
+
+  function getMissionProgress(functionKey, answers) {
+    const missionQuestions = getQuestionsInMission(functionKey);
+    const answered = missionQuestions.filter((question) => getAnswer(question.id, answers)).length;
+    return {
+      answered,
+      total: missionQuestions.length,
+      percent: missionQuestions.length ? (answered / missionQuestions.length) * 100 : 0,
+    };
+  }
+
+  function getExecutiveRoleCopy() {
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    if (leadContext.role && leadContext.firstName) {
+      return `${leadContext.firstName}, para você como ${leadContext.role}, a leitura foi desenhada para apoiar decisão sem exigir detalhe técnico.`;
+    }
+    if (leadContext.role) {
+      return `Para quem atua como ${leadContext.role}, esta leitura privilegia dono, rotina e evidência.`;
+    }
+    return 'A leitura foi montada para uma liderança que precisa decidir com clareza, e não mergulhar no detalhe técnico.';
+  }
+
+  function getQuestionContextCopy(question) {
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    if (leadContext.role && leadContext.size) {
+      return `Para ${leadContext.role} em uma empresa de ${leadContext.size.toLowerCase()}, esta pergunta costuma ser respondida melhor quando visão de negócio e validação técnica se encontram.`;
+    }
+    if (leadContext.role) {
+      return `Para ${leadContext.role}, o principal aqui é saber se existe dono, rotina e evidência simples.`;
+    }
+    return 'Se isso parecer técnico demais, tudo bem. Foque no que realmente acontece hoje e em quem conseguiria provar essa prática.';
+  }
+
+  function getQuestionPromptCopy(question) {
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    if (leadContext.roleGroup === 'tech') {
+      return 'Considere também exceções, acessos de maior privilégio e o que realmente tem cobertura hoje.';
+    }
+    if (leadContext.sizeBand === 'micro') {
+      return 'Para empresas do seu porte, o essencial aqui é saber se existe dono, rotina mínima e alguma evidência prática.';
+    }
+    return 'Você não precisa do detalhe técnico. Foque no que é regra, no que é exceção e no que conseguiria ser demonstrado hoje.';
+  }
+
+  function getCurrentCheckpointLabel(question) {
+    const totalQuestionsInMission = getQuestionsInMission(question.primaryFunctionKey).length;
+    const checkpointTotal = Math.ceil(totalQuestionsInMission / 2);
+    const checkpointIndex = Math.ceil(question.orderInMission / 2);
+    return `Checkpoint ${checkpointIndex} de ${checkpointTotal}`;
+  }
+
+  function getQuestionDisplayOption(answer) {
+    if (!answer) {
+      return 'Pendente';
+    }
+    return uiLabelByOption[answer.selectedOption] || 'Respondida';
+  }
+
+  /* SCORE */
+
+  function getRiskMultiplier(question, leadContext) {
+    const context = leadContext || state.leadContext || buildLeadContext(state.profile);
+    let multiplier = 1;
+
+    if (context.segmentRisk === 'high') {
+      if (question.capabilities.includes('personal-data-governance')) {
+        multiplier *= 1.25;
+      }
+      if (
+        question.capabilities.includes('access-protection') ||
+        question.capabilities.includes('critical-identity')
+      ) {
+        multiplier *= 1.2;
+      }
+      if (question.functionKeys.some((item) => item === 'DE' || item === 'RS')) {
+        multiplier *= 1.15;
+      }
+    }
+
+    if (context.sizeBand === 'micro') {
+      const isEssentialControl =
+        question.capabilities.includes('access-protection') ||
+        question.capabilities.includes('critical-identity') ||
+        question.primaryFunctionKey === 'RC';
+      if (question.primaryFunctionKey === 'GV' && !isEssentialControl) {
+        multiplier *= 0.9;
+      }
+    }
+
+    return Number(multiplier.toFixed(4));
+  }
+
+  function getWeightedAverage(questionList, answers, leadContext) {
+    let totalWeight = 0;
     let weightedScore = 0;
+
     questionList.forEach((question) => {
-      const score = getQuestionScore(question, answers);
-      if (!Number.isFinite(score)) {
+      const answer = getAnswer(question.id, answers);
+      if (!answer) {
         return;
       }
-      weightTotal += question.weight;
-      weightedScore += question.weight * score;
+      const effectiveWeight = question.weight * getRiskMultiplier(question, leadContext);
+      totalWeight += effectiveWeight;
+      weightedScore += answer.score * effectiveWeight;
     });
-    if (!weightTotal) {
+
+    if (!totalWeight) {
       return null;
     }
-    return weightedScore / weightTotal;
+
+    return weightedScore / totalWeight;
   }
 
-  function getOverallScore(answers) {
-    return getWeightedAverage(questions, answers) || 0;
-  }
+  function getTierMeta(score) {
+    const bands = [
+      {
+        min: 0,
+        max: 0.99,
+        tier: 0,
+        label: 'Abaixo do Tier 1',
+        shortLabel: 'Base inicial',
+        description: 'A operação ainda depende mais de improviso do que de previsibilidade.',
+      },
+      {
+        min: 1,
+        max: 1.99,
+        tier: 1,
+        label: 'Tier 1 - Partial',
+        shortLabel: 'Parcial',
+        description: 'Já existem iniciativas relevantes, mas a consistência ainda é frágil.',
+      },
+      {
+        min: 2,
+        max: 2.99,
+        tier: 2,
+        label: 'Tier 2 - Risk Informed',
+        shortLabel: 'Risco informado',
+        description: 'A empresa decide com base em risco, mas ainda convive com lacunas de escala e evidência.',
+      },
+      {
+        min: 3,
+        max: 3.69,
+        tier: 3,
+        label: 'Tier 3 - Repeatable',
+        shortLabel: 'Repetível',
+        description: 'Os controles já operam com dono, cadência e padrão mais previsível.',
+      },
+      {
+        min: 3.7,
+        max: 4,
+        tier: 4,
+        label: 'Tier 4 - Adaptive',
+        shortLabel: 'Adaptativo',
+        description: 'Existe aprendizado contínuo, medição e ajuste mais rápido com o negócio.',
+      },
+    ];
 
-  function getFunctionMetrics(answers) {
-    return Object.fromEntries(
-      content.functions.map((item) => {
-        const relatedQuestions = questions.filter((question) => question.functionKeys.includes(item.key));
-        return [
-          item.key,
-          {
-            key: item.key,
-            meta: item,
-            total: relatedQuestions.length,
-            answered: relatedQuestions.filter((question) => getAnswer(question.id, answers)).length,
-            score: getWeightedAverage(relatedQuestions, answers),
-          },
-        ];
-      })
-    );
-  }
-
-  function getCapabilityMetrics(answers) {
-    return Object.fromEntries(
-      content.capabilities.map((item) => {
-        const relatedQuestions = questions.filter((question) => question.capabilities.includes(item.key));
-        return [
-          item.key,
-          {
-            key: item.key,
-            meta: item,
-            total: relatedQuestions.length,
-            answered: relatedQuestions.filter((question) => getAnswer(question.id, answers)).length,
-            score: getWeightedAverage(relatedQuestions, answers),
-          },
-        ];
-      })
-    );
-  }
-
-  function getMaturityBand(score) {
     return (
-      content.maturityBands.find((item) => score >= item.min && score <= item.max) ||
-      content.maturityBands[content.maturityBands.length - 1]
+      bands.find((item) => score >= item.min && score <= item.max) ||
+      bands[bands.length - 1]
     );
   }
 
-  function getHeatmapRows(answers) {
-    return content.functions.map((fn) => ({
-      meta: fn,
-      cells: content.capabilities.map((capability) => {
-        const relatedQuestions = questions.filter(
-          (question) =>
-            question.functionKeys.includes(fn.key) && question.capabilities.includes(capability.key)
-        );
-        return {
-          functionKey: fn.key,
-          capabilityKey: capability.key,
-          score: getWeightedAverage(relatedQuestions, answers),
-          total: relatedQuestions.length,
-        };
-      }),
-    }));
-  }
-
-  function getPriorityGaps(limit, answers) {
-    return questions
-      .map((question) => {
-        const answer = getAnswer(question.id, answers);
-        if (!answer) {
-          return null;
-        }
-        return {
-          id: question.id,
-          title: question.title,
-          shortTitle: question.title.replace(/^Q\d+\s·\s/, ''),
-          prompt: question.prompt,
-          functionKeys: question.functionKeys,
-          functionNames: question.functionKeys.map((key) => functionsByKey[key].label),
-          capabilities: question.capabilities,
-          capabilityNames: question.capabilityLabels,
-          serviceKeys: question.serviceKeys,
-          selectedOption: answer.selectedOption,
-          score: Number(answer.score),
-          weight: question.weight,
-          evidence: answer.evidence || '',
-          gapScore: question.weight * (4 - Number(answer.score)),
-        };
-      })
-      .filter(Boolean)
-      .sort((left, right) => right.gapScore - left.gapScore || left.score - right.score)
-      .slice(0, limit);
-  }
-
-  function getCapabilityBadges(answers) {
-    const capabilityMetrics = getCapabilityMetrics(answers);
-    return content.capabilities.map((capability) => {
-      const score = capabilityMetrics[capability.key].score;
-      let label = 'Prioridade alta';
-      let tone = 'critical';
-      if (score >= 3.7) {
-        label = 'Domínio adaptativo';
-        tone = 'elite';
-      } else if (score >= 3) {
-        label = 'Badge liberado';
-        tone = 'strong';
-      } else if (score >= 2) {
-        label = 'Em evolução';
-        tone = 'mid';
-      }
-      return { ...capability, score, tone, statusLabel: label, unlocked: score >= 3 };
-    });
-  }
-
-  function getRecommendedServices(limit, answers) {
-    const functionMetrics = getFunctionMetrics(answers);
-    const capabilityMetrics = getCapabilityMetrics(answers);
-    const gaps = getPriorityGaps(8, answers);
+  function rankServices(gaps, leadContext) {
     const rankings = new Map();
 
-    function bump(serviceKey, amount, gap, reason) {
-      if (!servicesByKey[serviceKey] || !amount) {
-        return;
-      }
-      const current = rankings.get(serviceKey) || {
-        key: serviceKey,
+    Object.values(servicesByKey).forEach((service) => {
+      rankings.set(service.serviceKey || service.key, {
+        ...service,
         score: 0,
-        functions: new Set(),
-        capabilities: new Set(),
-        gaps: new Set(),
-        reasons: new Set(),
-      };
-      current.score += amount;
-      if (gap) {
-        gap.functionKeys.forEach((item) => current.functions.add(item));
-        gap.capabilities.forEach((item) => current.capabilities.add(item));
-        current.gaps.add(gap.id);
-      }
-      if (reason) {
-        current.reasons.add(reason);
-      }
-      rankings.set(serviceKey, current);
-    }
-
-    gaps.forEach((gap, index) => {
-      const multiplier = index < 3 ? 1.4 : 1;
-      gap.serviceKeys.forEach((serviceKey) => bump(serviceKey, gap.gapScore * multiplier, gap, 'gaps'));
-    });
-
-    Object.values(functionMetrics).forEach((metric) => {
-      if (!Number.isFinite(metric.score) || metric.score >= 2.8) {
-        return;
-      }
-      (content.functionServiceMap[metric.key] || []).forEach((serviceKey) => {
-        bump(serviceKey, (3 - metric.score) * 2.4, null, `função ${metric.meta.label}`);
+        gapIds: new Set(),
+        capabilityHits: new Map(),
+        functionHits: new Map(),
       });
     });
 
-    Object.values(capabilityMetrics).forEach((metric) => {
-      if (!Number.isFinite(metric.score) || metric.score >= 3) {
-        return;
-      }
-      metric.meta.serviceKeys.forEach((serviceKey) => {
-        bump(serviceKey, (3.2 - metric.score) * 2.1, { id: metric.key, functionKeys: [], capabilities: [metric.key] }, `capacidade ${metric.meta.shortLabel}`);
+    gaps.forEach((gap) => {
+      Object.values(servicesByKey).forEach((service) => {
+        const key = service.serviceKey || service.key;
+        const fitSignals = service.fitSignals || [];
+        const nistFunctions = service.nistFunctions || [];
+        const matchesCapabilities = gap.capabilities.some((item) => fitSignals.includes(item));
+        const matchesFunctions = gap.functionKeys.some((item) => nistFunctions.includes(item));
+
+        if (!matchesCapabilities && !matchesFunctions) {
+          return;
+        }
+
+        let score = 0;
+        if (matchesCapabilities) {
+          score += gap.gapScore;
+        }
+        if (matchesCapabilities && matchesFunctions) {
+          score += gap.gapScore * 0.12;
+        } else if (!matchesCapabilities && matchesFunctions && gap.weight === 3) {
+          score += gap.gapScore * 0.1;
+        }
+
+        if (!score) {
+          return;
+        }
+
+        const ranking = rankings.get(key);
+        ranking.score += score;
+        ranking.gapIds.add(gap.id);
+        gap.capabilities.forEach((capabilityKey) => {
+          if (fitSignals.includes(capabilityKey)) {
+            ranking.capabilityHits.set(
+              capabilityKey,
+              (ranking.capabilityHits.get(capabilityKey) || 0) + score
+            );
+          }
+        });
+        gap.functionKeys.forEach((functionKey) => {
+          if (nistFunctions.includes(functionKey)) {
+            ranking.functionHits.set(functionKey, (ranking.functionHits.get(functionKey) || 0) + score);
+          }
+        });
       });
     });
 
     return Array.from(rankings.values())
+      .filter((item) => item.score > 0)
       .sort((left, right) => right.score - left.score)
-      .slice(0, limit)
-      .map((item) => ({
-        ...servicesByKey[item.key],
-        fitScore: item.score,
-        relatedGaps: gaps.filter((gap) => item.gaps.has(gap.id)).slice(0, 3),
-        relatedFunctions: Array.from(item.functions).map((key) => functionsByKey[key]?.label).filter(Boolean),
-        relatedCapabilities: Array.from(item.capabilities)
-          .map((key) => capabilitiesByKey[key]?.shortLabel)
-          .filter(Boolean),
-        reasons: Array.from(item.reasons),
-      }));
+      .map((service) => {
+        const topCapability = Array.from(service.capabilityHits.entries()).sort(
+          (left, right) => right[1] - left[1]
+        )[0];
+        const topFunction = Array.from(service.functionHits.entries()).sort(
+          (left, right) => right[1] - left[1]
+        )[0];
+        const capabilityLabel = topCapability ? capabilitiesByKey[topCapability[0]]?.label : '';
+        const functionLabel = topFunction ? functionsByKey[topFunction[0]]?.label : '';
+        const whyAppeared = capabilityLabel
+          ? `Apareceu porque as respostas mostram lacunas em ${capabilityLabel.toLowerCase()} e isso amplia o impacto sobre ${functionLabel ? functionLabel.toLowerCase() : 'a operação'}.`
+          : `Apareceu porque a missão ${functionLabel ? functionLabel.toLowerCase() : 'mais sensível'} ainda pede mais previsibilidade para o seu contexto.`;
+        const businessValue = `No seu setor (${leadContext.segment || 'não informado'}) e porte (${leadContext.size || 'não informado'}), esta costuma ser uma das frentes com melhor relação entre clareza, ritmo e redução de risco.`;
+
+        return {
+          ...service,
+          whyAppeared,
+          businessValue,
+          relatedGaps: gaps.filter((gap) => service.gapIds.has(gap.id)).slice(0, 3),
+          relatedCapabilities: Array.from(service.capabilityHits.keys())
+            .map((item) => capabilitiesByKey[item]?.shortLabel || capabilitiesByKey[item]?.label)
+            .filter(Boolean),
+        };
+      });
   }
 
-  function getRoadmap(answers) {
-    const gaps = getPriorityGaps(6, answers);
-    const services = getRecommendedServices(3, answers);
-    const lowCapabilities = getCapabilityBadges(answers)
-      .filter((item) => Number.isFinite(item.score))
-      .sort((left, right) => left.score - right.score)
-      .slice(0, 2);
+  function computeResultsModel(answers, leadContext) {
+    const activeAnswers = answers || state.answers;
+    const activeLead = leadContext || state.leadContext || buildLeadContext(state.profile);
+    const overallScore = getWeightedAverage(questions, activeAnswers, activeLead) || 0;
+    const observedTier = getTierMeta(overallScore);
+    const expectedTier = activeLead.expectedTier || getExpectedTierForLead(activeLead);
 
-    return [
+    const functionMetrics = content.functions.map((item) => {
+      const relatedQuestions = questions.filter((question) => question.functionKeys.includes(item.key));
+      return {
+        key: item.key,
+        meta: item,
+        answered: relatedQuestions.filter((question) => getAnswer(question.id, activeAnswers)).length,
+        total: relatedQuestions.length,
+        score: getWeightedAverage(relatedQuestions, activeAnswers, activeLead),
+      };
+    });
+
+    const capabilityMetrics = content.capabilities.map((item) => {
+      const relatedQuestions = questions.filter((question) => question.capabilities.includes(item.key));
+      return {
+        key: item.key,
+        meta: item,
+        answered: relatedQuestions.filter((question) => getAnswer(question.id, activeAnswers)).length,
+        total: relatedQuestions.length,
+        score: getWeightedAverage(relatedQuestions, activeAnswers, activeLead),
+      };
+    });
+
+    const gaps = questions
+      .map((question) => {
+        const answer = getAnswer(question.id, activeAnswers);
+        if (!answer) {
+          return null;
+        }
+        const multiplier = getRiskMultiplier(question, activeLead);
+        return {
+          id: question.id,
+          title: question.shortTitle,
+          prompt: question.prompt,
+          score: answer.score,
+          selectedOption: answer.selectedOption,
+          weight: question.weight,
+          multiplier,
+          gapScore: (4 - answer.score) * question.weight * multiplier,
+          functionKeys: question.functionKeys,
+          functionNames: question.functionKeys.map((item) => functionsByKey[item]?.label).filter(Boolean),
+          capabilities: question.capabilities,
+          capabilityNames: question.capabilityLabels,
+          evidence: answer.evidence || '',
+        };
+      })
+      .filter(Boolean)
+      .sort((left, right) => right.gapScore - left.gapScore || left.score - right.score);
+
+    const recommendedServices = rankServices(gaps, activeLead);
+    const topServices = recommendedServices.slice(0, 3);
+    const otherServices = recommendedServices.slice(3, 7);
+    const weakestFunction = functionMetrics
+      .filter((item) => Number.isFinite(item.score))
+      .slice()
+      .sort((left, right) => left.score - right.score)[0];
+    const strongestFunction = functionMetrics
+      .filter((item) => Number.isFinite(item.score))
+      .slice()
+      .sort((left, right) => right.score - left.score)[0];
+    const weakestCapability = capabilityMetrics
+      .filter((item) => Number.isFinite(item.score))
+      .slice()
+      .sort((left, right) => left.score - right.score)[0];
+    const tierGap = Math.max(expectedTier - observedTier.tier, 0);
+    const executivePercent = Math.round((overallScore / 4) * 100);
+    const topGaps = gaps.slice(0, 3);
+
+    const insights = [
+      {
+        title: tierGap > 0 ? 'Existe espaço claro entre o estágio atual e o esperado.' : 'A leitura já está próxima do rigor esperado para o seu contexto.',
+        body:
+          tierGap > 0
+            ? `Hoje o N.A.V.E enxerga ${observedTier.label} e, para ${activeLead.segment || 'o seu contexto'}, o alvo mais natural é Tier ${expectedTier}.`
+            : `O score atual sugere uma operação mais próxima do rigor esperado para ${activeLead.segment || 'o seu cenário'}.`,
+      },
+      {
+        title: weakestFunction
+          ? `${weakestFunction.meta.label} concentra a maior tensão agora.`
+          : 'As respostas já criam uma boa leitura inicial.',
+        body: weakestFunction
+          ? 'É a missão com mais espaço de evolução imediata, principalmente para reduzir atrito e surpresa na operação.'
+          : 'Com o assessment completo, a próxima etapa é transformar leitura em priorização prática.',
+      },
+      {
+        title: topServices[0]
+          ? `${topServices[0].name} aparece como a alavanca mais aderente agora.`
+          : 'O próximo passo é aprofundar as prioridades com um especialista.',
+        body: topServices[0]
+          ? topServices[0].whyAppeared
+          : 'Assim fica mais fácil converter o diagnóstico em plano de ação de curto prazo.',
+      },
+    ];
+
+    const roadmap = [
       {
         phase: '30 dias',
         title: 'Fechar exposições mais sensíveis',
-        items: gaps.slice(0, 2).map(
-          (gap) =>
-            `Atacar ${gap.shortTitle.toLowerCase()} com dono definido, prazo e evidência simples de execução.`
-        ),
+        items: topGaps.slice(0, 2).map((gap) => `Dar dono, prazo e evidência simples para ${gap.title.toLowerCase()}.`),
       },
       {
         phase: '60 dias',
-        title: 'Dar padrão e escala ao que hoje depende de esforço manual',
-        items: lowCapabilities.length
-          ? lowCapabilities.map(
-              (item) =>
-                `Padronizar ${item.label.toLowerCase()} com processo, revisão periódica e apoio de ${item.serviceKeys
-                  .map((key) => servicesByKey[key].name)
-                  .slice(0, 2)
-                  .join(' + ')}.`
-            )
-          : ['Consolidar processo, indicador e rotina de revisão para as capacidades mais críticas.'],
+        title: 'Dar padrão ao que ainda depende de esforço manual',
+        items:
+          topServices[0]
+            ? topServices[0].deliverables.slice(0, 2)
+            : ['Consolidar rotina, critério e revisão nas capacidades mais críticas.'],
       },
       {
         phase: '90 dias',
-        title: 'Testar, medir e transformar maturidade em vantagem operacional',
+        title: 'Transformar evolução em previsibilidade',
         items: [
-          services.length
-            ? `Transformar o diagnóstico em plano priorizado com apoio consultivo de ${services
-                .map((service) => service.name)
-                .slice(0, 2)
-                .join(' e ')}.`
-            : 'Transformar o diagnóstico em um plano priorizado de evolução trimestral.',
-          'Executar teste de resposta e recuperação para validar se a operação volta rápida e com segurança mínima garantida.',
+          strongestFunction
+            ? `Usar a base mais consistente de ${strongestFunction.meta.label.toLowerCase()} para acelerar as demais missões.`
+            : 'Transformar a leitura atual em plano trimestral de evolução.',
+          'Revisar indicadores, exceções e aprendizados para sustentar a melhoria contínua.',
         ],
       },
     ];
+
+    return {
+      leadContext: activeLead,
+      overallScore,
+      executivePercent,
+      observedTier,
+      expectedTier,
+      tierGap,
+      functionMetrics,
+      capabilityMetrics,
+      weakestFunction,
+      weakestCapability,
+      strongestFunction,
+      gaps,
+      topGaps,
+      recommendedServices,
+      topServices,
+      otherServices,
+      insights,
+      roadmap,
+    };
   }
 
-  function getNarrative(answers) {
-    const overall = getOverallScore(answers);
-    const band = getMaturityBand(overall);
-    const functionMetrics = Object.values(getFunctionMetrics(answers)).filter((item) => Number.isFinite(item.score));
-    const capabilityMetrics = Object.values(getCapabilityMetrics(answers)).filter((item) => Number.isFinite(item.score));
-    const weakestFunction = functionMetrics.slice().sort((left, right) => left.score - right.score)[0];
-    const strongestFunction = functionMetrics.slice().sort((left, right) => right.score - left.score)[0];
-    const weakestCapability = capabilityMetrics.slice().sort((left, right) => left.score - right.score)[0];
-    return [
-      band.description,
-      weakestFunction ? `Hoje o maior atrito aparece em ${weakestFunction.meta.label.toLowerCase()}` : '',
-      weakestCapability ? `e na capacidade de ${weakestCapability.meta.label.toLowerCase()}.` : '.',
-      strongestFunction
-        ? `A base mais consistente está em ${strongestFunction.meta.label.toLowerCase()}, o que acelera a próxima etapa.`
-        : '',
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .replace(' .', '.');
+  function formatScore(value) {
+    return Number.isFinite(value) ? scoreFormatter.format(value) : '-';
+  }
+
+  function formatPercent(value) {
+    return `${percentFormatter.format(Math.max(0, Math.round(value)))}%`;
+  }
+
+  function formatTime(value) {
+    if (!value) {
+      return 'agora';
+    }
+    return timeFormatter.format(new Date(value));
+  }
+
+  /* SUBMISSION */
+
+  function humanJoin(items) {
+    const list = (items || []).filter(Boolean);
+    if (!list.length) {
+      return '';
+    }
+    if (list.length === 1) {
+      return list[0];
+    }
+    if (list.length === 2) {
+      return `${list[0]} e ${list[1]}`;
+    }
+    return `${list.slice(0, -1).join(', ')} e ${list[list.length - 1]}`;
+  }
+
+  function getMicroFeedback(question, answer) {
+    if (!question || !answer) {
+      return null;
+    }
+
+    if ((answer.selectedOption === 'A' || answer.selectedOption === 'B') && question.weight === 3) {
+      return {
+        tone: 'risk',
+        title: 'Aqui existe uma exposição que merece atenção prática.',
+        body:
+          question.lossIfSkippedCopy ||
+          'Não é sobre perfeição. É um sinal claro de que vale dar dono, regra mínima e evidência simples para reduzir surpresa.',
+      };
+    }
+
+    if (answer.selectedOption === 'C') {
+      return {
+        tone: 'mid',
+        title: 'Boa base. Agora o ganho está em tornar isso mais previsível.',
+        body:
+          question.coachReassurance ||
+          'Isso já mostra intenção e alguma disciplina. O próximo salto costuma vir com mais cadência, clareza e menos exceção.',
+      };
+    }
+
+    return {
+      tone: 'good',
+      title:
+        answer.selectedOption === 'E'
+          ? 'Excelente. Isso já sugere evolução contínua.'
+          : 'Ótimo. Há consistência real nessa frente.',
+      body:
+        question.microRewardCopy ||
+        'Quando isso está bem resolvido, o relatório consegue separar melhor o que é base sólida do que ainda depende de esforço manual.',
+    };
+  }
+
+  function setNotice(tone, text) {
+    state.notice = text
+      ? {
+          tone,
+          text,
+          id: Date.now(),
+        }
+      : null;
+    saveState();
+    render();
+  }
+
+  function clearNotice() {
+    if (!state.notice) {
+      return;
+    }
+    state.notice = null;
+    saveState();
+    render();
+  }
+
+  function emitProductEvent(type, payload) {
+    const detail = {
+      type,
+      payload: payload || {},
+      screen: state?.screen || 'landing',
+      sessionId: state?.sessionId || '',
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      document.dispatchEvent(
+        new CustomEvent('nave:product-event', {
+          detail,
+        })
+      );
+    } catch (error) {
+      // noop
+    }
+
+    try {
+      if (typeof config.productEventHook === 'function') {
+        config.productEventHook(detail);
+      } else if (
+        typeof config.productEventHook === 'string' &&
+        config.productEventHook &&
+        typeof window.fetch === 'function'
+      ) {
+        window.fetch(config.productEventHook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(detail),
+          keepalive: true,
+        }).catch(() => {});
+      }
+    } catch (error) {
+      // noop
+    }
+
+    try {
+      console.info('[NAVE]', type, detail.payload);
+    } catch (error) {
+      // noop
+    }
+  }
+
+  function buildWhatsAppMessage(extraLines) {
+    const lines = [content.appMeta.specialistMessage];
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+
+    if (leadContext.name) {
+      lines.push(`Nome: ${leadContext.name}`);
+    }
+    if (leadContext.role) {
+      lines.push(`Cargo: ${leadContext.role}`);
+    }
+    if (leadContext.company) {
+      lines.push(`Empresa: ${leadContext.company}`);
+    }
+    if (Array.isArray(extraLines)) {
+      lines.push(...extraLines.filter(Boolean));
+    }
+
+    return lines.filter(Boolean).join('\n');
+  }
+
+  function buildWhatsAppUrl(extraLines) {
+    return `https://wa.me/${config.specialistWhatsApp}?text=${encodeURIComponent(
+      buildWhatsAppMessage(extraLines)
+    )}`;
+  }
+
+  function buildResultsWhatsAppLines(service) {
+    const model = computeResultsModel();
+    const lines = [
+      `Resultado atual: ${formatPercent(model.executivePercent)}.`,
+      `Tier observado: ${model.observedTier.label}.`,
+      `Tier esperado para o contexto: Tier ${model.expectedTier}.`,
+    ];
+
+    if (model.topGaps[0]) {
+      lines.push(`Lacuna mais sensível: ${model.topGaps[0].title}.`);
+    }
+    if (service) {
+      lines.push(`Quero entender melhor o serviço: ${service.name}.`);
+    } else {
+      lines.push('Quero discutir o relatório e os próximos passos com um especialista.');
+    }
+
+    return lines;
+  }
+
+  function getSyncStatus() {
+    if (!state.online) {
+      return {
+        tone: 'offline',
+        label: 'Offline',
+        detail: 'As respostas continuam salvas localmente.',
+      };
+    }
+
+    if (state.submissionQueue.length) {
+      return {
+        tone: 'pending',
+        label: `Envio pendente (${state.submissionQueue.length})`,
+        detail: 'Vamos reenviar assim que houver conexão e adapter disponível.',
+      };
+    }
+
+    if (state.sentStatuses.completed) {
+      return {
+        tone: 'success',
+        label: 'Sincronizado',
+        detail: 'Lead e relatório já foram preparados para o adapter.',
+      };
+    }
+
+    if (state.sentStatuses.started) {
+      return {
+        tone: 'active',
+        label: 'Jornada salva',
+        detail: 'O contexto do lead já foi registrado.',
+      };
+    }
+
+    return {
+      tone: 'idle',
+      label: 'Pronto',
+      detail: 'Nenhum envio foi iniciado ainda.',
+    };
   }
 
   function buildPayload(status) {
-    const overall = getOverallScore();
-    const band = getMaturityBand(overall);
-    const functionMetrics = getFunctionMetrics();
-    const capabilityMetrics = getCapabilityMetrics();
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    const model = computeResultsModel();
+    const answers = questions
+      .map((question) => {
+        const answer = getAnswer(question.id);
+        if (!answer) {
+          return null;
+        }
+        return {
+          questionId: question.id,
+          functionKeys: question.functionKeys,
+          capabilities: question.capabilities,
+          weight: question.weight,
+          selectedOption: answer.selectedOption,
+          score: answer.score,
+          evidence: answer.evidence || '',
+        };
+      })
+      .filter(Boolean);
+
     return {
       status,
       lead: {
-        nome: state.profile.name,
-        cargo: state.profile.role,
-        email: state.profile.email,
-        empresa: state.profile.company,
-        porte: state.profile.size,
-        segmento: state.profile.segment,
-        telefone: getPhonePayloadValue(),
+        name: leadContext.name,
+        role: leadContext.role,
+        email: leadContext.email,
+        company: leadContext.company,
+        size: leadContext.size,
+        segment: leadContext.segment,
+        phone: leadContext.phone,
+        phoneDigits: leadContext.phoneDigits,
+      },
+      context: {
+        segmentRisk: leadContext.segmentRisk,
+        expectedTier: leadContext.expectedTier,
+        toneStyle: leadContext.toneStyle,
+        assessmentMode: leadContext.assessmentMode,
       },
       session: {
         sessionId: state.sessionId,
         startedAt: state.startedAt,
         completedAt: state.completedAt,
         mode: 'complete',
-        appVersion: config.appVersion || content.appMeta.dataVersion,
-        source: config.rdSource,
-        tag: config.rdTag,
+        appVersion: config.appVersion,
       },
-      answers: questions
-        .map((question) => {
-          const answer = getAnswer(question.id);
-          if (!answer) {
-            return null;
-          }
-          return {
-            questionId: question.id,
-            functionKeys: question.functionKeys,
-            capabilities: question.capabilities,
-            weight: question.weight,
-            selectedOption: answer.selectedOption,
-            score: answer.score,
-            evidence: answer.evidence || '',
-          };
-        })
-        .filter(Boolean),
+      answers,
       scores: {
-        overall,
-        tier: band.tier,
-        functionScores: Object.fromEntries(Object.values(functionMetrics).map((item) => [item.key, item.score])),
-        capabilityScores: Object.fromEntries(Object.values(capabilityMetrics).map((item) => [item.key, item.score])),
+        overall: model.overallScore,
+        executivePercent: model.executivePercent,
+        tier: model.observedTier.tier,
+        tierObserved: model.observedTier.tier,
+        tierExpected: model.expectedTier,
+        functionScores: Object.fromEntries(
+          model.functionMetrics.map((item) => [item.key, item.score])
+        ),
+        capabilityScores: Object.fromEntries(
+          model.capabilityMetrics.map((item) => [item.key, item.score])
+        ),
       },
-      priorityGaps: getPriorityGaps(6),
+      priorityGaps: model.topGaps.map((gap) => ({
+        questionId: gap.id,
+        title: gap.title,
+        gapScore: gap.gapScore,
+        functionKeys: gap.functionKeys,
+        capabilities: gap.capabilities,
+      })),
+      generatedAt: new Date().toISOString(),
     };
   }
 
   async function postPayload(payload) {
-    const url = String(config.rdAdapterUrl || '').trim();
-    if (!url || typeof window.fetch !== 'function') {
-      return false;
+    if (!config.rdAdapterUrl) {
+      return { ok: true, skipped: true };
     }
-    const response = await window.fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    return response.ok;
-  }
 
-  function setNotice(tone, text) {
-    state.notice = { tone, text };
+    const response = await window.fetch(config.rdAdapterUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Adapter respondeu ${response.status}`);
+    }
+
+    return { ok: true };
   }
 
   async function flushPendingSubmissions(options) {
     const settings = options || {};
-    if (flushPendingSubmissions.running || !state.submissionQueue.length) {
+    if (!state.online || !state.submissionQueue.length) {
       return;
     }
-    if (!String(config.rdAdapterUrl || '').trim() || typeof window.fetch !== 'function') {
-      return;
-    }
-    flushPendingSubmissions.running = true;
-    try {
-      let mutated = false;
-      const queue = state.submissionQueue.slice();
-      for (const item of queue) {
-        let success = false;
-        try {
-          success = await postPayload(item.payload);
-        } catch (error) {
-          success = false;
+
+    const queue = [...state.submissionQueue];
+    state.submissionQueue = [];
+
+    for (let index = 0; index < queue.length; index += 1) {
+      const payload = queue[index];
+      try {
+        await postPayload(payload);
+        state.sentStatuses[payload.status] = true;
+      } catch (error) {
+        state.submissionQueue = queue.slice(index);
+        if (!settings.silent) {
+          setNotice(
+            'warning',
+            'Não foi possível sincronizar agora. A jornada continua salva e vamos tentar novamente.'
+          );
+        } else {
+          saveState();
+          render();
         }
-        if (!success) {
-          const pending = state.submissionQueue.find((entry) => entry.status === item.status);
-          if (pending) {
-            pending.attempts = (pending.attempts || 0) + 1;
-            pending.lastAttemptAt = Date.now();
-            mutated = true;
-          }
-          if (!settings.silent) {
-            setNotice(
-              'warning',
-              'Não conseguimos enviar ao adapter agora. Seu progresso continua salvo localmente e pode ser reenviado nesta sessão.'
-            );
-          }
-          break;
-        }
-        state.submissionQueue = state.submissionQueue.filter((entry) => entry.status !== item.status);
-        state.sentStatuses[item.status] = true;
-        mutated = true;
+        return;
       }
-      if (!state.submissionQueue.length && !settings.silent && mutated) {
-        setNotice('success', 'Dados sincronizados com o adapter configurado.');
-      }
-      if (mutated) {
-        persistAndRender();
-      }
-    } finally {
-      flushPendingSubmissions.running = false;
     }
+
+    saveState();
+    render();
   }
 
   function queueSubmission(status) {
+    const payload = buildPayload(status);
     state.submissionQueue = state.submissionQueue.filter((item) => item.status !== status);
-    state.submissionQueue.push({
-      status,
-      payload: buildPayload(status),
-      attempts: 0,
-      createdAt: Date.now(),
+    state.submissionQueue.push(payload);
+    state.sentStatuses[status] = false;
+    saveState();
+    if (state.online) {
+      flushPendingSubmissions({ silent: true });
+    } else {
+      render();
+    }
+  }
+
+  function ensureStartedSubmission() {
+    if (!state.startedAt) {
+      state.startedAt = Date.now();
+    }
+    if (!state.sentStatuses.started) {
+      queueSubmission('started');
+    }
+  }
+
+  function finishAssessment() {
+    if (!allQuestionsAnswered()) {
+      return false;
+    }
+
+    state.completedAt = Date.now();
+    state.reportDirty = false;
+    queueSubmission('completed');
+    emitProductEvent('assessment_complete', {
+      answered: getAnsweredCount(state.answers),
+      score: computeResultsModel().overallScore,
     });
-    if (!String(config.rdAdapterUrl || '').trim()) {
-      setNotice(
-        'muted',
-        'Integração preparada para RD Station via adapter. Como o endpoint ainda não foi configurado, o progresso segue salvo localmente.'
-      );
-    }
-    persistAndRender();
-    flushPendingSubmissions({ silent: !String(config.rdAdapterUrl || '').trim() });
+    return true;
   }
 
-  function getFeedbackForQuestion(question, answer) {
-    if (!answer) {
-      return null;
-    }
-    if ((answer.selectedOption === 'A' || answer.selectedOption === 'B') && question.weight === 3) {
-      return { tone: 'critical', text: content.feedbackMessages.highRisk };
-    }
-    if (answer.selectedOption === 'A' || answer.selectedOption === 'B') {
-      return { tone: 'warning', text: content.feedbackMessages.warning };
-    }
-    if (answer.selectedOption === 'C') {
-      return { tone: 'mid', text: content.feedbackMessages.mid };
-    }
-    return { tone: 'strong', text: content.feedbackMessages.strong };
-  }
-
-  function openReview(origin) {
-    state.reviewOrigin = origin || state.screen || 'assessment';
-    state.screen = 'review';
-    persistAndRender();
-  }
-
-  function navigateToQuestion(questionId) {
+  function setCurrentQuestion(questionId) {
     if (!questionsById[questionId]) {
       return;
     }
-    state.currentQuestionIndex = getQuestionIndex(questionId);
-    state.screen = 'assessment';
-    persistAndRender();
+    state.currentQuestionId = questionId;
+    state.helpPanel = '';
+    saveState();
+    render();
   }
 
-  function navigateToCheckpoint(checkpointId) {
-    const checkpointQuestions = getCheckpointQuestions(checkpointId);
-    if (!checkpointQuestions.length) {
-      return;
-    }
-    state.currentQuestionIndex = getQuestionIndex(checkpointQuestions[0].id);
-    state.screen = 'assessment';
-    persistAndRender();
+  function moveQuestion(delta) {
+    const index = getCurrentQuestionIndex();
+    const nextIndex = Math.max(0, Math.min(questions.length - 1, index + delta));
+    state.currentQuestionId = questions[nextIndex].id;
+    state.helpPanel = '';
+    saveState();
+    render();
   }
 
-  function afterAnswerMutation(incompleteNotice) {
-    if (state.completedAt || state.sentStatuses.completed) {
-      if (!isAssessmentComplete()) {
-        state.completedAt = null;
-        state.reportDirty = true;
-        state.sentStatuses.completed = false;
-        state.submissionQueue = state.submissionQueue.filter((entry) => entry.status !== 'completed');
-        setNotice(
-          'warning',
-          incompleteNotice || 'O relatório ficou em pausa até você concluir novamente as respostas pendentes.'
-        );
-        persistAndRender();
-        return;
-      }
-      state.completedAt = Date.now();
-      state.reportDirty = false;
-      setNotice('success', 'Relatório atualizado com a resposta mais recente.');
-      queueSubmission('completed');
-      return;
-    }
-    persistAndRender();
+  function getFirstUnansweredQuestionId(functionKey) {
+    const pool = functionKey ? getQuestionsInMission(functionKey) : questions;
+    return pool.find((question) => !getAnswer(question.id))?.id || pool[0]?.id || questions[0]?.id || '';
   }
 
   function updateAnswer(questionId, selectedOption) {
-    const question = getQuestion(questionId);
+    const question = questionsById[questionId];
     if (!question) {
       return;
     }
-    state.currentQuestionIndex = getQuestionIndex(questionId);
+
+    const currentAnswer = getAnswer(questionId) || {};
+    const resolvedOption = selectedOption === 'Dplus' ? 'D' : selectedOption;
+    const scoreMap = { A: 0, B: 1, C: 2, D: 3, E: 4 };
+    const shouldKeepEvidence = resolvedOption === 'D' || resolvedOption === 'E';
+
     state.answers[questionId] = {
-      ...(state.answers[questionId] || {}),
-      selectedOption,
-      score: question.scoreMap[selectedOption],
-      evidence: state.answers[questionId]?.evidence || '',
+      questionId,
+      functionKeys: question.functionKeys,
+      capabilities: question.capabilities,
+      weight: question.weight,
+      selectedOption: resolvedOption,
+      score: scoreMap[resolvedOption] ?? 0,
+      evidence: shouldKeepEvidence ? currentAnswer.evidence || '' : '',
+      answeredAt: Date.now(),
     };
-    afterAnswerMutation(
-      'Você alterou uma resposta. O relatório volta a ficar completo assim que todas as respostas estiverem preenchidas novamente.'
-    );
+
+    state.currentQuestionId = questionId;
+    state.helpPanel = selectedOption === 'Dplus' ? 'dplus' : '';
+    state.notice = null;
+
+    emitProductEvent('choice_select', {
+      questionId,
+      functionKeys: question.functionKeys,
+      checkpointId: question.checkpointId,
+      uiOption: selectedOption,
+      score: scoreMap[resolvedOption] ?? 0,
+    });
+
+    if (state.completedAt && allQuestionsAnswered()) {
+      state.reportDirty = true;
+      state.completedAt = Date.now();
+      queueSubmission('completed');
+    } else {
+      saveState();
+      render();
+    }
+  }
+
+  function setDplusLevel(questionId, selectedOption) {
+    updateAnswer(questionId, selectedOption);
   }
 
   function clearAnswer(questionId) {
     if (!state.answers[questionId]) {
       return;
     }
+
     delete state.answers[questionId];
-    afterAnswerMutation('Você limpou uma resposta. Complete este ponto novamente para reabrir o relatório final.');
+    state.helpPanel = '';
+
+    if (!allQuestionsAnswered()) {
+      state.completedAt = null;
+      state.reportDirty = false;
+      state.sentStatuses.completed = false;
+      state.submissionQueue = state.submissionQueue.filter((item) => item.status !== 'completed');
+    }
+
+    saveState();
+    render();
   }
 
-  function resetMissionAnswers(functionKey) {
-    getMissionQuestions(functionKey).forEach((question) => {
-      delete state.answers[question.id];
-    });
-    state.modal = null;
-    state.currentQuestionIndex = getQuestionIndex(getMissionQuestions(functionKey)[0]?.id || questions[0]?.id);
-    afterAnswerMutation('A missão foi resetada. O relatório final será reaberto assim que a missão voltar a ficar completa.');
-  }
-
-  function restartAssessment(keepLead) {
-    const preservedProfile = keepLead ? { ...state.profile } : defaultProfile();
-    state = defaultState();
-    state.profile = preservedProfile;
-    state.screen = keepLead ? 'assessment' : 'lead';
-    if (keepLead) {
-      state.startedAt = Date.now();
-      queueSubmission('started');
+  function goToResults() {
+    if (!allQuestionsAnswered()) {
+      state.reviewOpen = true;
+      state.reviewOrigin = state.screen;
+      setNotice('warning', 'Para liberar o relatório, basta responder as perguntas que ainda estão pendentes.');
       return;
     }
-    setNotice('warning', 'O assessment foi reiniciado do zero.');
-    persistAndRender();
-  }
 
-  function finishAssessment() {
-    state.completedAt = Date.now();
-    state.reportDirty = false;
+    finishAssessment();
     state.screen = 'results';
-    queueSubmission('completed');
+    saveState();
+    render();
+    emitProductEvent('result_view', {
+      score: computeResultsModel().overallScore,
+    });
   }
 
-  function getSyncChip() {
-    if (state.submissionQueue.length) {
-      return { label: `Envio pendente (${state.submissionQueue.length})`, tone: 'warning' };
+  function continueJourney() {
+    const index = getCurrentQuestionIndex();
+    if (index >= questions.length - 1) {
+      goToResults();
+      return;
     }
-    if (state.sentStatuses.completed) {
-      return { label: 'Adapter sincronizado', tone: 'success' };
-    }
-    if (state.sentStatuses.started) {
-      return { label: 'Lead salvo', tone: 'info' };
-    }
-    return { label: 'Jornada local ativa', tone: 'neutral' };
+
+    state.currentQuestionId = questions[index + 1].id;
+    state.helpPanel = '';
+    saveState();
+    render();
   }
 
-  function getCheckpointRewardCopy(checkpointQuestions) {
-    return checkpointQuestions[checkpointQuestions.length - 1]?.microRewardCopy || 'Seu relatório ganha mais precisão a cada checkpoint concluído.';
+  function getReviewGroups() {
+    return content.functions.map((mission) => {
+      const missionQuestions = getQuestionsInMission(mission.key);
+      const items = missionQuestions.map((question) => {
+        const answer = getAnswer(question.id);
+        return {
+          question,
+          answer,
+          status: answer ? 'answered' : question.weight === 3 ? 'critical' : 'missing',
+        };
+      });
+
+      return {
+        mission,
+        answered: items.filter((item) => item.answer).length,
+        total: items.length,
+        items,
+      };
+    });
   }
 
-  function getCheckpointLossCopy(checkpointQuestions) {
-    return checkpointQuestions[checkpointQuestions.length - 1]?.lossIfSkippedCopy || 'Se você parar aqui, perde a leitura que já estava quase pronta para esta missão.';
+  function restartAssessment(mode) {
+    if (mode === 'keep-lead') {
+      const profile = { ...state.profile };
+      state = {
+        ...defaultState(),
+        profile,
+        leadContext: buildLeadContext(profile),
+        screen: 'assessment',
+        currentQuestionId: questions[0]?.id || '',
+        startedAt: Date.now(),
+      };
+      ensureStartedSubmission();
+      emitProductEvent('assessment_start', {
+        assessmentMode: state.leadContext.assessmentMode,
+        restarted: true,
+      });
+    } else {
+      state = defaultState();
+      state.screen = 'lead';
+    }
+
+    saveState();
+    render();
   }
 
-  function getLevelMeta() {
-    const overall = getOverallScore();
-    if (overall < 1) {
-      return { level: 1, label: 'Base inicial', progress: 20 };
-    }
-    if (overall < 2) {
-      return { level: 2, label: 'Blindagem emergente', progress: 45 };
-    }
-    if (overall < 3) {
-      return { level: 3, label: 'Blindagem avançando', progress: 68 };
-    }
-    if (overall < 3.7) {
-      return { level: 4, label: 'Operação consistente', progress: 84 };
-    }
-    return { level: 5, label: 'Postura adaptativa', progress: 100 };
-  }
-
-  function getReturnScreen() {
-    if (state.reviewOrigin === 'results' && isAssessmentComplete()) {
-      return 'results';
-    }
-    return 'assessment';
-  }
-
-  function renderAppModal() {
-    if (state.serviceDetailKey) {
-      return renderServiceModal();
-    }
-    if (!state.modal) {
-      return '';
-    }
-    if (state.modal.type === 'reset-mission') {
-      const functionMeta = functionsByKey[state.modal.functionKey];
-      return `
-        <div class="modal-overlay" data-action="close-modal">
-          <div class="service-modal surface-card modal-dialog" role="dialog" aria-modal="true">
-            <button class="modal-close" type="button" data-action="close-modal">×</button>
-            <span class="eyebrow eyebrow-soft">Resetar missão</span>
-            <h2>${escapeHtml(functionMeta?.label || 'Missão atual')}</h2>
-            <p>Essa ação limpa apenas as respostas desta missão. Seu lead, sua sessão e as demais missões permanecem intactos.</p>
-            <div class="modal-cta">
-              <button class="btn btn-danger" type="button" data-action="confirm-reset-mission" data-function-key="${escapeHtml(state.modal.functionKey || '')}">Resetar missão atual</button>
-              <button class="btn btn-secondary" type="button" data-action="close-modal">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    if (state.modal.type === 'reset-all') {
-      return `
-        <div class="modal-overlay" data-action="close-modal">
-          <div class="service-modal surface-card modal-dialog" role="dialog" aria-modal="true">
-            <button class="modal-close" type="button" data-action="close-modal">×</button>
-            <span class="eyebrow eyebrow-soft">Reiniciar assessment</span>
-            <h2>Escolha como reiniciar a jornada</h2>
-            <p>Você pode começar uma nova sessão mantendo seus dados de lead ou apagar tudo e voltar ao início absoluto.</p>
-            <div class="reset-choice-grid">
-              <button class="reset-choice-card" type="button" data-action="reset-all-keep-lead">
-                <strong>Manter lead</strong>
-                <span>Gera uma nova sessão, preserva seu nome, cargo e empresa e já reabre o assessment desde a primeira missão.</span>
-              </button>
-              <button class="reset-choice-card danger" type="button" data-action="reset-all-clear-lead">
-                <strong>Apagar lead também</strong>
-                <span>Gera uma nova sessão, limpa respostas e contexto e volta para o formulário inicial.</span>
-              </button>
-            </div>
-            <div class="modal-cta">
-              <button class="btn btn-secondary" type="button" data-action="close-modal">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    return '';
-  }
-
-  function renderLogo(variant, className, altText) {
-    const assets = content.appMeta.brandAssets || {};
-    const source = variant === 'negative' ? assets.logoNegative : assets.logoColor;
-    if (!source) {
-      return '';
-    }
-    return `<img class="${className}" src="${source}" alt="${escapeHtml(altText || 'Active Solutions')}" />`;
-  }
+  /* RENDER */
 
   function renderTopbar() {
-    const syncChip = getSyncChip();
+    const sync = getSyncStatus();
+    const answered = getAnsweredCount(state.answers);
+    const currentQuestion = getCurrentQuestion();
+    const currentMission = getCurrentMission();
+    const logo = content.appMeta.brandAssets.logoNegative || content.appMeta.brandAssets.logoColor;
+
+    const chips =
+      state.screen === 'assessment' && currentQuestion
+        ? [
+            `${currentMission.code} · ${currentMission.label}`,
+            `Pergunta ${getCurrentQuestionIndex() + 1}/${questions.length}`,
+            `${answered}/${questions.length} respondidas`,
+          ]
+        : state.screen === 'results'
+          ? [
+              `${answered}/${questions.length} respondidas`,
+              `Tier atual ${computeResultsModel().observedTier.tier || 0}`,
+            ]
+          : ['48 perguntas', '6 funções do CSF 2.0'];
+
     return `
       <header class="topbar">
-        <div class="brand-block">
-          <div class="brand-mark brand-mark-logo">
-            ${renderLogo('color', 'brand-logo brand-logo-color', 'Logo Active Solutions')}
+        <div class="topbar-inner">
+          <div class="brand-block">
+            <div class="brand-mark brand-mark-logo brand-mark-dark">
+              <img class="brand-logo" src="${logo}" alt="Active Solutions" />
+            </div>
+            <div>
+              <span class="brand-kicker">${escapeHtml(content.appMeta.company)}</span>
+              <span class="brand-title">${escapeHtml(content.appMeta.name)}</span>
+              <span class="brand-subtitle">${escapeHtml(content.appMeta.subtitle)} · By Active Solutions</span>
+            </div>
           </div>
-          <div>
-            <div class="brand-kicker">${escapeHtml(content.appMeta.company)}</div>
-            <div class="brand-title">${escapeHtml(getBrandName())}</div>
-            <div class="brand-subtitle">${escapeHtml(getBrandSubtitle())}</div>
+
+          <div class="topbar-actions">
+            <div class="chip-row">
+              ${chips.map((chip) => `<span class="chip">${escapeHtml(chip)}</span>`).join('')}
+              <span class="chip chip--${sync.tone}">${escapeHtml(sync.label)}</span>
+            </div>
+            <div class="topbar-button-row">
+              ${state.screen !== 'lead'
+                ? `<button class="button button--ghost button--sm" data-action="open-review">Revisar respostas</button>`
+                : ''}
+              ${state.screen === 'assessment' && allQuestionsAnswered()
+                ? `<button class="button button--ghost button--sm" data-action="go-results">Ver relatório</button>`
+                : ''}
+              ${state.screen === 'results'
+                ? `<button class="button button--ghost button--sm" data-action="open-review">Editar respostas</button>`
+                : ''}
+            </div>
           </div>
-        </div>
-        <div class="chip-row">
-          <span class="chip">${questions.length} perguntas</span>
-          <span class="chip">${checkpoints.length} checkpoints</span>
-          <span class="chip">${getAnsweredCount()}/${questions.length} respondidas</span>
-          <span class="chip chip-${syncChip.tone}">${escapeHtml(syncChip.label)}</span>
         </div>
       </header>
     `;
@@ -1098,1671 +1613,1304 @@
     if (!state.notice) {
       return '';
     }
+
     return `
-      <div class="notice notice-${escapeHtml(state.notice.tone)}">
-        <span>${escapeHtml(state.notice.text)}</span>
-        <div class="notice-actions">
-          ${state.submissionQueue.length ? '<button class="btn btn-ghost" data-action="retry-submissions">Tentar reenviar</button>' : ''}
-          <button class="btn btn-ghost" data-action="close-notice">Fechar</button>
+      <div class="notice notice--${state.notice.tone}">
+        <div class="notice-copy">
+          <strong>${state.notice.tone === 'error' ? 'Ajuste rápido:' : state.notice.tone === 'warning' ? 'Importante:' : 'Tudo certo:'}</strong>
+          <span>${escapeHtml(state.notice.text)}</span>
         </div>
+        <button class="notice-close" data-action="close-notice" aria-label="Fechar aviso">×</button>
       </div>
     `;
   }
 
-  function renderSpecialistFab(extraContext) {
+  function renderFloatingWhatsApp() {
+    const currentQuestion = getCurrentQuestion();
+    let eyebrow = 'Ajuda humana disponível';
+    let lines = [];
+
+    if (state.screen === 'assessment' && currentQuestion) {
+      lines = [
+        `Pergunta atual: ${currentQuestion.id} - ${currentQuestion.shortTitle}.`,
+        `Missão: ${getCurrentMission().label}.`,
+      ];
+    } else if (state.screen === 'results') {
+      lines = buildResultsWhatsAppLines();
+    } else {
+      lines = ['Quero ajuda para começar o assessment N.A.V.E com o melhor contexto possível.'];
+    }
+
+    if (state.fabNudge === 'idle') {
+      eyebrow = 'Se quiser, um especialista pode te ajudar nesta pergunta.';
+    } else if (state.fabNudge === 'help') {
+      eyebrow = 'Ficou na dúvida? A Active pode responder com você.';
+    } else if (state.fabNudge === 'error') {
+      eyebrow = 'Encontrou uma trava? Chame alguém da Active agora.';
+    }
+
     return `
-      <a class="specialist-fab" href="${buildWhatsAppUrl(extraContext)}" target="_blank" rel="noreferrer">
-        <span class="specialist-fab-label">ajuda humana disponível</span>
-        <strong>Falar com um especialista</strong>
+      <a
+        class="specialist-fab"
+        href="${buildWhatsAppUrl(lines)}"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Falar com um especialista no WhatsApp"
+      >
+        <span class="specialist-fab-copy">
+          <span class="specialist-fab-eyebrow">${escapeHtml(eyebrow)}</span>
+          <strong class="specialist-fab-title">Falar com um especialista</strong>
+        </span>
+        <span class="specialist-fab-badge">WA</span>
       </a>
     `;
   }
 
-  function renderLanding() {
-    const progress = getCompletionPercent();
-    const firstName = getFirstName();
+  function renderProgressBar(label, value) {
     return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="hero hero-landing">
-            <div class="hero-copy surface-card surface-card-dark">
-              <span class="eyebrow">N.A.V.E · By Active Solutions</span>
-              <h1>${escapeHtml(firstName ? `${firstName}, esta avaliação foi desenhada para dar clareza sem pesar.` : 'Uma avaliação mais clara, respirada e útil para transformar maturidade em decisão.')}</h1>
-              <p>${escapeHtml(content.appMeta.tagline)}</p>
-              <div class="button-row">
-                <button class="btn btn-primary" data-action="start-flow">${isLeadReady() ? 'Retomar jornada' : 'Começar assessment completo'}</button>
-                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero ajuda para iniciar o assessment N.A.V.E.')}" target="_blank" rel="noreferrer">Falar com especialista</a>
-              </div>
-              <div class="hero-highlights">
-                <span>checkpoints leves</span>
-                <span>revisão fácil</span>
-                <span>relatório consultivo</span>
-              </div>
-              <div class="stats-row stats-row-compact">
-                <article class="stat-card">
-                  <strong>${checkpoints.length}</strong>
-                  <span>checkpoints distribuídos nas 6 funções do CSF 2.0</span>
-                </article>
-                <article class="stat-card">
-                  <strong>${formatPercent(progress)}</strong>
-                  <span>da jornada pode ser retomada sem perda</span>
-                </article>
-              </div>
-            </div>
-            <aside class="hero-side surface-card">
-              <div class="hero-brand-lockup">
-                ${renderLogo('color', 'hero-brand-logo', 'Logo Active Solutions colorido')}
-              </div>
-              <span class="eyebrow eyebrow-soft">Como funciona</span>
-              <h2>Você responde em blocos leves, revisa quando quiser e vê o relatório ganhar forma enquanto avança.</h2>
-              <div class="landing-steps">
-                <article>
-                  <strong>1. Entramos no seu contexto</strong>
-                  <span>Nome, cargo e porte ajudam a traduzir melhor o conteúdo para quem decide.</span>
-                </article>
-                <article>
-                  <strong>2. Guiamos sem tecnicês desnecessário</strong>
-                  <span>Cada checkpoint mostra o que importa, quem costuma saber responder e qual evidência ajuda.</span>
-                </article>
-                <article>
-                  <strong>3. Transformamos em ação</strong>
-                  <span>O relatório final mostra maturidade, prioridades e onde a Active pode acelerar a próxima etapa.</span>
-                </article>
-              </div>
-              <div class="mission-preview mission-preview-compact">
-                ${content.functions
-                  .map(
-                    (item) => `
-                      <button class="mission-chip" type="button" data-jump-function="${item.key}">
-                        <span>${escapeHtml(item.code)}</span>
-                        <strong>${escapeHtml(item.label)}</strong>
-                      </button>
-                    `
-                  )
-                  .join('')}
-              </div>
-            </aside>
-          </section>
-          <section class="section-grid">
-            ${content.functions
-              .map(
-                (item) => `
-                  <article class="mission-card surface-card" style="--mission-accent:${item.accent}; --mission-soft:${item.accentSoft}; --mission-glow:${item.glow};">
-                    <div class="mission-card-top">
-                      <span class="eyebrow eyebrow-soft">${escapeHtml(item.code)}</span>
-                      <span class="mission-code">${escapeHtml(item.heroBadge || item.code)}</span>
-                    </div>
-                    <h3>${escapeHtml(item.executiveTitle || item.label)}</h3>
-                    <p>${escapeHtml(item.executiveSubtitle || item.heroText)}</p>
-                    <span class="mission-note">${escapeHtml(item.rewardText || item.guidance)}</span>
-                  </article>
-                `
-              )
-              .join('')}
-          </section>
-        </main>
-        ${renderSpecialistFab()}
+      <div class="progress-block">
+        <div class="progress-head">
+          <span>${escapeHtml(label)}</span>
+          <strong>${formatPercent(value)}</strong>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <span class="progress-fill" style="width:${Math.max(0, Math.min(100, value))}%"></span>
+        </div>
       </div>
     `;
+  }
+
+  function renderLanding() {
+    const answered = getAnsweredCount(state.answers);
+    const ctaLabel = isLeadReady() ? 'Retomar avaliação' : 'Começar avaliação';
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    const personalizedNote = leadContext.firstName
+      ? `${leadContext.firstName}, aqui a ideia é simples: tirar o peso técnico e transformar segurança em clareza de decisão.`
+      : 'Uma jornada executiva para entender exposição, maturidade e próximos passos sem mergulhar no detalhe técnico.';
+
+    return `
+      <main class="page-content">
+        <section class="landing-hero hero-dark">
+          <div class="hero-copy">
+            <span class="eyebrow">Assessment executivo gamificado</span>
+            <h1>Segurança não é só TI. É continuidade, clareza e confiança para decidir melhor.</h1>
+            <p>${escapeHtml(content.appMeta.promise)}</p>
+            <div class="chip-row chip-row--hero">
+              <span class="chip">2 a 4 minutos</span>
+              <span class="chip">Uma pergunta por vez</span>
+              <span class="chip">Sem tecnês desnecessário</span>
+            </div>
+            <div class="hero-actions">
+              <button class="button button--primary" data-action="start-flow">${ctaLabel}</button>
+              ${answered
+                ? `<button class="button button--ghost" data-action="go-assessment">Continuar de onde parou</button>`
+                : ''}
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="surface-card metric-card">
+              <span class="eyebrow-soft">Jornada ativa</span>
+              <strong class="metric-card-value">${answered} de ${questions.length}</strong>
+              <p>${answered ? 'Você já liberou parte do diagnóstico. Retomar agora preserva esse ganho.' : 'A leitura final combina Tier observado, gap de rigor e serviços mais aderentes.'}</p>
+              ${renderProgressBar('Progresso geral', getCompletionPercent(state.answers))}
+            </div>
+            <div class="surface-card metric-card">
+              <span class="eyebrow-soft">Como funciona</span>
+              <ul class="compact-list">
+                <li>Lead curto para personalizar a leitura.</li>
+                <li>48 perguntas em linguagem de negócio.</li>
+                <li>Relatório executivo com serviços sugeridos.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="landing-grid">
+          <article class="surface-card value-card">
+            <span class="pill">Contexto primeiro</span>
+            <h2>Antes de proteger, entenda onde o risco realmente pesa.</h2>
+            <p>${escapeHtml(personalizedNote)}</p>
+          </article>
+          <article class="surface-card value-card">
+            <span class="pill">Decisão, não checklist</span>
+            <h2>O N.A.V.E traduz respostas complexas em prioridade executiva.</h2>
+            <p>O objetivo é facilitar conversa entre liderança, TI, marketing, jurídico e operação sem transformar a experiência em formulário pesado.</p>
+          </article>
+          <article class="surface-card value-card">
+            <span class="pill">Fechamento consultivo</span>
+            <h2>No fim, a leitura aponta o que fazer agora e como a Active pode ajudar.</h2>
+            <p>Você termina com score, Tier observado, Tier esperado, insights claros e os serviços mais aderentes ao cenário atual.</p>
+          </article>
+        </section>
+
+        <section class="surface-card mission-board">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow-soft">As 6 missões do CSF 2.0</span>
+              <h2>Uma trilha clara, contínua e sem sobrecarga visual.</h2>
+            </div>
+            <p>Mesmo quando o tema é técnico, a navegação continua leve: uma decisão por vez, ajuda contextual e progresso real.</p>
+          </div>
+          <div class="mission-pill-grid">
+            ${content.functions
+              .map((mission) => {
+                const progress = getMissionProgress(mission.key, state.answers);
+                return `
+                  <button class="mission-pill" data-action="jump-function" data-function-key="${mission.key}">
+                    <span class="mission-pill-code">${mission.key}</span>
+                    <span class="mission-pill-copy">
+                      <strong>${escapeHtml(mission.label)}</strong>
+                      <small>${progress.answered}/${progress.total} respondidas</small>
+                    </span>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        </section>
+      </main>
+    `;
+  }
+
+  function renderFieldError(fieldName, errors) {
+    if (!state.leadAttempted && !state.touchedFields[fieldName]) {
+      return '';
+    }
+    if (!errors[fieldName]) {
+      return '';
+    }
+    return `<span class="field-error" id="error-${fieldName}">${escapeHtml(errors[fieldName])}</span>`;
   }
 
   function renderLead() {
-    const personalization = getLeadPersonalization();
+    const errors = validateLead(state.profile);
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    const segmentRiskLabel =
+      leadContext.segmentRisk === 'high'
+        ? 'alto'
+        : leadContext.segmentRisk === 'low'
+          ? 'baixo'
+          : 'médio';
+
     return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="lead-layout">
-            <article class="surface-card surface-card-dark lead-copy">
-              <span class="eyebrow">Entrada leve</span>
-              <h1>${escapeHtml(personalization.title)}</h1>
-              <p>${escapeHtml(personalization.body)}</p>
-              <div class="bonus-card">
-                <strong>Bônus de início</strong>
-                <span>Assim que você concluir esta etapa, o assessment já abre com checkpoint salvo e revisão disponível a qualquer momento.</span>
+      <main class="page-content page-content--lead">
+        <section class="lead-layout">
+          <div class="hero-dark lead-hero">
+            <span class="eyebrow">Lead capture</span>
+            <h1>${leadContext.firstName ? `${escapeHtml(leadContext.firstName)}, vamos deixar esta leitura com a sua cara.` : 'Começamos com um contexto curto para personalizar o assessment.'}</h1>
+            <p>Quanto melhor o contexto, mais humana e mais útil fica a leitura final: linguagem, rigor esperado e recomendações passam a refletir seu porte, cargo e setor.</p>
+            <div class="hero-note-grid">
+              <div class="hero-note">
+                <strong>2 a 4 minutos</strong>
+                <span>Validação suave e sem fricção desnecessária.</span>
               </div>
-              <div class="mini-points">
-                <span>menos de 30 segundos</span>
-                <span>telefone / WhatsApp opcional</span>
-                <span>tom consultivo e executivo</span>
+              <div class="hero-note">
+                <strong>Sem tecnês</strong>
+                <span>Você não precisa do detalhe técnico para responder bem.</span>
               </div>
-            </article>
-            <form class="surface-card lead-form" data-form="lead">
-              <div class="form-intro">
-                <strong>Vamos personalizar sua leitura</strong>
-                <span>Quanto melhor entendermos o seu contexto, mais humana e útil fica a explicação ao longo da jornada.</span>
+            </div>
+            <div class="surface-card hero-sidecard">
+              <span class="eyebrow-soft">Leitura adaptativa</span>
+              <p>Segmento estimado como risco <strong>${segmentRiskLabel}</strong>. O Tier esperado para esse contexto começa em <strong>${leadContext.expectedTier}</strong>.</p>
+            </div>
+          </div>
+
+          <section class="surface-card lead-card">
+            <div class="section-head">
+              <div>
+                <span class="eyebrow-soft">Seu contexto</span>
+                <h2>Dados mínimos para uma avaliação mais assertiva</h2>
               </div>
-              <div class="personal-note" data-personalized-preview>
-                <strong>${escapeHtml(personalization.title)}</strong>
-                <span>${escapeHtml(personalization.body)}</span>
-              </div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>Nome</span>
-                  <input data-profile-input="name" name="name" value="${escapeHtml(state.profile.name)}" placeholder="Seu nome completo" required />
-                </label>
-                <label class="field">
-                  <span>Cargo</span>
-                  <input data-profile-input="role" name="role" value="${escapeHtml(state.profile.role)}" placeholder="Ex.: CEO, CIO, Gerente de TI" required />
-                </label>
-                <label class="field field-wide">
-                  <span>E-mail profissional</span>
-                  <input data-profile-input="email" type="email" name="email" value="${escapeHtml(state.profile.email)}" placeholder="voce@empresa.com.br" required />
-                </label>
-                <label class="field field-wide">
-                  <span>Empresa</span>
-                  <input data-profile-input="company" name="company" value="${escapeHtml(state.profile.company)}" placeholder="Nome da organização" required />
-                </label>
-                <label class="field">
-                  <span>Porte</span>
-                  <select data-profile-input="size" name="size" required>
-                    <option value="">Selecione</option>
-                    ${[
-                      'Até 50 colaboradores',
-                      '51 a 200 colaboradores',
-                      '201 a 500 colaboradores',
-                      '501 a 1.000 colaboradores',
-                      'Acima de 1.000 colaboradores',
-                    ]
-                      .map((value) => `<option value="${escapeHtml(value)}" ${state.profile.size === value ? 'selected' : ''}>${escapeHtml(value)}</option>`)
-                      .join('')}
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Segmento</span>
-                  <select data-profile-input="segment" name="segment" required>
-                    <option value="">Selecione</option>
-                    ${[
-                      'Tecnologia',
-                      'Indústria',
-                      'Saúde',
-                      'Serviços',
-                      'Varejo',
-                      'Financeiro',
-                      'Agro',
-                      'Setor público',
-                      'Outro',
-                    ]
-                      .map((value) => `<option value="${escapeHtml(value)}" ${state.profile.segment === value ? 'selected' : ''}>${escapeHtml(value)}</option>`)
-                      .join('')}
-                  </select>
-                </label>
-                <label class="field field-wide">
-                  <span>Telefone / WhatsApp (opcional)</span>
-                  <input data-profile-input="phone" name="phone" value="${escapeHtml(state.profile.phone)}" placeholder="(11) 99155-9361" inputmode="tel" />
-                  <small>Se você quiser apoio durante o preenchimento ou no relatório, esse contato acelera a conversa.</small>
-                </label>
-              </div>
-              <div class="button-row">
-                <button type="button" class="btn btn-secondary" data-action="go-landing">Voltar</button>
-                <button type="submit" class="btn btn-primary">${isLeadReady() ? 'Salvar contexto e continuar' : 'Começar missão 1'}</button>
+              <p>Se o telefone não for informado, seguimos normalmente. Ele só ajuda quando você quiser contato mais rápido.</p>
+            </div>
+
+            <form data-form="lead" novalidate class="lead-form">
+              <label class="field">
+                <span>Nome</span>
+                <input type="text" name="name" data-field="name" data-profile-input value="${escapeHtml(state.profile.name)}" aria-describedby="error-name" aria-invalid="${errors.name ? 'true' : 'false'}" />
+                ${renderFieldError('name', errors)}
+              </label>
+
+              <label class="field">
+                <span>Cargo</span>
+                <input type="text" name="role" data-field="role" data-profile-input value="${escapeHtml(state.profile.role)}" aria-describedby="error-role" aria-invalid="${errors.role ? 'true' : 'false'}" placeholder="Ex.: CEO, CIO, Diretoria, Marketing" />
+                ${renderFieldError('role', errors)}
+              </label>
+
+              <label class="field">
+                <span>E-mail profissional</span>
+                <input type="email" name="email" data-field="email" data-profile-input value="${escapeHtml(state.profile.email)}" aria-describedby="error-email" aria-invalid="${errors.email ? 'true' : 'false'}" />
+                ${renderFieldError('email', errors)}
+              </label>
+
+              <label class="field">
+                <span>Empresa</span>
+                <input type="text" name="company" data-field="company" data-profile-input value="${escapeHtml(state.profile.company)}" aria-describedby="error-company" aria-invalid="${errors.company ? 'true' : 'false'}" />
+                ${renderFieldError('company', errors)}
+              </label>
+
+              <label class="field">
+                <span>Porte</span>
+                <select name="size" data-field="size" data-profile-input aria-describedby="error-size" aria-invalid="${errors.size ? 'true' : 'false'}">
+                  <option value="">Selecione</option>
+                  ${[
+                    'Até 50 colaboradores',
+                    '51 a 200 colaboradores',
+                    '201 a 500 colaboradores',
+                    '501 a 1.000 colaboradores',
+                    'Acima de 1.000 colaboradores',
+                  ]
+                    .map(
+                      (option) =>
+                        `<option value="${escapeHtml(option)}" ${state.profile.size === option ? 'selected' : ''}>${escapeHtml(option)}</option>`
+                    )
+                    .join('')}
+                </select>
+                ${renderFieldError('size', errors)}
+              </label>
+
+              <label class="field">
+                <span>Segmento</span>
+                <select name="segment" data-field="segment" data-profile-input aria-describedby="error-segment" aria-invalid="${errors.segment ? 'true' : 'false'}">
+                  <option value="">Selecione</option>
+                  ${[
+                    'Tecnologia',
+                    'Saúde',
+                    'Financeiro',
+                    'Indústria',
+                    'Serviços',
+                    'Varejo',
+                    'Agro',
+                    'Setor público',
+                    'Educação',
+                    'Outro',
+                  ]
+                    .map(
+                      (option) =>
+                        `<option value="${escapeHtml(option)}" ${state.profile.segment === option ? 'selected' : ''}>${escapeHtml(option)}</option>`
+                    )
+                    .join('')}
+                </select>
+                ${renderFieldError('segment', errors)}
+              </label>
+
+              <label class="field field--full">
+                <span>Telefone / WhatsApp <small>(opcional)</small></span>
+                <input type="tel" name="phone" data-field="phone" data-profile-input value="${escapeHtml(formatPhoneDisplay(state.profile.phone))}" aria-describedby="error-phone" aria-invalid="${errors.phone ? 'true' : 'false'}" placeholder="(11) 99999-9999" />
+                ${renderFieldError('phone', errors)}
+              </label>
+
+              <div class="lead-footer">
+                <p class="form-note">Ao continuar, o contexto fica salvo localmente e o assessment pode ser retomado depois exatamente do mesmo ponto.</p>
+                <button class="button button--primary" type="submit">Salvar contexto e começar</button>
               </div>
             </form>
           </section>
-        </main>
-        ${renderSpecialistFab()}
-      </div>
+        </section>
+      </main>
     `;
   }
 
-  function updateLeadPreviewDom() {
-    const note = app.querySelector('[data-personalized-preview]');
-    if (note) {
-      const personalization = getLeadPersonalization();
-      note.innerHTML = `
-        <strong>${escapeHtml(personalization.title)}</strong>
-        <span>${escapeHtml(personalization.body)}</span>
+  function renderMissionRail(currentMission) {
+    return `
+      <aside class="mission-rail">
+        <div class="surface-card rail-card">
+          <span class="eyebrow-soft">Jornada ativa</span>
+          <strong class="rail-big-number">${getAnsweredCount(state.answers)} de ${questions.length}</strong>
+          <p>${state.leadContext?.firstName ? `Cada resposta aproxima ${escapeHtml(state.leadContext.firstName)} do relatório executivo final.` : 'Cada resposta destrava mais contexto para o relatório final.'}</p>
+          ${renderProgressBar('Progresso geral', getCompletionPercent(state.answers))}
+        </div>
+
+        <div class="surface-card rail-card">
+          <div class="rail-head">
+            <span class="pill">Missões</span>
+            <button class="button button--ghost button--sm" data-action="open-review">Central de revisão</button>
+          </div>
+          <div class="rail-mission-list">
+            ${content.functions
+              .map((mission) => {
+                const progress = getMissionProgress(mission.key, state.answers);
+                return `
+                  <button
+                    class="rail-mission-item ${mission.key === currentMission.key ? 'is-active' : ''}"
+                    data-action="jump-function"
+                    data-function-key="${mission.key}"
+                  >
+                    <span>
+                      <strong>${mission.key} ${escapeHtml(mission.label)}</strong>
+                      <small>${progress.answered}/${progress.total} respondidas</small>
+                    </span>
+                    <em>${formatPercent(progress.percent)}</em>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        </div>
+      </aside>
+    `;
+  }
+
+  function renderAssessmentAside(question) {
+    const mission = getCurrentMission();
+    const missionProgress = getMissionProgress(mission.key, state.answers);
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+
+    return `
+      <aside class="assessment-aside">
+        <div class="surface-card aside-card">
+          <span class="eyebrow-soft">Ritmo da missão</span>
+          ${renderProgressBar(`${mission.label}`, missionProgress.percent)}
+          ${renderProgressBar('Nível esperado', Math.min(100, (leadContext.expectedTier / 4) * 100))}
+          <p>${escapeHtml(mission.rewardText || question.microRewardCopy || 'Cada resposta ajuda a transformar percepções difusas em prioridade clara.')}</p>
+        </div>
+        <div class="surface-card aside-card">
+          <span class="eyebrow-soft">Por que isso importa</span>
+          <p>${escapeHtml(question.learnWhy || mission.heroText)}</p>
+        </div>
+        <div class="surface-card aside-card">
+          <span class="eyebrow-soft">Quem costuma saber responder</span>
+          <p>${escapeHtml(question.whoCanAnswer || mission.supportPrompt)}</p>
+        </div>
+      </aside>
+    `;
+  }
+
+  function renderChoiceCard(question, uiOption, answer) {
+    const selected =
+      answer &&
+      (answer.selectedOption === uiOption.uiKey ||
+        (uiOption.uiKey === 'Dplus' && ['D', 'E'].includes(answer.selectedOption)));
+    const tone =
+      uiOption.uiKey === 'Dplus'
+        ? answer?.selectedOption === 'E'
+          ? uiToneByOption.E
+          : uiToneByOption.D
+        : uiToneByOption[uiOption.uiKey];
+
+    return `
+      <button
+        class="choice-card choice-card--${tone} ${selected ? 'is-selected' : ''}"
+        data-action="select-option"
+        data-question-id="${question.id}"
+        data-option="${uiOption.uiKey}"
+      >
+        <span class="choice-card-head">
+          <span class="choice-card-key">${uiOption.uiKey === 'Dplus' ? 'D+' : uiOption.uiKey}</span>
+          ${selected ? `<span class="choice-card-check">Selecionado</span>` : ''}
+        </span>
+        <strong>${escapeHtml(uiOption.title)}</strong>
+        <p>${escapeHtml(uiOption.subtitle)}</p>
+      </button>
+    `;
+  }
+
+  function renderQuestionHelp(question) {
+    if (!state.helpPanel) {
+      return '';
+    }
+
+    if (state.helpPanel === 'explain') {
+      return `
+        <div class="inline-help inline-help--open">
+          <strong>Me explica melhor</strong>
+          <p>${escapeHtml(question.businessPlainLanguage || question.help.explain)}</p>
+          <p>${escapeHtml(question.learnWhy || '')}</p>
+        </div>
       `;
     }
-    const submitButton = app.querySelector('[data-form="lead"] button[type="submit"]');
-    if (submitButton) {
-      submitButton.textContent = isLeadReady() ? 'Salvar contexto e continuar' : 'Começar missão 1';
+
+    if (state.helpPanel === 'examples') {
+      return `
+        <div class="inline-help inline-help--open">
+          <strong>Pode me dar exemplos?</strong>
+          <p>${escapeHtml(question.whoCanAnswer || 'Esta resposta costuma envolver negócio e validação de quem opera o processo.')}</p>
+          ${question.evidenceExamples?.length
+            ? `<ul>${question.evidenceExamples
+                .map((item) => `<li>${escapeHtml(item)}</li>`)
+                .join('')}</ul>`
+            : ''}
+          <p>${escapeHtml(question.learnTip || question.evidenceHint || '')}</p>
+        </div>
+      `;
     }
+
+    if (state.helpPanel === 'dplus') {
+      const currentAnswer = getAnswer(question.id);
+      return `
+        <div class="inline-help inline-help--open inline-help--dplus">
+          <strong>Refinar o D+</strong>
+          <p>Se já existe consistência, vale separar se isso é apenas repetível ou se já há melhoria contínua com revisão e ajuste frequente.</p>
+          <div class="dplus-grid">
+            <button class="button button--ghost ${currentAnswer?.selectedOption === 'D' ? 'is-selected' : ''}" data-action="set-dplus-level" data-question-id="${question.id}" data-level="D">
+              Manter como consistente
+            </button>
+            <button class="button button--primary ${currentAnswer?.selectedOption === 'E' ? 'is-selected' : ''}" data-action="set-dplus-level" data-question-id="${question.id}" data-level="E">
+              Marcar como evolução contínua
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    return '';
   }
 
-  function renderFunctionNav(currentMissionKey) {
-    return `
-      <div class="surface-card mission-nav">
-        <div class="section-mini-head">
-          <span class="eyebrow eyebrow-soft">Missões</span>
-          <button class="btn btn-ghost btn-compact" type="button" data-action="open-review">Central de revisão</button>
-        </div>
-        ${content.functions
-          .map((item) => {
-            const stats = getMissionStats(item.key);
-            const checkpointId = firstIncompleteCheckpointId(item.key) || getMissionCheckpoints(item.key)[0]?.id;
-            return `
-              <button class="mission-nav-item ${item.key === currentMissionKey ? 'is-current' : ''}" type="button" data-jump-checkpoint="${escapeHtml(checkpointId || '')}">
-                <div>
-                  <span>${escapeHtml(item.code)}</span>
-                  <strong>${escapeHtml(item.label)}</strong>
-                </div>
-                <small>${stats.answered}/${stats.total}</small>
-              </button>
-            `;
-          })
-          .join('')}
-      </div>
-    `;
-  }
-
-  function renderCheckpointRail(currentMission, currentCheckpoint) {
-    return `
-      <div class="surface-card checkpoint-rail">
-        <div class="section-mini-head">
-          <span class="eyebrow eyebrow-soft">Jornada</span>
-          <span class="rail-caption">${escapeHtml(currentMission.shortLabel)}</span>
-        </div>
-        <div class="checkpoint-rail-list">
-          ${getMissionCheckpoints(currentMission.key)
-            .map((checkpoint) => {
-              const stats = getCheckpointStats(checkpoint.id);
-              const tone = stats.complete ? 'is-complete' : checkpoint.id === currentCheckpoint.id ? 'is-current' : '';
-              return `
-                <button class="checkpoint-rail-item ${tone}" type="button" data-jump-checkpoint="${checkpoint.id}">
-                  <span class="checkpoint-rail-badge">${stats.complete ? '✓' : String(checkpoint.order).padStart(2, '0')}</span>
-                  <div>
-                    <strong>${escapeHtml(checkpoint.label)}</strong>
-                    <span>${stats.answered}/${stats.total} respondidas</span>
-                  </div>
-                </button>
-              `;
-            })
-            .join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  function renderQuestionCard(question, currentMission, isActiveMobile) {
+  function renderAssessment() {
+    const question = getCurrentQuestion();
     const answer = getAnswer(question.id);
-    const feedback = getFeedbackForQuestion(question, answer);
-    const drawer = getHelpDrawerState(question.id);
+    const mission = getCurrentMission();
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    const questionIndex = getCurrentQuestionIndex() + 1;
+    const missionProgress = getMissionProgress(mission.key, state.answers);
+    const microFeedback = getMicroFeedback(question, answer);
+
     return `
-      <article class="surface-card checkpoint-question ${isActiveMobile ? 'is-mobile-active' : ''}" style="--mission-accent:${currentMission.accent};">
-        <div class="checkpoint-question-head">
-          <div>
-            <span class="question-step">Pergunta ${question.orderInMission} de ${getMissionQuestions(currentMission.key).length}</span>
-            <h2>${escapeHtml(question.uiPromptShort || question.businessPlainLanguage || question.prompt)}</h2>
-            <p class="question-prompt">${escapeHtml(question.coachHint)}</p>
+      <main class="page-content page-content--assessment">
+        <section class="assessment-hero hero-dark" style="--mission-accent:${mission.accent || '#0057E7'};">
+          <div class="hero-copy">
+            <span class="eyebrow">${escapeHtml(mission.missionLabel)} · ${escapeHtml(mission.label)}</span>
+            <h1>${escapeHtml(question.shortTitle)}</h1>
+            <p>${escapeHtml(getExecutiveRoleCopy())}</p>
+            <div class="chip-row chip-row--hero">
+              <span class="chip">Pergunta ${questionIndex}/${questions.length}</span>
+              <span class="chip">${escapeHtml(getCurrentCheckpointLabel(question))}</span>
+              <span class="chip">Tier esperado ${leadContext.expectedTier}</span>
+            </div>
           </div>
-          <div class="question-utility">
-            <span class="question-code">${escapeHtml(question.id)}</span>
-            <button class="mini-action" type="button" data-action="clear-question" data-question-id="${question.id}" ${answer ? '' : 'disabled'}>Limpar</button>
+          <div class="hero-panel hero-panel--assessment">
+            <div class="surface-card metric-card">
+              <span class="eyebrow-soft">Missão atual</span>
+              <strong class="metric-card-value">${formatPercent(missionProgress.percent)}</strong>
+              <p>${escapeHtml(mission.rewardTitle || 'Progresso liberado')}</p>
+            </div>
+            <div class="surface-card metric-card">
+              <span class="eyebrow-soft">Ganho desta etapa</span>
+              <p>${escapeHtml(question.microRewardCopy || mission.rewardText)}</p>
+            </div>
           </div>
-        </div>
-        <div class="question-personal-note">${escapeHtml(getQuestionPersonalization(question))}</div>
-        <div class="question-tool-row">
-          <button class="drawer-chip ${drawer === 'explain' ? 'is-active' : ''}" type="button" data-action="toggle-help" data-question-id="${question.id}" data-help-kind="explain">Me explica melhor</button>
-          <button class="drawer-chip ${drawer === 'examples' ? 'is-active' : ''}" type="button" data-action="toggle-help" data-question-id="${question.id}" data-help-kind="examples">Pode me dar exemplos</button>
-        </div>
-        ${
-          drawer
-            ? `
-              <div class="inline-drawer">
-                ${
-                  drawer === 'explain'
-                    ? `
-                      <div class="inline-drawer-grid">
-                        <div class="help-card">
-                          <span>O que estamos tentando entender aqui?</span>
-                          <p>${escapeHtml(question.learnWhy)}</p>
-                        </div>
-                        <div class="help-card">
-                          <span>Leitura executiva</span>
-                          <p>${escapeHtml(question.businessPlainLanguage)}</p>
-                        </div>
-                      </div>
-                    `
-                    : `
-                      <div class="inline-drawer-grid">
-                        <div class="help-card">
-                          <span>Quem costuma saber responder</span>
-                          <p>${escapeHtml(question.whoCanAnswer)}</p>
-                        </div>
-                        <div class="help-card">
-                          <span>Dica prática</span>
-                          <p>${escapeHtml(question.learnTip)}</p>
-                        </div>
-                      </div>
-                      ${
-                        question.evidenceExamples.length
-                          ? `<div class="pill-cloud">${question.evidenceExamples.map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join('')}</div>`
-                          : ''
-                      }
-                    `
-                }
-              </div>
-            `
-            : ''
-        }
-        <div class="question-reassurance">${escapeHtml(question.coachReassurance)}</div>
-        <div class="choice-grid checkpoint-choice-grid">
-          ${question.optionKeys
-            .map((optionKey) => {
-              const optionMeta = content.answerScale[optionKey];
-              return `
-                <button type="button" class="choice-card ${answer && answer.selectedOption === optionKey ? 'is-selected' : ''}" data-option="${optionKey}" data-question-id="${question.id}">
-                  <div class="choice-topline">
-                    <span class="choice-letter">${escapeHtml(optionKey)}</span>
-                    <span class="choice-status">${escapeHtml(optionMeta.label)}</span>
-                  </div>
-                  <strong>${escapeHtml(optionMeta.label)}</strong>
-                  <p>${escapeHtml(question.options[optionKey])}</p>
+        </section>
+
+        <section class="assessment-shell">
+          ${renderMissionRail(mission)}
+
+          <section class="question-stage">
+            <article class="surface-card question-card">
+              <div class="question-card-head">
+                <div>
+                  <span class="eyebrow-soft">Pergunta ${questionIndex} de ${questions.length}</span>
+                  <h2>${escapeHtml(question.shortTitle)}</h2>
+                </div>
+                <button class="button button--ghost button--sm" data-action="clear-answer" data-question-id="${question.id}">
+                  Limpar resposta
                 </button>
-              `;
-            })
-            .join('')}
+              </div>
+
+              <p class="question-context">${escapeHtml(getQuestionContextCopy(question))}</p>
+              <p class="question-coach">${escapeHtml(getQuestionPromptCopy(question))}</p>
+
+              <div class="help-chip-row">
+                <button class="help-chip ${state.helpPanel === 'explain' ? 'is-active' : ''}" data-action="toggle-help" data-help="explain">Me explica</button>
+                <button class="help-chip ${state.helpPanel === 'examples' ? 'is-active' : ''}" data-action="toggle-help" data-help="examples">Exemplos</button>
+                ${answer && ['D', 'E'].includes(answer.selectedOption)
+                  ? `<button class="help-chip ${state.helpPanel === 'dplus' ? 'is-active' : ''}" data-action="toggle-help" data-help="dplus">${answer.selectedOption === 'E' ? 'Revisar D+' : 'Abrir ajuste avançado'}</button>`
+                  : ''}
+              </div>
+
+              ${renderQuestionHelp(question)}
+
+              <div class="choice-grid">
+                ${question.uiOptions.map((uiOption) => renderChoiceCard(question, uiOption, answer)).join('')}
+              </div>
+
+              ${microFeedback
+                ? `
+                  <div class="micro-feedback micro-feedback--${microFeedback.tone}">
+                    <strong>${escapeHtml(microFeedback.title)}</strong>
+                    <p>${escapeHtml(microFeedback.body)}</p>
+                  </div>
+                `
+                : ''}
+
+              ${answer && ['D', 'E'].includes(answer.selectedOption)
+                ? `
+                  <label class="field field--full evidence-field">
+                    <span>Se quiser, cite a evidência mais simples que comprova essa resposta.</span>
+                    <textarea rows="4" data-evidence-input data-question-id="${question.id}" placeholder="${escapeHtml(question.evidenceHint || 'Ex.: política simples, rotina, ata, registro ou evidência operacional.')}">${escapeHtml(answer.evidence || '')}</textarea>
+                  </label>
+                `
+                : ''}
+
+              <div class="question-footer-copy">
+                <strong>Não tente embelezar o cenário.</strong>
+                <p>A melhor resposta aqui é a que descreve a prática real de hoje, e não o estado desejado.</p>
+              </div>
+
+              <div class="question-actions">
+                <button class="button button--ghost" data-action="prev-question" ${questionIndex === 1 ? 'disabled' : ''}>Anterior</button>
+                <button class="button button--ghost" data-action="open-review">Revisar respostas</button>
+                <button class="button button--primary" data-action="continue" ${answer ? '' : 'disabled'}>
+                  ${questionIndex === questions.length ? 'Revelar relatório' : 'Próxima pergunta'}
+                </button>
+              </div>
+            </article>
+          </section>
+
+          ${renderAssessmentAside(question)}
+        </section>
+      </main>
+    `;
+  }
+
+  function renderScoreGauge(percent) {
+    return `
+      <div class="score-gauge" style="--score:${Math.max(0, Math.min(100, percent))}">
+        <div class="score-gauge-inner">
+          <strong>${formatPercent(percent)}</strong>
+          <span>leitura executiva</span>
         </div>
-        ${feedback ? `<div class="feedback-card feedback-${escapeHtml(feedback.tone)}">${escapeHtml(feedback.text)}</div>` : ''}
-        ${
-          answer && (answer.selectedOption === 'D' || answer.selectedOption === 'E')
-            ? `
-              <label class="evidence-box">
-                <span>Se quiser, cite a evidência mais simples que comprova essa resposta.</span>
-                <textarea data-evidence-input="${question.id}" placeholder="${escapeHtml(question.evidenceExpected)}">${escapeHtml(answer.evidence || '')}</textarea>
-              </label>
-            `
-            : ''
-        }
-        <div class="question-footer-line">
-          <span>Responda pela realidade de hoje, sem tentar “embelezar” o cenário.</span>
-          <span>${escapeHtml(question.capabilityLabels.slice(0, 2).join(' · '))}</span>
+      </div>
+    `;
+  }
+
+  function renderServiceCard(service, prominent) {
+    return `
+      <article class="surface-card service-card ${prominent ? 'service-card--prominent' : ''}">
+        <div class="service-card-head">
+          <div>
+            <span class="eyebrow-soft">${prominent ? 'Top recomendado agora' : 'Outra alavanca útil'}</span>
+            <h3>${escapeHtml(service.name)}</h3>
+          </div>
+          <span class="service-card-fit">${escapeHtml(humanJoin(service.nistFunctions.map((item) => functionsByKey[item]?.label).filter(Boolean)) || 'CSF 2.0')}</span>
+        </div>
+        <p>${escapeHtml(service.summary || service.description || '')}</p>
+        <div class="service-why">
+          <strong>Por que apareceu</strong>
+          <p>${escapeHtml(service.whyAppeared || '')}</p>
+        </div>
+        <div class="service-why">
+          <strong>Quando faz sentido</strong>
+          <p>${escapeHtml(service.whenItMakesSense || '')}</p>
+        </div>
+        <div class="service-card-actions">
+          <button class="button button--ghost" data-action="open-service" data-service-key="${service.serviceKey}">${escapeHtml(service.cta?.learnMoreLabel || 'Saiba mais')}</button>
+          <a class="button button--primary" target="_blank" rel="noreferrer" href="${buildWhatsAppUrl(buildResultsWhatsAppLines(service))}">
+            ${escapeHtml(service.cta?.scheduleLabel || 'Agendar bate-papo')}
+          </a>
         </div>
       </article>
     `;
   }
 
-  function renderAssessmentLegacy() {
-    const question = getCurrentQuestion();
-    const currentMission = functionsByKey[question.primaryFunctionKey];
-    const missionQuestions = getMissionQuestions(currentMission.key);
-    const missionIndex = missionQuestions.findIndex((item) => item.id === question.id);
-    const missionStats = getMissionStats(currentMission.key);
-    const answer = getAnswer(question.id);
-    const pending = questions.length - getAnsweredCount();
-    const isLast = state.currentQuestionIndex === questions.length - 1;
-    const nextAction = isLast ? (pending ? 'next-unanswered' : 'finish-assessment') : 'next-question';
-    const nextLabel = isLast ? (pending ? `Faltam ${pending} respostas` : 'Revelar relatório') : 'Próxima pergunta';
-    const feedback =
-      !answer
-        ? null
-        : (answer.selectedOption === 'A' || answer.selectedOption === 'B') && question.weight === 3
-        ? { tone: 'critical', text: content.feedbackMessages.highRisk }
-        : answer.selectedOption === 'A' || answer.selectedOption === 'B'
-        ? { tone: 'warning', text: content.feedbackMessages.warning }
-        : answer.selectedOption === 'C'
-        ? { tone: 'mid', text: content.feedbackMessages.mid }
-        : { tone: 'strong', text: content.feedbackMessages.strong };
-    const checkpointLabel =
-      missionIndex === 0
-        ? 'Abertura da missão'
-        : missionIndex + 1 === missionQuestions.length
-        ? 'Fechamento da missão'
-        : missionIndex + 1 === Math.ceil(missionQuestions.length / 2)
-        ? 'Checkpoint'
-        : `Etapa ${missionIndex + 1}`;
+  function renderResults() {
+    const model = computeResultsModel();
+    const leadContext = model.leadContext;
+    const strongestText = model.strongestFunction
+      ? `${model.strongestFunction.meta.label} é a base mais estável hoje.`
+      : 'A leitura já tem informação suficiente para definir prioridade.';
+    const weakestText = model.weakestFunction
+      ? `${model.weakestFunction.meta.label} concentra a maior tensão operacional.`
+      : 'As respostas não apontaram uma missão claramente dominante.';
 
     return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="assessment-shell">
-            <aside class="assessment-sidebar">
-              <div class="surface-card sidebar-summary">
-                <span class="eyebrow eyebrow-soft">Sua jornada</span>
-                <strong>${getAnsweredCount()} de ${questions.length}</strong>
-                <div class="progress-track"><div class="progress-bar" style="width:${getCompletionPercent()}%"></div></div>
-                <span>${formatPercent(getCompletionPercent())} concluído</span>
-                ${getAnsweredCount() < 3 ? '<div class="bonus-inline">Você já começou a desenhar o mapa de maturidade da empresa.</div>' : ''}
+      <main class="page-content page-content--results">
+        <section class="results-hero hero-dark">
+          <div class="hero-copy">
+            <span class="eyebrow">Results</span>
+            <h1>${leadContext.firstName ? `${escapeHtml(leadContext.firstName)}, aqui está a leitura que mais importa agora.` : 'Aqui está a leitura executiva do cenário atual.'}</h1>
+            <p>Hoje o N.A.V.E enxerga <strong>${escapeHtml(model.observedTier.label)}</strong>. Para o seu contexto, a referência mais natural é <strong>Tier ${model.expectedTier}</strong>.</p>
+            <div class="hero-actions">
+              <button class="button button--ghost" data-action="open-review">Revisar respostas</button>
+              <a class="button button--primary" target="_blank" rel="noreferrer" href="${buildWhatsAppUrl(buildResultsWhatsAppLines())}">Falar sobre o relatório</a>
+            </div>
+          </div>
+          <div class="hero-panel hero-panel--results">
+            <div class="surface-card metric-card metric-card--gauge">
+              ${renderScoreGauge(model.executivePercent)}
+              <div class="metric-stack">
+                <span><strong>Tier observado:</strong> ${escapeHtml(model.observedTier.label)}</span>
+                <span><strong>Tier esperado:</strong> Tier ${model.expectedTier}</span>
+                <span><strong>Gap:</strong> ${model.tierGap > 0 ? `${model.tierGap} nível(is)` : 'alinhado ao esperado'}</span>
               </div>
-              <div class="surface-card mission-nav">
-                ${content.functions
-                  .map((item) => {
-                    const stats = getMissionStats(item.key);
-                    return `
-                      <button class="mission-nav-item ${item.key === currentMission.key ? 'is-current' : ''}" type="button" data-jump-function="${item.key}">
-                        <div>
-                          <span>${escapeHtml(item.code)}</span>
-                          <strong>${escapeHtml(item.label)}</strong>
-                        </div>
-                        <small>${stats.answered}/${stats.total}</small>
-                      </button>
-                    `;
-                  })
-                  .join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="insight-grid">
+          ${model.insights
+            .map(
+              (insight) => `
+                <article class="surface-card insight-card">
+                  <h2>${escapeHtml(insight.title)}</h2>
+                  <p>${escapeHtml(insight.body)}</p>
+                </article>
+              `
+            )
+            .join('')}
+        </section>
+
+        <section class="report-section">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow-soft">Top 3 recomendados agora</span>
+              <h2>Serviços que mais ajudam a transformar esse diagnóstico em próxima ação</h2>
+            </div>
+            <p>Os cards abaixo cruzam lacunas reais, peso da pergunta, contexto do setor e aderência às capacidades mais sensíveis.</p>
+          </div>
+          <div class="service-grid service-grid--top">
+            ${model.topServices.length
+              ? model.topServices.map((service) => renderServiceCard(service, true)).join('')
+              : `<article class="surface-card empty-card"><p>As respostas ainda não geraram um ranking claro. Vale revisar o relatório com um especialista.</p></article>`}
+          </div>
+        </section>
+
+        ${model.otherServices.length
+          ? `
+            <section class="report-section">
+              <div class="section-head">
+                <div>
+                  <span class="eyebrow-soft">Outras alavancas</span>
+                  <h2>Próximos movimentos que também podem fazer sentido</h2>
+                </div>
               </div>
-            </aside>
-            <section class="assessment-stage">
-              <article class="mission-hero surface-card" style="--mission-accent:${currentMission.accent}; --mission-soft:${currentMission.accentSoft}; --mission-glow:${currentMission.glow};">
-                <div class="mission-hero-copy">
-                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} · ${escapeHtml(currentMission.label)}</span>
-                  <h1>${escapeHtml(currentMission.label)}</h1>
-                  <p>${escapeHtml(currentMission.heroText)}</p>
-                </div>
-                <div class="mission-hero-meta">
-                  <div class="checkpoint-pill">${escapeHtml(checkpointLabel)}</div>
-                  <div class="mission-progress-block">
-                    <span>Missão ${missionIndex + 1}/${missionQuestions.length}</span>
-                    <div class="progress-track"><div class="progress-bar" style="width:${missionStats.percent}%"></div></div>
-                  </div>
-                  <div class="mission-guidance">${escapeHtml(currentMission.guidance)}</div>
-                </div>
-              </article>
-              <article class="surface-card question-card">
-                <div class="question-top">
-                  <div>
-                    <span class="eyebrow eyebrow-soft">Pergunta ${question.order} de ${questions.length}</span>
-                    <h2>${escapeHtml(question.uiPromptShort || question.prompt)}</h2>
-                  </div>
-                  <div class="question-badges">
-                    <span class="question-badge">${escapeHtml(question.type)}</span>
-                    <span class="question-badge">Peso ${question.weight}</span>
-                  </div>
-                </div>
-                <p class="question-prompt">${escapeHtml(question.coachHint)}</p>
-                <div class="question-meta-row">
-                  <div class="pill-cloud">${question.capabilityLabels.slice(0, 2).map((label) => `<span class="pill">${escapeHtml(label)}</span>`).join('')}</div>
-                  <span class="question-meta-inline">responda pela realidade de hoje</span>
-                </div>
-                <details class="learn-panel">
-                  <summary>Ver ajuda para responder com mais segurança</summary>
-                  <div class="learn-panel-body">
-                    <p>${escapeHtml(question.learnWhy)}</p>
-                    <p>${escapeHtml(question.learnTip)}</p>
-                    <p><strong>Evidência simples:</strong> ${escapeHtml(question.evidenceExpected)}</p>
-                    <p><strong>Pergunta completa:</strong> ${escapeHtml(question.prompt)}</p>
-                  </div>
-                </details>
-                <div class="choice-grid">
-                  ${question.optionKeys
-                    .map((optionKey) => `
-                      <button type="button" class="choice-card ${answer && answer.selectedOption === optionKey ? 'is-selected' : ''}" data-option="${optionKey}">
-                        <div class="choice-topline">
-                          <span class="choice-letter">${escapeHtml(optionKey)}</span>
-                          <span class="choice-status">${escapeHtml(content.answerScale[optionKey].label)}</span>
-                        </div>
-                        <p>${escapeHtml(question.options[optionKey])}</p>
-                      </button>
-                    `)
-                    .join('')}
-                </div>
-                ${feedback ? `<div class="feedback-card feedback-${escapeHtml(feedback.tone)}">${escapeHtml(feedback.text)}</div>` : ''}
-                ${
-                  answer && (answer.selectedOption === 'D' || answer.selectedOption === 'E')
-                    ? `
-                      <label class="evidence-box">
-                        <span>Se quiser, cite a evidência mais simples que comprova essa resposta.</span>
-                        <textarea data-evidence-input="${question.id}" placeholder="${escapeHtml(question.evidenceExpected)}">${escapeHtml(answer.evidence || '')}</textarea>
-                      </label>
-                    `
-                    : ''
-                }
-                <div class="support-strip support-strip-light">
-                  <div>
-                    <span class="context-label">Quando este tema aparece como prioridade, costuma se conectar com</span>
-                    <div class="pill-cloud">${question.serviceKeys.slice(0, 4).map((key) => `<span class="pill">${escapeHtml(servicesByKey[key].name)}</span>`).join('')}</div>
-                  </div>
-                </div>
-              </article>
-              <div class="button-row button-row-end">
-                <button class="btn btn-secondary" type="button" data-action="prev-question" ${state.currentQuestionIndex === 0 ? 'disabled' : ''}>Anterior</button>
-                <button class="btn btn-primary" type="button" data-action="${nextAction}" ${answer ? '' : 'disabled'}>${escapeHtml(nextLabel)}</button>
+              <div class="service-grid">
+                ${model.otherServices.map((service) => renderServiceCard(service, false)).join('')}
               </div>
             </section>
-          </section>
-        </main>
-        ${renderSpecialistFab('Preciso de apoio para responder esta etapa do assessment.')}
-      </div>
+          `
+          : ''}
+
+        <section class="report-two-column">
+          <article class="surface-card report-card">
+            <span class="eyebrow-soft">Panorama por missão</span>
+            <h2>Onde a leitura já está mais sólida e onde pesa mais agora</h2>
+            <div class="bar-list">
+              ${model.functionMetrics
+                .map(
+                  (metric) => `
+                    <div class="bar-list-item">
+                      <div class="bar-list-head">
+                        <strong>${escapeHtml(metric.meta.label)}</strong>
+                        <span>${metric.score == null ? 'Pendente' : formatScore(metric.score)}</span>
+                      </div>
+                      <div class="progress-track"><span class="progress-fill" style="width:${metric.score == null ? 0 : (metric.score / 4) * 100}%"></span></div>
+                    </div>
+                  `
+                )
+                .join('')}
+            </div>
+            <div class="summary-pair">
+              <p><strong>Maior exposição:</strong> ${escapeHtml(weakestText)}</p>
+              <p><strong>Base mais forte:</strong> ${escapeHtml(strongestText)}</p>
+            </div>
+          </article>
+
+          <article class="surface-card report-card">
+            <span class="eyebrow-soft">Próximos 30-60-90 dias</span>
+            <h2>Uma trilha simples para transformar leitura em execução</h2>
+            <div class="roadmap-list">
+              ${model.roadmap
+                .map(
+                  (phase) => `
+                    <div class="roadmap-item">
+                      <div class="roadmap-phase">${escapeHtml(phase.phase)}</div>
+                      <div>
+                        <strong>${escapeHtml(phase.title)}</strong>
+                        <ul>
+                          ${phase.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+                        </ul>
+                      </div>
+                    </div>
+                  `
+                )
+                .join('')}
+            </div>
+          </article>
+        </section>
+
+        <section class="surface-card report-card report-card--note">
+          <span class="eyebrow-soft">Nota metodológica</span>
+          <p>O Tier numérico exibido aqui é uma interpretação interna do produto sobre o NIST CSF 2.0. Ele serve para orientar rigor de governança e priorização, e não representa um threshold oficial do NIST.</p>
+        </section>
+      </main>
     `;
   }
 
-  function renderResultsLegacy() {
-    const overall = getOverallScore();
-    const band = getMaturityBand(overall);
-    const functionMetrics = Object.values(getFunctionMetrics());
-    const capabilityBadges = getCapabilityBadges();
-    const heatmap = getHeatmapRows();
-    const gaps = getPriorityGaps(6);
-    const roadmap = getRoadmap();
-    const services = getRecommendedServices(4);
-    const companyName = state.profile.company || 'sua empresa';
+  function renderReviewDrawer() {
+    if (!state.reviewOpen) {
+      return '';
+    }
+
+    const groups = getReviewGroups();
+    const missingCount = questions.length - getAnsweredCount(state.answers);
 
     return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="results-hero report-section">
-            <article class="surface-card surface-card-dark results-copy">
-              <div class="results-brand-line">
-                ${renderLogo('negative', 'results-logo', 'Logo Active Solutions negativo')}
-                <span class="eyebrow">Relatório NAVE</span>
-              </div>
-              <h1>${escapeHtml(companyName)} está em ${escapeHtml(band.label)}.</h1>
-              <p>${escapeHtml(getNarrative())}</p>
-              <div class="button-row">
-                <button class="btn btn-primary" data-action="export-report">Salvar em PDF</button>
-                <button class="btn btn-secondary" data-action="review-answers">Revisar respostas</button>
-                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatório final do assessment NAVE.')}">Falar sobre o relatório</a>
-              </div>
-            </article>
-            <aside class="surface-card score-card">
-              <span class="eyebrow eyebrow-soft">Maturidade geral</span>
-              <div class="score-ring" style="--score:${scoreToPercent(overall)}">
-                <strong>${formatScore(overall)}</strong>
-                <span>de 4,0</span>
-              </div>
-              <h2>${escapeHtml(band.tierLabel)}</h2>
-              <p>${escapeHtml(band.description)}</p>
-            </aside>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Panorama por missão</span>
-              <h2>Onde a jornada já está sólida e onde vale concentrar energia primeiro.</h2>
-            </div>
-            <div class="function-score-grid">
-              ${functionMetrics
-                .map((item) => `
-                  <article class="surface-card metric-panel">
-                    <div class="metric-panel-top">
-                      <span class="pill">${escapeHtml(item.meta.code)}</span>
-                      <strong>${escapeHtml(item.meta.label)}</strong>
-                    </div>
-                    <div class="metric-bar"><div class="metric-bar-fill" style="width:${scoreToPercent(item.score || 0)}%"></div></div>
-                    <div class="metric-caption">
-                      <span>${formatScore(item.score)}</span>
-                      <span>${item.answered}/${item.total} evidências respondidas</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Capacidades em destaque</span>
-              <h2>Os pontos em que a empresa já opera com consistência e onde ainda existe mais espaço para evoluir.</h2>
-            </div>
-            <div class="capability-grid">
-              ${capabilityBadges
-                .map((item) => `
-                  <article class="surface-card capability-card capability-${escapeHtml(item.tone)}">
-                    <span class="capability-badge">${escapeHtml(item.badge)}</span>
-                    <h3>${escapeHtml(item.label)}</h3>
-                    <p>${escapeHtml(item.description)}</p>
-                    <div class="capability-footer">
-                      <strong>${formatScore(item.score)}</strong>
-                      <span>${escapeHtml(item.statusLabel)}</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Heatmap função × capacidade</span>
-              <h2>Uma leitura cruzada, mais leve, do que pesa mais na maturidade operacional.</h2>
-            </div>
-            <div class="surface-card heatmap-shell">
-              <div class="heatmap-grid" style="grid-template-columns: 220px repeat(${content.capabilities.length}, minmax(100px, 1fr));">
-                <div class="heatmap-corner">Função</div>
-                ${content.capabilities.map((item) => `<div class="heatmap-head">${escapeHtml(item.shortLabel)}</div>`).join('')}
-                ${heatmap
-                  .map(
-                    (row) => `
-                      <div class="heatmap-row-head">${escapeHtml(row.meta.label)}</div>
-                      ${row.cells
-                        .map((cell) => {
-                          const tone =
-                            !Number.isFinite(cell.score)
-                              ? 'empty'
-                              : cell.score < 2
-                              ? 'critical'
-                              : cell.score < 3
-                              ? 'warning'
-                              : cell.score < 3.7
-                              ? 'mid'
-                              : 'strong';
-                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : '—'}</div>`;
-                        })
-                        .join('')}
-                    `
-                  )
-                  .join('')}
-              </div>
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Prioridades do momento</span>
-              <h2>Os temas que hoje merecem atenção primeiro para acelerar a evolução.</h2>
-            </div>
-            <div class="gap-grid">
-              ${gaps
-                .map((gap) => `
-                  <article class="surface-card gap-card">
-                    <div class="gap-card-top">
-                      <span class="pill">${escapeHtml(gap.functionNames.join(' · '))}</span>
-                      <span class="gap-score">Prioridade ${formatScore(gap.gapScore)}</span>
-                    </div>
-                    <h3>${escapeHtml(gap.shortTitle)}</h3>
-                    <p>${escapeHtml(gap.prompt)}</p>
-                    <div class="gap-meta">
-                      <span>Resposta: ${escapeHtml(content.answerScale[gap.selectedOption].label)}</span>
-                      <span>Peso ${gap.weight}</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Roadmap 30-60-90</span>
-              <h2>Uma sequência prática para sair do diagnóstico e entrar em execução com clareza.</h2>
-            </div>
-            <div class="roadmap-grid">
-              ${roadmap
-                .map(
-                  (phase) => `
-                    <article class="surface-card roadmap-card">
-                      <span class="pill">${escapeHtml(phase.phase)}</span>
-                      <h3>${escapeHtml(phase.title)}</h3>
-                      <ul>${phase.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-                    </article>
-                  `
-                )
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Onde a Active pode ajudar agora</span>
-              <h2>Os serviços mais aderentes para transformar este relatório em movimento real.</h2>
-            </div>
-            <div class="service-grid">
-              ${services
-                .map(
-                  (service) => `
-                    <article class="surface-card service-card">
-                      <div class="service-card-top">
-                        <span class="pill">${escapeHtml(service.area)}</span>
-                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderência</span>
-                      </div>
-                      <h3>${escapeHtml(service.name)}</h3>
-                      <p>${escapeHtml(service.summary)}</p>
-                      <div class="service-value-note">${escapeHtml(service.contactPitch)}</div>
-                      <div class="pill-cloud">
-                        ${service.relatedCapabilities.slice(0, 3).map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join('')}
-                      </div>
-                      <button class="btn btn-secondary" type="button" data-action="open-service" data-service-key="${escapeHtml(service.key)}">Saiba mais</button>
-                    </article>
-                  `
-                )
-                .join('')}
-            </div>
-          </section>
-          <section class="surface-card cta-strip report-section">
+      <div class="dialog-backdrop" data-action="close-review">
+        <section class="dialog-surface review-drawer" role="dialog" aria-modal="true" aria-labelledby="review-title">
+          <div class="dialog-head">
             <div>
-              <span class="eyebrow eyebrow-soft">Próximo passo comercial</span>
-              <h2>Transforme o diagnóstico em plano de ação com a Active Solutions.</h2>
-              <p>Se quiser, já podemos aprofundar o relatório, priorizar quick wins e desenhar a próxima onda de implementação com um especialista.</p>
+              <span class="eyebrow-soft">Central de revisão</span>
+              <h2 id="review-title">Veja o que já foi respondido e o que ainda falta</h2>
             </div>
-            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment NAVE em um plano de ação com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
-          </section>
-        </main>
-        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendações do relatório.')}
-        ${renderServiceModal()}
+            <button class="button button--ghost button--sm" data-action="close-review">Fechar</button>
+          </div>
+
+          <div class="review-summary">
+            <div class="surface-chip"><strong>${getAnsweredCount(state.answers)}</strong><span>respondidas</span></div>
+            <div class="surface-chip"><strong>${missingCount}</strong><span>pendentes</span></div>
+            <div class="surface-chip"><strong>${allQuestionsAnswered() ? 'Liberado' : 'Em andamento'}</strong><span>status do relatório</span></div>
+          </div>
+
+          <div class="review-groups">
+            ${groups
+              .map(
+                (group) => `
+                  <section class="review-group">
+                    <div class="review-group-head">
+                      <h3>${group.mission.key} ${escapeHtml(group.mission.label)}</h3>
+                      <span>${group.answered}/${group.total}</span>
+                    </div>
+                    <div class="review-question-list">
+                      ${group.items
+                        .map(
+                          (item) => `
+                            <button class="review-question ${item.status === 'critical' ? 'is-critical' : item.answer ? 'is-answered' : ''}" data-action="jump-question" data-question-id="${item.question.id}">
+                              <span class="review-question-copy">
+                                <strong>${escapeHtml(item.question.id)}</strong>
+                                <small>${escapeHtml(item.question.shortTitle)}</small>
+                              </span>
+                              <span class="review-question-status">${escapeHtml(item.answer ? getQuestionDisplayOption(item.answer) : item.status === 'critical' ? 'Crítica pendente' : 'Pendente')}</span>
+                            </button>
+                          `
+                        )
+                        .join('')}
+                    </div>
+                  </section>
+                `
+              )
+              .join('')}
+          </div>
+
+          <div class="dialog-actions">
+            <button class="button button--ghost" data-action="restart-keep-lead">Reiniciar mantendo lead</button>
+            <button class="button button--ghost" data-action="restart-clear-lead">Apagar tudo</button>
+            <button class="button button--ghost" data-action="close-review">Voltar</button>
+            <button class="button button--primary" data-action="${allQuestionsAnswered() ? 'go-results' : 'go-first-missing'}">
+              ${allQuestionsAnswered() ? 'Ir para o relatório' : 'Ir para a próxima pendência'}
+            </button>
+          </div>
+        </section>
       </div>
     `;
   }
 
   function renderServiceModal() {
-    if (!state.serviceDetailKey) {
+    if (!state.serviceDetailKey || !servicesByKey[state.serviceDetailKey]) {
       return '';
     }
-    const recommendations = getRecommendedServices(8);
-    const service =
-      recommendations.find((item) => item.key === state.serviceDetailKey) || servicesByKey[state.serviceDetailKey];
-    if (!service) {
-      return '';
-    }
-    const contactUrl = buildWhatsAppUrl(`Quero entender melhor o serviço ${service.name}.`);
-    return `
-      <div class="modal-overlay" data-action="close-service">
-        <div class="service-modal surface-card" role="dialog" aria-modal="true">
-          <button class="modal-close" type="button" data-action="close-service">×</button>
-          <div class="service-modal-brand">${renderLogo('color', 'service-modal-logo', 'Logo Active Solutions colorido')}</div>
-          <span class="eyebrow eyebrow-soft">${escapeHtml(service.area)}</span>
-          <h2>${escapeHtml(service.name)}</h2>
-          <p>${escapeHtml(service.description)}</p>
-          <div class="modal-columns">
-            <div>
-              <h3>Como esse serviço ajuda</h3>
-              <p>${escapeHtml(service.contactPitch)}</p>
-              <h3>Dor que ele resolve</h3>
-              <p>${escapeHtml(service.pain)}</p>
-            </div>
-            <div>
-              <h3>O que a Active costuma entregar</h3>
-              <ul>${service.deliverables.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-            </div>
-          </div>
-          ${
-            service.relatedGaps && service.relatedGaps.length
-              ? `
-                <div class="modal-related">
-                  <h3>Por que apareceu no seu relatório</h3>
-                  <div class="pill-cloud">${service.relatedGaps.map((gap) => `<span class="pill">${escapeHtml(gap.shortTitle)}</span>`).join('')}</div>
-                </div>
-              `
-              : ''
-          }
-          <div class="modal-cta">
-            <a class="btn btn-primary" href="${contactUrl}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
-            <button class="btn btn-secondary" type="button" data-action="close-service">Voltar ao relatório</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
 
-  function renderLegacy() {
-    if (state.screen === 'lead') {
-      app.innerHTML = renderLead();
-      return;
-    }
-    if (state.screen === 'assessment') {
-      app.innerHTML = renderAssessment();
-      return;
-    }
-    if (state.screen === 'results') {
-      app.innerHTML = renderResults();
-      return;
-    }
-    app.innerHTML = renderLanding();
-  }
-
-  function renderAssessment() {
-    const question = getCurrentQuestion();
-    const currentCheckpoint = getCurrentCheckpoint();
-    const currentMission = functionsByKey[currentCheckpoint?.functionKey || question.primaryFunctionKey];
-    const checkpointQuestions = getCheckpointQuestions(currentCheckpoint.id);
-    const checkpointStats = getCheckpointStats(currentCheckpoint.id);
-    const missionStats = getMissionStats(currentMission.key);
-    const overallPercent = getCompletionPercent();
-    const levelMeta = getLevelMeta();
-    const mobile = isMobileLayout();
-    const visibleQuestions = mobile
-      ? checkpointQuestions.filter((item) => item.id === question.id)
-      : checkpointQuestions;
-    const previousCheckpointId = getPreviousCheckpointId(currentCheckpoint.id);
-    const nextCheckpointId = getNextCheckpointId(currentCheckpoint.id);
-    const remainingAnswers = questions.length - getAnsweredCount();
-    const checkpointReward = getCheckpointRewardCopy(checkpointQuestions);
-    const checkpointLoss = getCheckpointLossCopy(checkpointQuestions);
-    const completionBand = getMaturityBand(getOverallScore());
+    const service = servicesByKey[state.serviceDetailKey];
 
     return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="assessment-shell assessment-editorial">
-            <aside class="assessment-sidebar">
-              <div class="surface-card sidebar-summary">
-                <span class="eyebrow eyebrow-soft">Jornada ativa</span>
-                <strong>${getAnsweredCount()} de ${questions.length}</strong>
-                <div class="progress-track"><div class="progress-bar" style="width:${overallPercent}%"></div></div>
-                <span>${formatPercent(overallPercent)} concluído · ${missionStats.completedCheckpoints}/${missionStats.totalCheckpoints} checkpoints desta missão</span>
-                <div class="sidebar-personal-note">${escapeHtml(getExecutivePersonaLine())}</div>
-              </div>
-              ${renderFunctionNav(currentMission.key)}
-              ${renderCheckpointRail(currentMission, currentCheckpoint)}
-              <div class="surface-card support-card">
-                <span class="eyebrow eyebrow-soft">Suporte rápido</span>
-                <strong>${escapeHtml(currentMission.supportPrompt)}</strong>
-                <p>Se travar em qualquer ponto, a Active pode ajudar a traduzir a pergunta e orientar a evidência mais simples para seguir com confiança.</p>
-                <a class="btn btn-primary" href="${buildWhatsAppUrl(`Quero apoio para responder o checkpoint ${currentCheckpoint.label} da missão ${currentMission.label}.`)}" target="_blank" rel="noreferrer">Fale com um especialista</a>
-              </div>
-              <div class="surface-card utility-panel">
-                <button class="btn btn-secondary" type="button" data-action="open-review">Central de revisão</button>
-                <button class="btn btn-secondary" type="button" data-action="open-reset-mission" data-function-key="${escapeHtml(currentMission.key)}">Resetar missão atual</button>
-                <button class="btn btn-ghost" type="button" data-action="open-reset-all">Reiniciar assessment</button>
-              </div>
-            </aside>
-            <section class="assessment-stage">
-              <article class="surface-card mission-console" style="--mission-accent:${currentMission.accent}; --mission-soft:${currentMission.accentSoft}; --mission-glow:${currentMission.glow};">
-                <div class="mission-console-copy">
-                  <span class="eyebrow">${escapeHtml(currentMission.missionLabel)} · ${escapeHtml(currentMission.label)}</span>
-                  <div class="context-card">
-                    <strong>Por que isso importa</strong>
-                    <p>${escapeHtml(currentCheckpoint.intro || question.learnWhy)}</p>
-                  </div>
-                  <h1>${escapeHtml(question.businessPlainLanguage || question.uiPromptShort || question.prompt)}</h1>
-                  <p>${escapeHtml(getMissionPersonalization(currentMission))}</p>
-                </div>
-                <div class="mission-visual">
-                  <div class="mission-visual-shield">
-                    <span>${escapeHtml(currentMission.heroBadge || 'Shield')}</span>
-                    <strong>Level ${levelMeta.level}</strong>
-                  </div>
-                  <div class="mission-confidence">
-                    <div class="progress-track"><div class="progress-bar" style="width:${levelMeta.progress}%"></div></div>
-                    <span>${escapeHtml(levelMeta.label)}</span>
-                  </div>
-                  <div class="help-card mission-visual-tip">
-                    <span>Pro tip</span>
-                    <p>${escapeHtml(question.learnTip)}</p>
-                  </div>
-                </div>
-              </article>
-              <section class="surface-card checkpoint-stage">
-                <div class="checkpoint-stage-head">
-                  <div>
-                    <span class="eyebrow eyebrow-soft">${escapeHtml(currentCheckpoint.label)}</span>
-                    <h2>${escapeHtml(currentMission.executiveTitle || currentMission.label)}</h2>
-                    <p>${escapeHtml(currentMission.rewardText)}</p>
-                  </div>
-                  <div class="checkpoint-stage-metrics">
-                    <div class="checkpoint-stat">
-                      <strong>${checkpointStats.answered}/${checkpointStats.total}</strong>
-                      <span>respondidas neste checkpoint</span>
-                    </div>
-                    <div class="checkpoint-stat">
-                      <strong>${formatPercent(missionStats.percent)}</strong>
-                      <span>missão concluída</span>
-                    </div>
-                    <div class="checkpoint-stat">
-                      <strong>${escapeHtml(completionBand.tierLabel)}</strong>
-                      <span>leitura atual do relatório</span>
-                    </div>
-                  </div>
-                </div>
-                ${
-                  mobile
-                    ? `
-                      <div class="checkpoint-mobile-tabs">
-                        ${checkpointQuestions
-                          .map(
-                            (item) => `
-                              <button class="checkpoint-mobile-tab ${item.id === question.id ? 'is-current' : ''}" type="button" data-action="show-question" data-question-id="${item.id}">
-                                ${escapeHtml(item.id)}
-                              </button>
-                            `
-                          )
-                          .join('')}
-                      </div>
-                    `
-                    : ''
-                }
-                <div class="checkpoint-grid ${mobile ? 'is-mobile' : ''}">
-                  ${visibleQuestions.map((item) => renderQuestionCard(item, currentMission, mobile)).join('')}
-                </div>
-              </section>
-              <div class="action-bar">
-                <div>
-                  <button class="btn btn-secondary" type="button" data-action="prev-checkpoint" ${previousCheckpointId ? '' : 'disabled'}>Checkpoint anterior</button>
-                </div>
-                <div class="action-bar-center">
-                  <button class="btn btn-ghost" type="button" data-action="save-checkpoint">Salvar progresso</button>
-                  <button class="btn btn-secondary" type="button" data-action="open-review">Revisar respostas</button>
-                </div>
-                <div>
-                  <button class="btn btn-primary" type="button" data-action="${nextCheckpointId ? 'next-checkpoint' : isAssessmentComplete() ? 'finish-assessment' : 'go-first-missing'}">${escapeHtml(
-                    nextCheckpointId ? 'Próximo checkpoint' : isAssessmentComplete() ? 'Revelar relatório' : `Faltam ${remainingAnswers} respostas`
-                  )}</button>
-                </div>
-              </div>
-              <div class="status-rail">
-                <article class="status-rail-card">
-                  <strong>Checkpoint salvo</strong>
-                  <span>${escapeHtml(formatTime(state.lastSavedAt))}</span>
-                </article>
-                <article class="status-rail-card">
-                  <strong>Recompensa liberada</strong>
-                  <span>${escapeHtml(checkpointReward)}</span>
-                </article>
-                <article class="status-rail-card">
-                  <strong>Se parar agora</strong>
-                  <span>${escapeHtml(checkpointLoss)}</span>
-                </article>
-              </div>
+      <div class="dialog-backdrop" data-action="close-service">
+        <section class="dialog-surface service-modal" role="dialog" aria-modal="true" aria-labelledby="service-title">
+          <div class="dialog-head">
+            <div>
+              <span class="eyebrow-soft">Saiba mais</span>
+              <h2 id="service-title">${escapeHtml(service.name)}</h2>
+            </div>
+            <button class="button button--ghost button--sm" data-action="close-service">Fechar</button>
+          </div>
+
+          <div class="service-modal-content">
+            <section>
+              <strong>Resumo</strong>
+              <p>${escapeHtml(service.summary || service.description || '')}</p>
             </section>
-            <aside class="assessment-sidecar">
-              <div class="surface-card sidecar-card">
-                <span class="eyebrow eyebrow-soft">Seu avanço</span>
-                <div class="sidecar-shield">
-                  <div class="sidecar-shield-core"></div>
-                </div>
-                <strong>Level ${levelMeta.level}</strong>
-                <div class="progress-track"><div class="progress-bar" style="width:${Math.max(levelMeta.progress, overallPercent)}%"></div></div>
-                <span>${escapeHtml(levelMeta.label)}</span>
-              </div>
-              <div class="surface-card sidecar-card">
-                <span class="eyebrow eyebrow-soft">Ganho do checkpoint</span>
-                <strong>${escapeHtml(currentMission.rewardTitle || 'Relatório ficando mais preciso')}</strong>
-                <p>${escapeHtml(checkpointReward)}</p>
-              </div>
-              <div class="surface-card sidecar-card">
-                <span class="eyebrow eyebrow-soft">Dica prática</span>
-                <p>${escapeHtml(question.learnWhy)}</p>
-              </div>
-            </aside>
-          </section>
-        </main>
-        ${renderSpecialistFab('Preciso de apoio para responder esta etapa do assessment.')}
-        ${renderAppModal()}
-      </div>
-    `;
-  }
+            <section>
+              <strong>O que resolve</strong>
+              <p>${escapeHtml(service.pain || service.whyAppeared || '')}</p>
+            </section>
+            <section>
+              <strong>Quando faz sentido</strong>
+              <p>${escapeHtml(service.whenItMakesSense || '')}</p>
+            </section>
+            <section>
+              <strong>Entregáveis</strong>
+              <ul>
+                ${(service.deliverables || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+              </ul>
+            </section>
+            <section>
+              <strong>Valor de negócio</strong>
+              <p>${escapeHtml(service.businessValue || service.description || '')}</p>
+            </section>
+          </div>
 
-  function renderReview() {
-    const answered = getAnsweredCount();
-    const missing = questions.length - answered;
-    const canReturnResults = getReturnScreen() === 'results';
-    return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="surface-card review-hero">
-            <div>
-              <span class="eyebrow eyebrow-soft">Central de revisão</span>
-              <h1>Revise, ajuste e volte exatamente para o ponto que precisar.</h1>
-              <p>${escapeHtml(
-                missing
-                  ? `Ainda faltam ${missing} respostas para liberar o relatório final com total precisão.`
-                  : 'Tudo foi respondido. Se você editar algo agora, o relatório será atualizado sem reiniciar a jornada.'
-              )}</p>
-            </div>
-            <div class="review-hero-card">
-              <strong>${answered}/${questions.length}</strong>
-              <span>respostas confirmadas</span>
-              <div class="progress-track"><div class="progress-bar" style="width:${getCompletionPercent()}%"></div></div>
-              <span>${formatPercent(getCompletionPercent())} do assessment consolidado</span>
-            </div>
-            <div class="review-hero-actions">
-              <button class="btn btn-secondary" type="button" data-action="return-from-review">${canReturnResults ? 'Voltar ao relatório' : 'Voltar ao assessment'}</button>
-              <button class="btn btn-primary" type="button" data-action="${isAssessmentComplete() ? 'go-results' : 'go-first-missing'}">${isAssessmentComplete() ? 'Atualizar relatório' : 'Ir para pendências'}</button>
-            </div>
-          </section>
-          ${
-            state.sentStatuses.completed
-              ? `
-                <section class="surface-card continuity-card">
-                  <span class="eyebrow eyebrow-soft">Continuidade</span>
-                  <strong>Seu relatório continua vivo.</strong>
-                  <p>Ao editar respostas, recalculamos maturidade, prioridades, roadmap e serviços recomendados na mesma sessão.</p>
-                </section>
-              `
-              : ''
-          }
-          <section class="review-layout">
-            ${content.functions
-              .map((mission) => {
-                const missionStats = getMissionStats(mission.key);
-                const missionCheckpoints = getMissionCheckpoints(mission.key);
-                const criticalMissing = getMissionQuestions(mission.key).filter(
-                  (item) => !getAnswer(item.id) && item.weight === 3
-                ).length;
-                return `
-                  <article class="surface-card review-mission">
-                    <div class="review-mission-head">
-                      <div>
-                        <span class="eyebrow eyebrow-soft">${escapeHtml(mission.code)}</span>
-                        <h2>${escapeHtml(mission.label)}</h2>
-                        <p>${escapeHtml(mission.executiveSubtitle || mission.heroText)}</p>
-                      </div>
-                      <div class="review-mission-stats">
-                        <span>${missionStats.answered}/${missionStats.total} respondidas</span>
-                        <span>${criticalMissing ? `${criticalMissing} críticas faltando` : 'sem pendência crítica'}</span>
-                      </div>
-                    </div>
-                    <div class="review-checkpoint-list">
-                      ${missionCheckpoints
-                        .map((checkpoint) => {
-                          const checkpointStats = getCheckpointStats(checkpoint.id);
-                          return `
-                            <section class="review-checkpoint">
-                              <div class="review-checkpoint-head">
-                                <div>
-                                  <strong>${escapeHtml(checkpoint.label)}</strong>
-                                  <div class="review-checkpoint-meta">
-                                    <span>${checkpointStats.answered}/${checkpointStats.total} respondidas</span>
-                                    <span>${checkpointStats.highRiskCount ? `${checkpointStats.highRiskCount} crítica(s)` : 'sem alerta crítico'}</span>
-                                  </div>
-                                </div>
-                                <button class="btn btn-ghost btn-compact" type="button" data-jump-checkpoint="${checkpoint.id}">Editar checkpoint</button>
-                              </div>
-                              <div class="review-question-list">
-                                ${getCheckpointQuestions(checkpoint.id)
-                                  .map((item) => {
-                                    const answer = getAnswer(item.id);
-                                    const answerLabel = answer ? content.answerScale[answer.selectedOption].label : 'Faltando';
-                                    const tone = !answer
-                                      ? 'review-missing'
-                                      : (answer.selectedOption === 'A' || answer.selectedOption === 'B') && item.weight === 3
-                                      ? 'review-critical'
-                                      : 'review-done';
-                                    return `
-                                      <div class="review-question-item ${tone}">
-                                        <div>
-                                          <strong>${escapeHtml(item.uiPromptShort || item.businessPlainLanguage || item.prompt)}</strong>
-                                          <span>${escapeHtml(answerLabel)} · peso ${item.weight}</span>
-                                        </div>
-                                        <button class="btn btn-ghost btn-compact" type="button" data-action="edit-question" data-question-id="${item.id}">Editar</button>
-                                      </div>
-                                    `;
-                                  })
-                                  .join('')}
-                              </div>
-                            </section>
-                          `;
-                        })
-                        .join('')}
-                    </div>
-                  </article>
-                `;
-              })
-              .join('')}
-          </section>
-        </main>
-        ${renderSpecialistFab('Preciso de ajuda para revisar e ajustar minhas respostas no assessment N.A.V.E.')}
-        ${renderAppModal()}
-      </div>
-    `;
-  }
-
-  function renderResults() {
-    const overall = getOverallScore();
-    const band = getMaturityBand(overall);
-    const functionMetrics = Object.values(getFunctionMetrics());
-    const capabilityBadges = getCapabilityBadges();
-    const heatmap = getHeatmapRows();
-    const gaps = getPriorityGaps(6);
-    const roadmap = getRoadmap();
-    const services = getRecommendedServices(4);
-    const companyName = state.profile.company || 'sua empresa';
-    const firstName = getFirstName();
-
-    return `
-      <div class="page-shell">
-        ${renderTopbar()}
-        <main class="page-content">
-          ${renderNotice()}
-          <section class="results-hero report-section">
-            <article class="surface-card surface-card-dark results-copy">
-              <div class="results-brand-line">
-                ${renderLogo('negative', 'results-logo', 'Logo Active Solutions negativo')}
-                <span class="eyebrow">Relatório N.A.V.E</span>
-              </div>
-              <h1>${escapeHtml(companyName)} está em ${escapeHtml(band.label)}.</h1>
-              <p>${escapeHtml(
-                firstName
-                  ? `${firstName}, ${getNarrative()}`
-                  : getNarrative()
-              )}</p>
-              <div class="button-row">
-                <button class="btn btn-primary" data-action="export-report">Salvar em PDF</button>
-                <button class="btn btn-secondary" data-action="open-review-from-results">Revisar respostas</button>
-                <button class="btn btn-secondary" data-action="edit-context">Editar contexto</button>
-                <a class="btn btn-secondary" href="${buildWhatsAppUrl('Quero discutir o relatório final do assessment N.A.V.E.')}">Falar sobre o relatório</a>
-              </div>
-            </article>
-            <aside class="surface-card score-card">
-              <span class="eyebrow eyebrow-soft">Maturidade geral</span>
-              <div class="score-ring" style="--score:${scoreToPercent(overall)}">
-                <strong>${formatScore(overall)}</strong>
-                <span>de 4,0</span>
-              </div>
-              <h2>${escapeHtml(band.tierLabel)}</h2>
-              <p>${escapeHtml(band.description)}</p>
-            </aside>
-          </section>
-          <section class="surface-card continuity-card report-section">
-            <span class="eyebrow eyebrow-soft">Continuidade executiva</span>
-            <strong>Este relatório pode evoluir sem perder o que já foi construído.</strong>
-            <p>Se você revisar qualquer resposta, recalculamos maturidade, tier, roadmap, heatmap e serviços recomendados na mesma sessão.</p>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Panorama por missão</span>
-              <h2>Onde a jornada já está sólida e onde vale concentrar energia primeiro.</h2>
-            </div>
-            <div class="function-score-grid">
-              ${functionMetrics
-                .map((item) => `
-                  <article class="surface-card metric-panel">
-                    <div class="metric-panel-top">
-                      <span class="pill">${escapeHtml(item.meta.code)}</span>
-                      <strong>${escapeHtml(item.meta.label)}</strong>
-                    </div>
-                    <div class="metric-bar"><div class="metric-bar-fill" style="width:${scoreToPercent(item.score || 0)}%"></div></div>
-                    <div class="metric-caption">
-                      <span>${formatScore(item.score)}</span>
-                      <span>${item.answered}/${item.total} evidências respondidas</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Capacidades em destaque</span>
-              <h2>Os pontos em que a empresa já opera com consistência e onde ainda existe mais espaço para evoluir.</h2>
-            </div>
-            <div class="capability-grid">
-              ${capabilityBadges
-                .map((item) => `
-                  <article class="surface-card capability-card capability-${escapeHtml(item.tone)}">
-                    <span class="capability-badge">${escapeHtml(item.badge)}</span>
-                    <h3>${escapeHtml(item.label)}</h3>
-                    <p>${escapeHtml(item.description)}</p>
-                    <div class="capability-footer">
-                      <strong>${formatScore(item.score)}</strong>
-                      <span>${escapeHtml(item.statusLabel)}</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Heatmap função × capacidade</span>
-              <h2>Uma leitura cruzada, mais leve, do que pesa mais na maturidade operacional.</h2>
-            </div>
-            <div class="surface-card heatmap-shell">
-              <div class="heatmap-grid" style="grid-template-columns: 220px repeat(${content.capabilities.length}, minmax(100px, 1fr));">
-                <div class="heatmap-corner">Função</div>
-                ${content.capabilities.map((item) => `<div class="heatmap-head">${escapeHtml(item.shortLabel)}</div>`).join('')}
-                ${heatmap
-                  .map(
-                    (row) => `
-                      <div class="heatmap-row-head">${escapeHtml(row.meta.label)}</div>
-                      ${row.cells
-                        .map((cell) => {
-                          const tone =
-                            !Number.isFinite(cell.score)
-                              ? 'empty'
-                              : cell.score < 2
-                              ? 'critical'
-                              : cell.score < 3
-                              ? 'warning'
-                              : cell.score < 3.7
-                              ? 'mid'
-                              : 'strong';
-                          return `<div class="heatmap-cell heatmap-${tone}">${Number.isFinite(cell.score) ? formatScore(cell.score) : '—'}</div>`;
-                        })
-                        .join('')}
-                    `
-                  )
-                  .join('')}
-              </div>
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Prioridades do momento</span>
-              <h2>Os temas que hoje merecem atenção primeiro para acelerar a evolução.</h2>
-            </div>
-            <div class="gap-grid">
-              ${gaps
-                .map((gap) => `
-                  <article class="surface-card gap-card">
-                    <div class="gap-card-top">
-                      <span class="pill">${escapeHtml(gap.functionNames.join(' · '))}</span>
-                      <span class="gap-score">Prioridade ${formatScore(gap.gapScore)}</span>
-                    </div>
-                    <h3>${escapeHtml(gap.shortTitle)}</h3>
-                    <p>${escapeHtml(gap.prompt)}</p>
-                    <div class="gap-meta">
-                      <span>Resposta: ${escapeHtml(content.answerScale[gap.selectedOption].label)}</span>
-                      <span>Peso ${gap.weight}</span>
-                    </div>
-                  </article>
-                `)
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Roadmap 30-60-90</span>
-              <h2>Uma sequência prática para sair do diagnóstico e entrar em execução com clareza.</h2>
-            </div>
-            <div class="roadmap-grid">
-              ${roadmap
-                .map(
-                  (phase) => `
-                    <article class="surface-card roadmap-card">
-                      <span class="pill">${escapeHtml(phase.phase)}</span>
-                      <h3>${escapeHtml(phase.title)}</h3>
-                      <ul>${phase.items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-                    </article>
-                  `
-                )
-                .join('')}
-            </div>
-          </section>
-          <section class="report-section">
-            <div class="section-head">
-              <span class="eyebrow eyebrow-soft">Onde a Active pode ajudar agora</span>
-              <h2>Os serviços mais aderentes para transformar este relatório em movimento real.</h2>
-            </div>
-            <div class="service-grid">
-              ${services
-                .map(
-                  (service) => `
-                    <article class="surface-card service-card">
-                      <div class="service-card-top">
-                        <span class="pill">${escapeHtml(service.area)}</span>
-                        <span class="service-fit">${formatPercent(Math.min(service.fitScore * 12, 100))} de aderência</span>
-                      </div>
-                      <h3>${escapeHtml(service.name)}</h3>
-                      <p>${escapeHtml(service.summary)}</p>
-                      <div class="service-value-note">${escapeHtml(service.contactPitch)}</div>
-                      <div class="pill-cloud">
-                        ${service.relatedCapabilities.slice(0, 3).map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join('')}
-                      </div>
-                      <button class="btn btn-secondary" type="button" data-action="open-service" data-service-key="${escapeHtml(service.key)}">Saiba mais</button>
-                    </article>
-                  `
-                )
-                .join('')}
-            </div>
-          </section>
-          <section class="surface-card cta-strip report-section">
-            <div>
-              <span class="eyebrow eyebrow-soft">Próximo passo comercial</span>
-              <h2>Transforme o diagnóstico em plano de ação com a Active Solutions.</h2>
-              <p>Se quiser, já podemos aprofundar o relatório, priorizar quick wins e desenhar a próxima onda de implementação com um especialista.</p>
-            </div>
-            <a class="btn btn-primary" href="${buildWhatsAppUrl('Quero transformar o assessment N.A.V.E em um plano de ação com a Active Solutions.')}" target="_blank" rel="noreferrer">Entrar em contato agora mesmo</a>
-          </section>
-        </main>
-        ${renderSpecialistFab('Quero falar com um especialista sobre as recomendações do relatório.')}
-        ${renderAppModal()}
+          <div class="dialog-actions">
+            <button class="button button--ghost" data-action="close-service">Voltar</button>
+            ${config.calendarUrl
+              ? `<a class="button button--ghost" href="${escapeHtml(config.calendarUrl)}" target="_blank" rel="noreferrer">Abrir agenda</a>`
+              : ''}
+            <a class="button button--primary" target="_blank" rel="noreferrer" href="${buildWhatsAppUrl(buildResultsWhatsAppLines(service))}">
+              ${escapeHtml(service.cta?.scheduleLabel || 'Agendar bate-papo')}
+            </a>
+          </div>
+        </section>
       </div>
     `;
   }
 
   function render() {
+    let page = '';
+
     if (state.screen === 'lead') {
-      app.innerHTML = renderLead();
-      return;
+      page = renderLead();
+    } else if (state.screen === 'assessment') {
+      page = renderAssessment();
+    } else if (state.screen === 'results') {
+      page = renderResults();
+    } else {
+      page = renderLanding();
     }
-    if (state.screen === 'assessment') {
-      app.innerHTML = renderAssessment();
-      return;
-    }
-    if (state.screen === 'review') {
-      app.innerHTML = renderReview();
-      return;
-    }
-    if (state.screen === 'results') {
-      app.innerHTML = renderResults();
-      return;
-    }
-    app.innerHTML = renderLanding();
+
+    root.innerHTML = `
+      <div class="page-shell page-shell--${state.screen}">
+        ${renderTopbar()}
+        ${renderNotice()}
+        ${page}
+        ${renderFloatingWhatsApp()}
+        ${renderReviewDrawer()}
+        ${renderServiceModal()}
+      </div>
+    `;
+
+    afterRender();
   }
 
-  app.addEventListener(
-    'click',
-    function (event) {
-      const optionButton = event.target.closest('[data-option][data-question-id]');
-      if (optionButton) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        updateAnswer(optionButton.getAttribute('data-question-id'), optionButton.getAttribute('data-option'));
-        return;
-      }
+  function afterRender() {
+    scheduleFabNudge();
+    handleFocusForDialog();
 
-      const checkpointJump = event.target.closest('[data-jump-checkpoint]');
-      if (checkpointJump) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        navigateToCheckpoint(checkpointJump.getAttribute('data-jump-checkpoint'));
-        return;
+    if (state.screen === 'assessment') {
+      const question = getCurrentQuestion();
+      if (question && lastQuestionViewId !== question.id) {
+        lastQuestionViewId = question.id;
+        emitProductEvent('question_view', {
+          id: question.id,
+          functionKeys: question.functionKeys,
+          checkpointId: question.checkpointId,
+        });
       }
+    }
+  }
 
-      const functionJump = event.target.closest('[data-jump-function]');
-      if (functionJump) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const functionKey = functionJump.getAttribute('data-jump-function');
+  function handleFocusForDialog() {
+    const dialog = document.querySelector('.dialog-surface');
+    if (dialog) {
+      const focusable = dialog.querySelector(focusableSelector);
+      if (focusable && !dialog.contains(document.activeElement)) {
+        focusable.focus();
+      }
+      return;
+    }
+
+    if (focusRestoreSelector) {
+      const target = document.querySelector(focusRestoreSelector);
+      if (target) {
+        target.focus();
+      }
+      focusRestoreSelector = '';
+    }
+  }
+
+  function scheduleFabNudge() {
+    window.clearTimeout(fabIdleTimer);
+    window.clearTimeout(fabHelpTimer);
+
+    if (state.notice && (state.notice.tone === 'warning' || state.notice.tone === 'error')) {
+      if (state.fabNudge !== 'error') {
+        state.fabNudge = 'error';
+        render();
+      }
+      return;
+    }
+
+    if (state.fabNudge) {
+      state.fabNudge = '';
+    }
+
+    if (state.screen !== 'assessment') {
+      return;
+    }
+
+    const question = getCurrentQuestion();
+    if (!question || getAnswer(question.id)) {
+      return;
+    }
+
+    const questionId = question.id;
+    fabIdleTimer = window.setTimeout(() => {
+      if (state.screen === 'assessment' && state.currentQuestionId === questionId && !getAnswer(questionId)) {
+        state.fabNudge = 'idle';
+        emitProductEvent('idle_whatsapp_prompt_shown', { questionId });
+        render();
+      }
+    }, 5000);
+
+    if (state.helpPanel) {
+      fabHelpTimer = window.setTimeout(() => {
+        if (state.screen === 'assessment' && state.currentQuestionId === questionId && !getAnswer(questionId)) {
+          state.fabNudge = 'help';
+          render();
+        }
+      }, 8500);
+    }
+  }
+
+  function trapFocus(event) {
+    const dialog = document.querySelector('.dialog-surface');
+    if (!dialog || event.key !== 'Tab') {
+      return;
+    }
+
+    const focusable = Array.from(dialog.querySelectorAll(focusableSelector)).filter(
+      (item) => !item.hasAttribute('disabled')
+    );
+    if (!focusable.length) {
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  /* EVENTS */
+
+  function bindEvents() {
+    root.addEventListener('click', handleClick);
+    root.addEventListener('submit', handleSubmit);
+    root.addEventListener('input', handleInput);
+    root.addEventListener('focusout', handleBlur, true);
+
+    window.addEventListener('keydown', (event) => {
+      trapFocus(event);
+
+      if (event.key === 'Escape') {
+        if (state.serviceDetailKey) {
+          focusRestoreSelector = `[data-service-key="${state.serviceDetailKey}"]`;
+          state.serviceDetailKey = '';
+          saveState();
+          render();
+          return;
+        }
+        if (state.reviewOpen) {
+          state.reviewOpen = false;
+          saveState();
+          render();
+        }
+      }
+    });
+
+    window.addEventListener('online', () => {
+      state.online = true;
+      saveState();
+      render();
+      flushPendingSubmissions({ silent: true });
+    });
+
+    window.addEventListener('offline', () => {
+      state.online = false;
+      saveState();
+      render();
+    });
+  }
+
+  function handleClick(event) {
+    const whatsappLink = event.target.closest('a[href*="wa.me/"]');
+    if (whatsappLink) {
+      emitProductEvent('whatsapp_click', {
+        origin: whatsappLink.closest('.service-modal')
+          ? 'modal'
+          : whatsappLink.closest('.results-hero')
+            ? 'resultCTA'
+            : whatsappLink.closest('.specialist-fab')
+              ? 'bubble'
+              : 'cta',
+      });
+      return;
+    }
+
+    const actionTarget = event.target.closest('[data-action]');
+    if (!actionTarget) {
+      return;
+    }
+
+    const action = actionTarget.dataset.action;
+
+    if (actionTarget.classList.contains('dialog-backdrop') && !['close-review', 'close-service'].includes(action)) {
+      return;
+    }
+
+    switch (action) {
+      case 'start-flow':
+        state.screen = isLeadReady() ? 'assessment' : 'lead';
+        if (state.screen === 'assessment') {
+          state.currentQuestionId = getFirstUnansweredQuestionId() || questions[0]?.id || '';
+        }
+        saveState();
+        render();
+        break;
+
+      case 'go-landing':
+        state.screen = 'landing';
+        saveState();
+        render();
+        break;
+
+      case 'go-assessment':
         if (!isLeadReady()) {
           state.screen = 'lead';
-          persistAndRender();
-          return;
+        } else {
+          state.screen = 'assessment';
+          state.currentQuestionId = getFirstUnansweredQuestionId() || state.currentQuestionId;
         }
-        navigateToCheckpoint(firstIncompleteCheckpointId(functionKey));
-        return;
-      }
-
-      const actionButton = event.target.closest('[data-action]');
-      if (!actionButton) {
-        return;
-      }
-      const action = actionButton.getAttribute('data-action');
-      const questionId = actionButton.getAttribute('data-question-id') || '';
-      const functionKey = actionButton.getAttribute('data-function-key') || '';
-      const currentCheckpoint = getCurrentCheckpoint();
-
-      const handledActions = new Set([
-        'start-flow',
-        'go-landing',
-        'open-review',
-        'open-review-from-results',
-        'return-from-review',
-        'show-question',
-        'edit-question',
-        'prev-checkpoint',
-        'next-checkpoint',
-        'go-first-missing',
-        'go-results',
-        'finish-assessment',
-        'save-checkpoint',
-        'clear-question',
-        'open-reset-mission',
-        'confirm-reset-mission',
-        'open-reset-all',
-        'reset-all-keep-lead',
-        'reset-all-clear-lead',
-        'close-modal',
-        'close-service',
-        'open-service',
-        'review-answers',
-        'edit-context',
-        'toggle-help',
-        'retry-submissions',
-        'close-notice',
-        'export-report',
-      ]);
-
-      if (!handledActions.has(action)) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      if (action === 'start-flow') {
-        state.screen = isLeadReady() ? 'assessment' : 'lead';
-        if (!state.startedAt && isLeadReady()) {
-          state.startedAt = Date.now();
-          persistAndRender();
-          queueSubmission('started');
-          return;
-        }
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'go-landing') {
-        state.screen = 'landing';
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'open-review' || action === 'open-review-from-results' || action === 'review-answers') {
-        openReview(action === 'open-review-from-results' || action === 'review-answers' ? 'results' : 'assessment');
-        return;
-      }
-
-      if (action === 'return-from-review') {
-        state.screen = getReturnScreen();
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'show-question' || action === 'edit-question') {
-        navigateToQuestion(questionId);
-        return;
-      }
-
-      if (action === 'prev-checkpoint') {
-        const previousCheckpointId = getPreviousCheckpointId(currentCheckpoint.id);
-        if (previousCheckpointId) {
-          navigateToCheckpoint(previousCheckpointId);
-        }
-        return;
-      }
-
-      if (action === 'next-checkpoint') {
-        const nextCheckpointId = getNextCheckpointId(currentCheckpoint.id);
-        if (!getCheckpointStats(currentCheckpoint.id).complete) {
-          setNotice('warning', 'Este checkpoint ainda tem pendências, mas você pode seguir e revisar depois na Central de revisão.');
-        }
-        if (nextCheckpointId) {
-          navigateToCheckpoint(nextCheckpointId);
-        }
-        return;
-      }
-
-      if (action === 'go-first-missing') {
-        const nextMissing = firstIncompleteCheckpointId();
-        if (nextMissing) {
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
-          navigateToCheckpoint(nextMissing);
-        }
-        return;
-      }
-
-      if (action === 'go-results') {
-        if (!isAssessmentComplete()) {
-          const nextMissing = firstIncompleteCheckpointId();
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
-          if (nextMissing) {
-            navigateToCheckpoint(nextMissing);
-          }
-          return;
-        }
-        if (!state.completedAt || !state.sentStatuses.completed) {
-          finishAssessment();
-          return;
-        }
-        state.screen = 'results';
-        state.reportDirty = false;
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'finish-assessment') {
-        if (!isAssessmentComplete()) {
-          const nextMissing = firstIncompleteCheckpointId();
-          setNotice('warning', `Ainda faltam ${questions.length - getAnsweredCount()} respostas para liberar o relatório completo.`);
-          if (nextMissing) {
-            navigateToCheckpoint(nextMissing);
-          }
-          return;
-        }
-        finishAssessment();
-        return;
-      }
-
-      if (action === 'save-checkpoint') {
-        setNotice('success', `Checkpoint salvo às ${formatTime(Date.now())}.`);
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'clear-question') {
-        clearAnswer(questionId);
-        return;
-      }
-
-      if (action === 'open-reset-mission') {
-        state.modal = { type: 'reset-mission', functionKey: functionKey || getCurrentQuestion().primaryFunctionKey };
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'confirm-reset-mission') {
-        resetMissionAnswers(functionKey || state.modal?.functionKey);
-        return;
-      }
-
-      if (action === 'open-reset-all') {
-        state.modal = { type: 'reset-all' };
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'reset-all-keep-lead') {
-        restartAssessment(true);
-        return;
-      }
-
-      if (action === 'reset-all-clear-lead') {
-        restartAssessment(false);
-        return;
-      }
-
-      if (action === 'toggle-help') {
-        toggleHelpDrawer(questionId, actionButton.getAttribute('data-help-kind'));
-        return;
-      }
-
-      if (action === 'edit-context') {
-        state.screen = 'lead';
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'open-service') {
-        state.serviceDetailKey = actionButton.getAttribute('data-service-key') || '';
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'retry-submissions') {
-        flushPendingSubmissions();
-        return;
-      }
-
-      if (action === 'close-notice') {
-        state.notice = null;
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'export-report') {
-        window.print();
-        return;
-      }
-
-      if (action === 'close-service') {
-        if (actionButton.classList.contains('modal-overlay') && event.target !== actionButton) {
-          return;
-        }
-        state.serviceDetailKey = '';
-        persistAndRender();
-        return;
-      }
-
-      if (action === 'close-modal') {
-        if (actionButton.classList.contains('modal-overlay') && event.target !== actionButton) {
-          return;
-        }
-        state.modal = null;
-        persistAndRender();
-      }
-    },
-    true
-  );
-
-  app.addEventListener(
-    'submit',
-    function (event) {
-      const form = event.target.closest('[data-form="lead"]');
-      if (!form) {
-        return;
-      }
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const formData = new window.FormData(form);
-      const phone = formatPhoneDisplay(String(formData.get('phone') || '').trim());
-      const phoneDigits = normalizePhoneDigits(phone);
-      if (phone && phoneDigits.length < 12) {
-        setNotice('warning', 'Confira o telefone / WhatsApp informado antes de continuar.');
-        persistAndRender();
-        return;
-      }
-      state.profile = {
-        name: String(formData.get('name') || '').trim(),
-        role: String(formData.get('role') || '').trim(),
-        email: String(formData.get('email') || '').trim(),
-        company: String(formData.get('company') || '').trim(),
-        size: String(formData.get('size') || '').trim(),
-        segment: String(formData.get('segment') || '').trim(),
-        phone,
-      };
-      state.helpDrawers = {};
-      state.startedAt = state.startedAt || Date.now();
-      state.screen = 'assessment';
-      state.notice = null;
-      persistAndRender();
-      queueSubmission('started');
-    },
-    true
-  );
-
-  app.addEventListener(
-    'input',
-    function (event) {
-      if (event.target.matches('[data-profile-input]')) {
-        const field = event.target.getAttribute('data-profile-input');
-        let value = event.target.value;
-        if (field === 'phone') {
-          value = formatPhoneDisplay(value);
-          event.target.value = value;
-        }
-        state.profile[field] = value;
         saveState();
-        updateLeadPreviewDom();
-        event.stopImmediatePropagation();
-        return;
+        render();
+        break;
+
+      case 'go-results':
+        goToResults();
+        break;
+
+      case 'prev-question':
+        moveQuestion(-1);
+        break;
+
+      case 'continue':
+        continueJourney();
+        break;
+
+      case 'open-review':
+        focusRestoreSelector = '[data-action="open-review"]';
+        state.reviewOpen = true;
+        state.reviewOrigin = state.screen;
+        saveState();
+        render();
+        break;
+
+      case 'close-review':
+        state.reviewOpen = false;
+        saveState();
+        render();
+        break;
+
+      case 'jump-question': {
+        const questionId = actionTarget.dataset.questionId;
+        if (questionId) {
+          state.currentQuestionId = questionId;
+          state.screen = 'assessment';
+          state.reviewOpen = false;
+          state.helpPanel = '';
+          saveState();
+          render();
+        }
+        break;
       }
-      if (event.target.matches('[data-evidence-input]')) {
-        const questionId = event.target.getAttribute('data-evidence-input');
-        if (state.answers[questionId]) {
-          state.answers[questionId].evidence = event.target.value;
+
+      case 'jump-function': {
+        const functionKey = actionTarget.dataset.functionKey;
+        const nextQuestionId = getFirstUnansweredQuestionId(functionKey);
+        if (nextQuestionId) {
+          state.currentQuestionId = nextQuestionId;
+          state.screen = isLeadReady() ? 'assessment' : 'lead';
+          state.reviewOpen = false;
+          saveState();
+          render();
+        }
+        break;
+      }
+
+      case 'go-first-missing': {
+        const nextQuestionId = getFirstUnansweredQuestionId();
+        if (nextQuestionId) {
+          state.currentQuestionId = nextQuestionId;
+          state.screen = 'assessment';
+          state.reviewOpen = false;
+          saveState();
+          render();
+        }
+        break;
+      }
+
+      case 'select-option':
+        updateAnswer(actionTarget.dataset.questionId, actionTarget.dataset.option);
+        break;
+
+      case 'set-dplus-level':
+        setDplusLevel(actionTarget.dataset.questionId, actionTarget.dataset.level);
+        break;
+
+      case 'toggle-help': {
+        const nextHelp = actionTarget.dataset.help;
+        const opening = state.helpPanel !== nextHelp;
+        state.helpPanel = opening ? nextHelp : '';
+        saveState();
+        render();
+        if (opening) {
+          emitProductEvent('help_open', {
+            type: nextHelp,
+            questionId: getCurrentQuestion()?.id || '',
+          });
+        }
+        break;
+      }
+
+      case 'clear-answer':
+        clearAnswer(actionTarget.dataset.questionId || state.currentQuestionId);
+        break;
+
+      case 'close-notice':
+        clearNotice();
+        break;
+
+      case 'retry-submissions':
+        flushPendingSubmissions();
+        break;
+
+      case 'open-service': {
+        const serviceKey = actionTarget.dataset.serviceKey;
+        if (serviceKey && servicesByKey[serviceKey]) {
+          focusRestoreSelector = `[data-service-key="${serviceKey}"]`;
+          state.serviceDetailKey = serviceKey;
+          saveState();
+          render();
+          emitProductEvent('service_learn_more_open', {
+            serviceKey,
+          });
+        }
+        break;
+      }
+
+      case 'close-service':
+        state.serviceDetailKey = '';
+        saveState();
+        render();
+        break;
+
+      case 'restart-keep-lead':
+        if (window.confirm('Reiniciar o assessment e manter os dados do lead?')) {
+          restartAssessment('keep-lead');
+        }
+        break;
+
+      case 'restart-clear-lead':
+        if (window.confirm('Apagar respostas e também limpar os dados do lead?')) {
+          restartAssessment('clear-lead');
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  function handleSubmit(event) {
+    const form = event.target.closest('[data-form="lead"]');
+    if (!form) {
+      return;
+    }
+
+    event.preventDefault();
+    state.leadAttempted = true;
+
+    const errors = validateLead(state.profile);
+    if (Object.keys(errors).length) {
+      emitProductEvent('lead_submit_error', {
+        fields: Object.keys(errors),
+      });
+      setNotice('error', 'Revise os campos destacados para continuar.');
+      return;
+    }
+
+    state.leadContext = buildLeadContext(state.profile);
+    state.screen = 'assessment';
+    state.currentQuestionId = getFirstUnansweredQuestionId() || questions[0]?.id || '';
+    state.startedAt = state.startedAt || Date.now();
+    state.leadAttempted = false;
+    state.touchedFields = {};
+    state.notice = null;
+    saveState();
+
+    emitProductEvent('lead_submit_success', {
+      role: state.leadContext.role,
+      segment: state.leadContext.segment,
+      size: state.leadContext.size,
+    });
+    emitProductEvent('assessment_start', {
+      assessmentMode: state.leadContext.assessmentMode,
+    });
+
+    ensureStartedSubmission();
+    render();
+  }
+
+  function handleInput(event) {
+    const profileField = event.target.closest('[data-profile-input]');
+    if (profileField) {
+      const fieldName = profileField.name;
+      let value = profileField.value;
+
+      if (fieldName === 'phone') {
+        value = formatPhoneDisplay(value);
+        profileField.value = value;
+      }
+
+      state.profile = {
+        ...state.profile,
+        [fieldName]: value,
+      };
+      state.leadContext = buildLeadContext(state.profile);
+      saveState();
+      return;
+    }
+
+    const evidenceField = event.target.closest('[data-evidence-input]');
+    if (evidenceField) {
+      const questionId = evidenceField.dataset.questionId;
+      const answer = getAnswer(questionId);
+      if (answer) {
+        state.answers[questionId] = {
+          ...answer,
+          evidence: evidenceField.value,
+        };
+        if (state.completedAt && allQuestionsAnswered()) {
+          state.reportDirty = true;
+          queueSubmission('completed');
+        } else {
           saveState();
         }
-        event.stopImmediatePropagation();
       }
-    },
-    true
-  );
-
-window.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && state.serviceDetailKey) {
-      state.serviceDetailKey = '';
-      persistAndRender();
     }
-  });
+  }
 
-  window.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && state.modal) {
-      state.modal = null;
-      persistAndRender();
+  function handleBlur(event) {
+    const field = event.target.closest('[data-field]');
+    if (!field) {
+      return;
     }
-  });
 
-  window.addEventListener('online', function () {
-    flushPendingSubmissions({ silent: true });
-  });
-
-  render();
-  flushPendingSubmissions({ silent: true });
+    state.touchedFields[field.dataset.field] = true;
+    saveState();
+    render();
+  }
 })();
-

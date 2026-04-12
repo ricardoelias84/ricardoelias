@@ -1,0 +1,172 @@
+{
+  "securityGovernance": {
+    "serviceKey": "securityGovernance",
+    "nistFunctions": ["GV"],
+    "fitSignals": ["access-protection", "third-party-response"],
+    "whenItMakesSense": "Quando seguranca ainda depende de urgencia, excecao e pouca cadencia executiva.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "privacyGovernance": {
+    "serviceKey": "privacyGovernance",
+    "nistFunctions": ["GV", "ID", "PR", "RS"],
+    "fitSignals": ["personal-data-governance", "third-party-response"],
+    "whenItMakesSense": "Quando dados pessoais circulam pela operacao sem ownership claro, cadencia ou evidencias simples.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "awareness": {
+    "serviceKey": "awareness",
+    "nistFunctions": ["GV", "PR", "DE"],
+    "fitSignals": ["access-protection", "personal-data-governance"],
+    "whenItMakesSense": "Quando comportamento humano ainda cria risco recorrente e a empresa precisa transformar cultura em rotina.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "assetManagement": {
+    "serviceKey": "assetManagement",
+    "nistFunctions": ["ID", "RC"],
+    "fitSignals": ["external-exposure", "personal-data-governance"],
+    "whenItMakesSense": "Quando a empresa ainda decide sem visibilidade clara de ativos, dados criticos e dependencias.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "threatExposure": {
+    "serviceKey": "threatExposure",
+    "nistFunctions": ["ID", "PR", "DE"],
+    "fitSignals": ["external-exposure", "application-security"],
+    "whenItMakesSense": "Quando ha exposicao externa relevante e o backlog de risco ainda nao esta priorizado por impacto real.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "securityAssessment": {
+    "serviceKey": "securityAssessment",
+    "nistFunctions": ["ID", "PR"],
+    "fitSignals": ["hardening-updates", "external-exposure", "application-security"],
+    "whenItMakesSense": "Quando faltam evidencias concretas sobre vulnerabilidades, correcoes e o que realmente merece prioridade.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "endpointSecurity": {
+    "serviceKey": "endpointSecurity",
+    "nistFunctions": ["PR"],
+    "fitSignals": ["hardening-updates"],
+    "whenItMakesSense": "Quando endpoints ainda dependem de esforco manual e a cobertura minima segura nao e consistente.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "networkSecurity": {
+    "serviceKey": "networkSecurity",
+    "nistFunctions": ["PR", "DE"],
+    "fitSignals": ["external-exposure", "hardening-updates"],
+    "whenItMakesSense": "Quando rede, acesso remoto e publicacao externa ainda ampliam superficie de ataque e atrito operacional.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "cloudSecurity": {
+    "serviceKey": "cloudSecurity",
+    "nistFunctions": ["PR", "DE", "RC"],
+    "fitSignals": ["critical-identity", "external-exposure", "hardening-updates"],
+    "whenItMakesSense": "Quando ambientes em nuvem evoluiram rapido, mas governanca, postura e controles criticos ainda estao dispersos.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "applicationSecurity": {
+    "serviceKey": "applicationSecurity",
+    "nistFunctions": ["PR", "DE"],
+    "fitSignals": ["application-security", "external-exposure"],
+    "whenItMakesSense": "Quando aplicacoes, APIs e publicacoes web ficaram centrais para o negocio e precisam de mais previsibilidade.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "iam": {
+    "serviceKey": "iam",
+    "nistFunctions": ["PR", "GV"],
+    "fitSignals": ["access-protection", "critical-identity"],
+    "whenItMakesSense": "Quando acesso critico ainda depende de excecoes, urgencia ou baixa evidencia de controle.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "soc": {
+    "serviceKey": "soc",
+    "nistFunctions": ["DE", "RS"],
+    "fitSignals": ["monitoring-traceability", "third-party-response"],
+    "whenItMakesSense": "Quando sinais chegam tarde, sem contexto operacional suficiente para responder com confianca.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "siem": {
+    "serviceKey": "siem",
+    "nistFunctions": ["DE", "RS"],
+    "fitSignals": ["monitoring-traceability"],
+    "whenItMakesSense": "Quando logs existem, mas ainda nao viram rastreabilidade, correlacao e leitura acionavel.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "incidentResponse": {
+    "serviceKey": "incidentResponse",
+    "nistFunctions": ["RS", "RC"],
+    "fitSignals": ["monitoring-traceability", "third-party-response", "personal-data-governance"],
+    "whenItMakesSense": "Quando a empresa precisa reduzir improviso nas primeiras horas e responder com papeis, evidencias e contencao.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "crisisManagement": {
+    "serviceKey": "crisisManagement",
+    "nistFunctions": ["RS", "GV", "RC"],
+    "fitSignals": ["third-party-response", "personal-data-governance"],
+    "whenItMakesSense": "Quando a decisao executiva em crise ainda depende de pouca cadencia, pouco roteiro e baixa integracao entre areas.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "backupRecovery": {
+    "serviceKey": "backupRecovery",
+    "nistFunctions": ["RC"],
+    "fitSignals": ["hardening-updates", "third-party-response"],
+    "whenItMakesSense": "Quando restauracao, RPO e RTO ainda nao estao testados o suficiente para sustentar a retomada com seguranca.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  },
+  "businessContinuity": {
+    "serviceKey": "businessContinuity",
+    "nistFunctions": ["RC", "GV", "ID"],
+    "fitSignals": ["third-party-response", "personal-data-governance"],
+    "whenItMakesSense": "Quando continuidade ainda depende de memoria, boa vontade ou dependencias de terceiros pouco mapeadas.",
+    "cta": {
+      "learnMoreLabel": "Saiba mais",
+      "scheduleLabel": "Agendar bate-papo"
+    }
+  }
+}

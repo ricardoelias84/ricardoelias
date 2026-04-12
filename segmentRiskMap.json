@@ -1,0 +1,43 @@
+{
+  "high": [
+    "saude",
+    "healthcare",
+    "financeiro",
+    "financial",
+    "banco",
+    "banking",
+    "governo",
+    "setor publico",
+    "setor público",
+    "publico",
+    "public",
+    "educacao",
+    "educação"
+  ],
+  "medium": [
+    "tecnologia",
+    "technology",
+    "industria",
+    "indústria",
+    "manufacturing",
+    "varejo",
+    "retail",
+    "servicos",
+    "serviços",
+    "servicos profissionais",
+    "logistica",
+    "logística",
+    "energia",
+    "telecom"
+  ],
+  "low": [
+    "agro",
+    "agricultura",
+    "construcao",
+    "construção",
+    "imobiliario",
+    "imobiliário",
+    "hospitalidade",
+    "turismo"
+  ]
+}
