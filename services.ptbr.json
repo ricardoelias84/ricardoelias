@@ -1,9 +1,23 @@
 {
   "securityGovernance": {
     "serviceKey": "securityGovernance",
-    "nistFunctions": ["GV"],
-    "fitSignals": ["access-protection", "third-party-response"],
+    "name": "Governança de Segurança",
+    "summary": "Estrutura segurança como função de negócio, conectando risco, estratégia, políticas aplicáveis e plano diretor.",
+    "description": "A Active Solutions organiza a governança prática de segurança para tirar a operação do modo reativo e criar um sistema contínuo de decisão, priorização e controle.",
+    "pain": "Segurança fragmentada, reativa e sem critério de priorização gera gasto mal direcionado, baixa eficácia e exposição real ao risco.",
+    "deliverables": [
+      "Plano diretor e agenda de evolução por risco",
+      "Políticas aplicáveis com papéis e exceções claras",
+      "Modelo executivo de decisão e indicadores"
+    ],
     "whenItMakesSense": "Quando seguranca ainda depende de urgencia, excecao e pouca cadencia executiva.",
+    "nistFunctions": [
+      "GV"
+    ],
+    "fitSignals": [
+      "access-protection",
+      "third-party-response"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -11,9 +25,26 @@
   },
   "privacyGovernance": {
     "serviceKey": "privacyGovernance",
-    "nistFunctions": ["GV", "ID", "PR", "RS"],
-    "fitSignals": ["personal-data-governance", "third-party-response"],
+    "name": "Governança de Privacidade",
+    "summary": "Conecta conformidade, risco e operação para dar visibilidade real sobre o ciclo de vida dos dados pessoais.",
+    "description": "Vai além de adequação formal e transforma exigências legais em processos práticos, mensuráveis e integrados à tomada de decisão.",
+    "pain": "Dados pessoais tratados sem controle e sem visibilidade ampliam risco regulatório, reputacional e decisões sem clareza de impacto.",
+    "deliverables": [
+      "Mapa de dados, ROPA e leitura operacional de risco",
+      "Fluxos para retenção, bases legais e atendimento a titulares",
+      "Governança contínua de privacidade com integração ao negócio"
+    ],
     "whenItMakesSense": "Quando dados pessoais circulam pela operacao sem ownership claro, cadencia ou evidencias simples.",
+    "nistFunctions": [
+      "GV",
+      "ID",
+      "PR",
+      "RS"
+    ],
+    "fitSignals": [
+      "personal-data-governance",
+      "third-party-response"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -21,9 +52,25 @@
   },
   "awareness": {
     "serviceKey": "awareness",
-    "nistFunctions": ["GV", "PR", "DE"],
-    "fitSignals": ["access-protection", "personal-data-governance"],
+    "name": "Conscientização (SBCP)",
+    "summary": "Programa contínuo de comportamento seguro com campanhas, simulações e reforço de cultura.",
+    "description": "A abordagem da Active transforma segurança em hábito operacional com estímulos direcionados e mensuração de evolução.",
+    "pain": "Sem intervenção estruturada, os erros se repetem mesmo com boa tecnologia e mantêm a organização exposta.",
+    "deliverables": [
+      "Campanhas contínuas e trilhas segmentadas",
+      "Simulações de phishing e medições de evolução",
+      "Plano de reforço de cultura para segurança e privacidade"
+    ],
     "whenItMakesSense": "Quando comportamento humano ainda cria risco recorrente e a empresa precisa transformar cultura em rotina.",
+    "nistFunctions": [
+      "GV",
+      "PR",
+      "DE"
+    ],
+    "fitSignals": [
+      "access-protection",
+      "personal-data-governance"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -31,9 +78,24 @@
   },
   "assetManagement": {
     "serviceKey": "assetManagement",
-    "nistFunctions": ["ID", "RC"],
-    "fitSignals": ["external-exposure", "personal-data-governance"],
+    "name": "Gestão de Ativos",
+    "summary": "Cria visibilidade contínua sobre ativos, donos, criticidade e relações operacionais.",
+    "description": "Vai além do inventário estático, identificando ativos desconhecidos, shadow IT e dependências que impactam o negócio.",
+    "pain": "Sem visibilidade, ativos críticos ficam expostos sem controle e criam pontos cegos exploráveis antes mesmo de serem percebidos.",
+    "deliverables": [
+      "Inventário com criticidade e ownership",
+      "Leitura de ciclo de vida, lacunas e ativos desconhecidos",
+      "Base para priorização de proteção e recuperação"
+    ],
     "whenItMakesSense": "Quando a empresa ainda decide sem visibilidade clara de ativos, dados criticos e dependencias.",
+    "nistFunctions": [
+      "ID",
+      "RC"
+    ],
+    "fitSignals": [
+      "external-exposure",
+      "personal-data-governance"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -41,9 +103,25 @@
   },
   "threatExposure": {
     "serviceKey": "threatExposure",
-    "nistFunctions": ["ID", "PR", "DE"],
-    "fitSignals": ["external-exposure", "application-security"],
+    "name": "Gestão de Riscos e Exposição a Ameaças",
+    "summary": "Relaciona vulnerabilidades, superfície de ataque e contexto operacional para priorização acionável.",
+    "description": "A Active correlaciona exposição, criticidade e impacto de negócio para focar energia onde a redução de risco é real.",
+    "pain": "Excesso de vulnerabilidades sem critério drena esforço enquanto exposições realmente críticas continuam abertas.",
+    "deliverables": [
+      "Prioridade baseada em probabilidade, impacto e exposição",
+      "Backlog acionável de redução de risco",
+      "Leitura executiva da superfície de ataque"
+    ],
     "whenItMakesSense": "Quando ha exposicao externa relevante e o backlog de risco ainda nao esta priorizado por impacto real.",
+    "nistFunctions": [
+      "ID",
+      "PR",
+      "DE"
+    ],
+    "fitSignals": [
+      "external-exposure",
+      "application-security"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -51,9 +129,25 @@
   },
   "securityAssessment": {
     "serviceKey": "securityAssessment",
-    "nistFunctions": ["ID", "PR"],
-    "fitSignals": ["hardening-updates", "external-exposure", "application-security"],
+    "name": "Avaliação de Segurança",
+    "summary": "Combina análise técnica e validação prática para separar falha teórica de risco concreto.",
+    "description": "Integra scans, validação ofensiva e evidência técnica para ajudar a empresa a corrigir primeiro o que realmente pode ser explorado.",
+    "pain": "Sem validação prática, vulnerabilidades são tratadas de forma genérica e falhas exploráveis permanecem abertas.",
+    "deliverables": [
+      "Scan e leitura priorizada de vulnerabilidades",
+      "Validação ofensiva em cenários reais de ataque",
+      "Recomendação prática de correção com evidência"
+    ],
     "whenItMakesSense": "Quando faltam evidencias concretas sobre vulnerabilidades, correcoes e o que realmente merece prioridade.",
+    "nistFunctions": [
+      "ID",
+      "PR"
+    ],
+    "fitSignals": [
+      "hardening-updates",
+      "external-exposure",
+      "application-security"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -61,9 +155,22 @@
   },
   "endpointSecurity": {
     "serviceKey": "endpointSecurity",
-    "nistFunctions": ["PR"],
-    "fitSignals": ["hardening-updates"],
+    "name": "Segurança de Endpoints",
+    "summary": "Detecção comportamental e resposta automática para conter abuso, malware e movimentação lateral.",
+    "description": "Vai além do antivírus tradicional e foca em perceber atividade maliciosa mesmo sem assinatura conhecida.",
+    "pain": "Grande parte dos ataques começa no endpoint e evolui sem ser percebida até que o impacto já esteja em curso.",
+    "deliverables": [
+      "Cobertura comportamental para estações e servidores",
+      "Resposta automatizada e investigação de atividades suspeitas",
+      "Ajuste contínuo para reduzir ruído e melhorar eficácia"
+    ],
     "whenItMakesSense": "Quando endpoints ainda dependem de esforco manual e a cobertura minima segura nao e consistente.",
+    "nistFunctions": [
+      "PR"
+    ],
+    "fitSignals": [
+      "hardening-updates"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -71,9 +178,24 @@
   },
   "networkSecurity": {
     "serviceKey": "networkSecurity",
-    "nistFunctions": ["PR", "DE"],
-    "fitSignals": ["external-exposure", "hardening-updates"],
+    "name": "Segurança de Redes",
+    "summary": "Segmentação, arquitetura segura, revisão de regras e controle de tráfego para reduzir exposição.",
+    "description": "A rede passa a operar como camada de contenção e controle, dificultando propagação de ataque e ampliando visibilidade.",
+    "pain": "Sem controle de rede, um acesso inicial se espalha rapidamente e amplia o impacto de qualquer incidente.",
+    "deliverables": [
+      "Arquitetura segura com segmentação e DMZ",
+      "Revisão de regras, acessos remotos e exposição externa",
+      "Contenção de movimentação lateral"
+    ],
     "whenItMakesSense": "Quando rede, acesso remoto e publicacao externa ainda ampliam superficie de ataque e atrito operacional.",
+    "nistFunctions": [
+      "PR",
+      "DE"
+    ],
+    "fitSignals": [
+      "external-exposure",
+      "hardening-updates"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -81,9 +203,26 @@
   },
   "cloudSecurity": {
     "serviceKey": "cloudSecurity",
-    "nistFunctions": ["PR", "DE", "RC"],
-    "fitSignals": ["critical-identity", "external-exposure", "hardening-updates"],
+    "name": "Segurança de Nuvens",
+    "summary": "Protege ambientes cloud com foco em configuração, identidade, workloads e postura contínua.",
+    "description": "A Active integra visibilidade, controle e resposta para impedir que exposições em cloud avancem sem percepção.",
+    "pain": "Erros de configuração e permissões excessivas seguem entre as principais causas de exposição em cloud.",
+    "deliverables": [
+      "Monitoramento contínuo de postura de segurança em nuvem",
+      "Proteção de workloads e leitura de configurações críticas",
+      "Redução de exposição em ambientes multi-cloud"
+    ],
     "whenItMakesSense": "Quando ambientes em nuvem evoluiram rapido, mas governanca, postura e controles criticos ainda estao dispersos.",
+    "nistFunctions": [
+      "PR",
+      "DE",
+      "RC"
+    ],
+    "fitSignals": [
+      "critical-identity",
+      "external-exposure",
+      "hardening-updates"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -91,9 +230,24 @@
   },
   "applicationSecurity": {
     "serviceKey": "applicationSecurity",
-    "nistFunctions": ["PR", "DE"],
-    "fitSignals": ["application-security", "external-exposure"],
+    "name": "Segurança de Aplicações",
+    "summary": "Integra segurança ao ciclo de desenvolvimento, publicação e operação de aplicações.",
+    "description": "A solução antecipa risco desde o código até a produção, conectando dependências, configurações e postura de segurança.",
+    "pain": "Vulnerabilidades criadas no desenvolvimento entram em produção sem controle e ampliam a superfície de ataque.",
+    "deliverables": [
+      "Padrões de segurança no ciclo de desenvolvimento",
+      "Validação contínua de aplicações e APIs publicadas",
+      "Redução de falhas antes que avancem para produção"
+    ],
     "whenItMakesSense": "Quando aplicacoes, APIs e publicacoes web ficaram centrais para o negocio e precisam de mais previsibilidade.",
+    "nistFunctions": [
+      "PR",
+      "DE"
+    ],
+    "fitSignals": [
+      "application-security",
+      "external-exposure"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -101,9 +255,24 @@
   },
   "iam": {
     "serviceKey": "iam",
-    "nistFunctions": ["PR", "GV"],
-    "fitSignals": ["access-protection", "critical-identity"],
+    "name": "Gerenciamento de Identidade e Acesso",
+    "summary": "Trata identidade como perímetro com MFA, RBAC, PAM, NAC e proteção de privilégios.",
+    "description": "A Active estrutura governança contínua sobre quem acessa o quê, em que condições e com qual risco.",
+    "pain": "Credenciais comprometidas são um dos vetores mais recorrentes de ataque e levam o invasor direto a sistemas críticos.",
+    "deliverables": [
+      "Cobertura de MFA, RBAC e revisão de acessos sensíveis",
+      "Proteção de contas privilegiadas e segredos críticos",
+      "Modelo contínuo para JML, exceções e menor privilégio"
+    ],
     "whenItMakesSense": "Quando acesso critico ainda depende de excecoes, urgencia ou baixa evidencia de controle.",
+    "nistFunctions": [
+      "PR",
+      "GV"
+    ],
+    "fitSignals": [
+      "access-protection",
+      "critical-identity"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -111,9 +280,24 @@
   },
   "soc": {
     "serviceKey": "soc",
-    "nistFunctions": ["DE", "RS"],
-    "fitSignals": ["monitoring-traceability", "third-party-response"],
+    "name": "SOC",
+    "summary": "Monitoramento, detecção e resposta em tempo real com inteligência de ameaças e profundidade operacional.",
+    "description": "Mais do que reagir, o SOC antecipa, investiga e neutraliza ataques com contexto e velocidade.",
+    "pain": "Ataques evoluem em minutos. Sem monitoramento ativo e resposta coordenada, a defesa sempre chega atrasada.",
+    "deliverables": [
+      "Monitoramento contínuo com analistas e inteligência",
+      "Casos de uso acionáveis para investigação e resposta",
+      "Operação com foco em tempo de detecção e contenção"
+    ],
     "whenItMakesSense": "Quando sinais chegam tarde, sem contexto operacional suficiente para responder com confianca.",
+    "nistFunctions": [
+      "DE",
+      "RS"
+    ],
+    "fitSignals": [
+      "monitoring-traceability",
+      "third-party-response"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -121,9 +305,23 @@
   },
   "siem": {
     "serviceKey": "siem",
-    "nistFunctions": ["DE", "RS"],
-    "fitSignals": ["monitoring-traceability"],
+    "name": "SIEM",
+    "summary": "Centraliza e correlaciona eventos para transformar logs dispersos em inteligência acionável.",
+    "description": "Organiza fontes, contexto e relatórios para apoiar detecção, investigação e compliance com evidência consistente.",
+    "pain": "Logs dispersos e sem contexto atrasam investigação e impedem detecção eficiente.",
+    "deliverables": [
+      "Centralização e correlação de eventos críticos",
+      "Melhoria da rastreabilidade para resposta e auditoria",
+      "Base consistente para investigação e métricas operacionais"
+    ],
     "whenItMakesSense": "Quando logs existem, mas ainda nao viram rastreabilidade, correlacao e leitura acionavel.",
+    "nistFunctions": [
+      "DE",
+      "RS"
+    ],
+    "fitSignals": [
+      "monitoring-traceability"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -131,9 +329,25 @@
   },
   "incidentResponse": {
     "serviceKey": "incidentResponse",
-    "nistFunctions": ["RS", "RC"],
-    "fitSignals": ["monitoring-traceability", "third-party-response", "personal-data-governance"],
+    "name": "Resposta a Incidentes",
+    "summary": "Atuação coordenada para conter, investigar e responder a incidentes com profundidade técnica, forense e privacidade.",
+    "description": "Integra segurança, forense e privacidade para restaurar operação e reduzir impacto regulatório, financeiro e reputacional.",
+    "pain": "Sem resposta estruturada, incidentes escalam, ampliam o dano e expõem a empresa a riscos legais e financeiros.",
+    "deliverables": [
+      "Playbooks e contenção técnica sob pressão",
+      "Investigação com preservação de evidências",
+      "Apoio a incidentes com dados pessoais e tomada de decisão crítica"
+    ],
     "whenItMakesSense": "Quando a empresa precisa reduzir improviso nas primeiras horas e responder com papeis, evidencias e contencao.",
+    "nistFunctions": [
+      "RS",
+      "RC"
+    ],
+    "fitSignals": [
+      "monitoring-traceability",
+      "third-party-response",
+      "personal-data-governance"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -141,9 +355,25 @@
   },
   "crisisManagement": {
     "serviceKey": "crisisManagement",
-    "nistFunctions": ["RS", "GV", "RC"],
-    "fitSignals": ["third-party-response", "personal-data-governance"],
+    "name": "Gestão de Crise",
+    "summary": "Orquestra liderança, jurídico, comunicação e tecnologia em eventos críticos.",
+    "description": "Ajuda a empresa a decidir rápido, comunicar com clareza e reduzir desencontro entre áreas durante a crise.",
+    "pain": "Sem coordenação, a crise escala, decisões se desencontram e o dano reputacional e financeiro se amplifica.",
+    "deliverables": [
+      "Modelo de comitê de crise e papéis executivos",
+      "Planos de comunicação e apoio à decisão",
+      "Exercícios e evolução pós-incidente"
+    ],
     "whenItMakesSense": "Quando a decisao executiva em crise ainda depende de pouca cadencia, pouco roteiro e baixa integracao entre areas.",
+    "nistFunctions": [
+      "RS",
+      "GV",
+      "RC"
+    ],
+    "fitSignals": [
+      "third-party-response",
+      "personal-data-governance"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -151,9 +381,23 @@
   },
   "backupRecovery": {
     "serviceKey": "backupRecovery",
-    "nistFunctions": ["RC"],
-    "fitSignals": ["hardening-updates", "third-party-response"],
+    "name": "Backup e Recuperação",
+    "summary": "Estrutura RPO, RTO, testes e rotina de restauração previsível para ambientes críticos.",
+    "description": "A Active desenha e valida estratégias de recuperação para garantir retomada rápida, confiável e com evidência.",
+    "pain": "Sem recuperação confiável, um incidente vira parada total do negócio, com perda de dados e impacto financeiro direto.",
+    "deliverables": [
+      "Estratégia de backup com testes periódicos de restauração",
+      "Definição de RPO e RTO alinhada ao negócio",
+      "Retorno seguro com critérios e evidência de validação"
+    ],
     "whenItMakesSense": "Quando restauracao, RPO e RTO ainda nao estao testados o suficiente para sustentar a retomada com seguranca.",
+    "nistFunctions": [
+      "RC"
+    ],
+    "fitSignals": [
+      "hardening-updates",
+      "third-party-response"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
@@ -161,9 +405,25 @@
   },
   "businessContinuity": {
     "serviceKey": "businessContinuity",
-    "nistFunctions": ["RC", "GV", "ID"],
-    "fitSignals": ["third-party-response", "personal-data-governance"],
+    "name": "Plano de Continuidade de Negócios",
+    "summary": "Define estratégias e processos para manter operações críticas mesmo em cenários severos.",
+    "description": "Com base em BIA, prioridades, RTO e RPO, a Active estrutura continuidade como decisão de negócio e não só tecnologia.",
+    "pain": "Sem planejamento, qualquer incidente interrompe operações e gera perdas financeiras e reputacionais relevantes.",
+    "deliverables": [
+      "BIA e priorização de serviços críticos",
+      "Plano de contingência com dependências, SLAs e critérios de retomada",
+      "Testes periódicos de continuidade e melhoria contínua"
+    ],
     "whenItMakesSense": "Quando continuidade ainda depende de memoria, boa vontade ou dependencias de terceiros pouco mapeadas.",
+    "nistFunctions": [
+      "RC",
+      "GV",
+      "ID"
+    ],
+    "fitSignals": [
+      "third-party-response",
+      "personal-data-governance"
+    ],
     "cta": {
       "learnMoreLabel": "Saiba mais",
       "scheduleLabel": "Agendar bate-papo"
