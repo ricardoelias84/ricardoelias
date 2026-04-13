@@ -814,6 +814,43 @@
     return (OPTION_SCORES[option] || 0) / 3;
   }
 
+  function getQuestionInterpretationFocus(question) {
+    const capability = question.capacidade?.[0];
+    const capabilityMap = {
+      'access-protection': 'ter controle real sobre quem acessa o que e em quais condicoes',
+      'critical-identity': 'proteger acessos privilegiados e identidades criticas',
+      'personal-data-governance': 'dar clareza ao uso, retencao e responsabilidade sobre dados pessoais',
+      'monitoring-traceability': 'enxergar sinais confiaveis e preservar evidencias quando algo sair do normal',
+      'hardening-updates': 'manter ativos criticos atualizados e protegidos com padrao minimo',
+      'third-party-response': 'organizar dependencias, criterios e resposta com terceiros',
+      'external-exposure': 'reduzir exposicao desnecessaria e revisar o que fica aberto para fora',
+      'application-security': 'evitar que mudancas e publicacoes empurrem risco para producao',
+    };
+    const categoryMap = {
+      GV: 'dar direcao, prioridade e dono claro para este tema',
+      ID: 'ter visibilidade suficiente sobre o que e realmente critico',
+      PR: 'transformar controle basico em disciplina operacional',
+      DE: 'perceber desvios cedo e com evidencia confiavel',
+      RS: 'responder com menos improviso e mais coordenacao',
+      RC: 'recuperar com prioridade, previsibilidade e continuidade',
+    };
+    return capabilityMap[capability] || categoryMap[question.categoria] || '';
+  }
+
+  function getQuestionReasonText(question, answerKey) {
+    if (!answerKey) return '';
+    const focus = getQuestionInterpretationFocus(question);
+    const answerMap = {
+      A: 'A resposta mostra ausencia pratica neste ponto, o que tende a empurrar a empresa para improviso quando houver pressao, auditoria ou incidente.',
+      B: 'A resposta mostra intencao, mas ainda sem consistencia suficiente. O risco aqui e depender de pessoas-chave, esforco manual e excecoes frequentes.',
+      C: 'A resposta mostra uma base funcional. O proximo ganho costuma vir de padronizar cadencia, dono e evidencia para que isso nao varie entre areas.',
+      D: 'A resposta indica um ponto mais resolvido e integrado a rotina. O cuidado agora e sustentar essa disciplina com revisao periodica e menos excecoes.',
+    };
+    const answerNarrative = answerMap[answerKey];
+    if (!focus || !answerNarrative) return '';
+    return `Aqui o ponto central e ${focus}. ${answerNarrative}`;
+  }
+
   function getObservedTier(score) {
     if (score < 1) {
       return {
@@ -1152,6 +1189,20 @@
     const answerLabel = getQuestionAnswerLabel(answerKey).toLowerCase();
     const base = question.ajuda || 'Esse tema influencia diretamente a previsibilidade operacional.';
     return `${base} Hoje a resposta registrada foi "${answerLabel}", por isso vale observar se existe dono claro, rotina e evidência mínima.`;
+  }
+
+  function getQuestionReasonText(question, answerKey) {
+    if (!answerKey) return '';
+    const focus = getQuestionInterpretationFocus(question);
+    const answerMap = {
+      A: 'A resposta mostra ausencia pratica neste ponto, o que tende a empurrar a empresa para improviso quando houver pressao, auditoria ou incidente.',
+      B: 'A resposta mostra intencao, mas ainda sem consistencia suficiente. O risco aqui e depender de pessoas-chave, esforco manual e excecoes frequentes.',
+      C: 'A resposta mostra uma base funcional. O proximo ganho costuma vir de padronizar cadencia, dono e evidencia para que isso nao varie entre areas.',
+      D: 'A resposta indica um ponto mais resolvido e integrado a rotina. O cuidado agora e sustentar essa disciplina com revisao periodica e menos excecoes.',
+    };
+    const answerNarrative = answerMap[answerKey];
+    if (!focus || !answerNarrative) return '';
+    return `Aqui o ponto central e ${focus}. ${answerNarrative}`;
   }
 
   function buildPlan306090(results) {
@@ -1712,11 +1763,13 @@
         color: [0, 87, 231],
         spacingAfter: 4,
       });
-      addParagraph(row.reason, {
-        fontSize: 10,
-        lineHeight: 16,
-        spacingAfter: 10,
-      });
+      if (row.reason) {
+        addParagraph(row.reason, {
+          fontSize: 10,
+          lineHeight: 16,
+          spacingAfter: 10,
+        });
+      }
     });
 
     addRule();
@@ -2820,7 +2873,7 @@
                   <span>Pergunta</span>
                   <span>Você</span>
                   <span>Esperado</span>
-                  <span>Motivo</span>
+                  <span>Leitura</span>
                 </div>
                 ${questionRows
                   .map(
@@ -2829,7 +2882,7 @@
                         <span>${escapeHtml(row.question)}</span>
                         <span>${escapeHtml(row.answer)}</span>
                         <span>${escapeHtml(row.expected)}</span>
-                        <span>${escapeHtml(row.reason)}</span>
+                        <span>${row.reason ? escapeHtml(row.reason) : '—'}</span>
                       </div>
                     `
                   )
@@ -3448,7 +3501,7 @@
                   <span>Pergunta</span>
                   <span>Você</span>
                   <span>Esperado</span>
-                  <span>Motivo</span>
+                  <span>Leitura</span>
                 </div>
                 ${questionRows
                   .map(
@@ -3457,7 +3510,7 @@
                         <span>${escapeHtml(row.question)}</span>
                         <span>${escapeHtml(row.answer)}</span>
                         <span>${escapeHtml(row.expected)}</span>
-                        <span>${escapeHtml(row.reason)}</span>
+                        <span>${row.reason ? escapeHtml(row.reason) : '—'}</span>
                       </div>
                     `
                   )
