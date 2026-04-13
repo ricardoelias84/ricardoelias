@@ -1,4 +1,4 @@
-{
+﻿{
   "high": [
     "saude",
     "healthcare",
@@ -8,25 +8,25 @@
     "banking",
     "governo",
     "setor publico",
-    "setor público",
+    "setor p�blico",
     "publico",
     "public",
     "educacao",
-    "educação"
+    "educa��o"
   ],
   "medium": [
     "tecnologia",
     "technology",
     "industria",
-    "indústria",
+    "ind�stria",
     "manufacturing",
     "varejo",
     "retail",
     "servicos",
-    "serviços",
+    "servi�os",
     "servicos profissionais",
     "logistica",
-    "logística",
+    "log�stica",
     "energia",
     "telecom"
   ],
@@ -34,9 +34,9 @@
     "agro",
     "agricultura",
     "construcao",
-    "construção",
+    "constru��o",
     "imobiliario",
-    "imobiliário",
+    "imobili�rio",
     "hospitalidade",
     "turismo"
   ]

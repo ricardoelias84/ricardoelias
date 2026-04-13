@@ -1,14 +1,14 @@
-{
+﻿{
   "securityGovernance": {
     "serviceKey": "securityGovernance",
-    "name": "Governança de Segurança",
-    "summary": "Estrutura segurança como função de negócio, conectando risco, estratégia, políticas aplicáveis e plano diretor.",
-    "description": "A Active Solutions organiza a governança prática de segurança para tirar a operação do modo reativo e criar um sistema contínuo de decisão, priorização e controle.",
-    "pain": "Segurança fragmentada, reativa e sem critério de priorização gera gasto mal direcionado, baixa eficácia e exposição real ao risco.",
+    "name": "Governan�a de Seguran�a",
+    "summary": "Estrutura seguran�a como fun��o de neg�cio, conectando risco, estrat�gia, pol�ticas aplic�veis e plano diretor.",
+    "description": "A Active Solutions organiza a governan�a pr�tica de seguran�a para tirar a opera��o do modo reativo e criar um sistema cont�nuo de decis�o, prioriza��o e controle.",
+    "pain": "Seguran�a fragmentada, reativa e sem crit�rio de prioriza��o gera gasto mal direcionado, baixa efic�cia e exposi��o real ao risco.",
     "deliverables": [
-      "Plano diretor e agenda de evolução por risco",
-      "Políticas aplicáveis com papéis e exceções claras",
-      "Modelo executivo de decisão e indicadores"
+      "Plano diretor e agenda de evolu��o por risco",
+      "Pol�ticas aplic�veis com pap�is e exce��es claras",
+      "Modelo executivo de decis�o e indicadores"
     ],
     "whenItMakesSense": "Quando seguranca ainda depende de urgencia, excecao e pouca cadencia executiva.",
     "nistFunctions": [
@@ -25,14 +25,14 @@
   },
   "privacyGovernance": {
     "serviceKey": "privacyGovernance",
-    "name": "Governança de Privacidade",
-    "summary": "Conecta conformidade, risco e operação para dar visibilidade real sobre o ciclo de vida dos dados pessoais.",
-    "description": "Vai além de adequação formal e transforma exigências legais em processos práticos, mensuráveis e integrados à tomada de decisão.",
-    "pain": "Dados pessoais tratados sem controle e sem visibilidade ampliam risco regulatório, reputacional e decisões sem clareza de impacto.",
+    "name": "Governan�a de Privacidade",
+    "summary": "Conecta conformidade, risco e opera��o para dar visibilidade real sobre o ciclo de vida dos dados pessoais.",
+    "description": "Vai al�m de adequa��o formal e transforma exig�ncias legais em processos pr�ticos, mensur�veis e integrados � tomada de decis�o.",
+    "pain": "Dados pessoais tratados sem controle e sem visibilidade ampliam risco regulat�rio, reputacional e decis�es sem clareza de impacto.",
     "deliverables": [
       "Mapa de dados, ROPA e leitura operacional de risco",
-      "Fluxos para retenção, bases legais e atendimento a titulares",
-      "Governança contínua de privacidade com integração ao negócio"
+      "Fluxos para reten��o, bases legais e atendimento a titulares",
+      "Governan�a cont�nua de privacidade com integra��o ao neg�cio"
     ],
     "whenItMakesSense": "Quando dados pessoais circulam pela operacao sem ownership claro, cadencia ou evidencias simples.",
     "nistFunctions": [
@@ -52,14 +52,14 @@
   },
   "awareness": {
     "serviceKey": "awareness",
-    "name": "Conscientização (SBCP)",
-    "summary": "Programa contínuo de comportamento seguro com campanhas, simulações e reforço de cultura.",
-    "description": "A abordagem da Active transforma segurança em hábito operacional com estímulos direcionados e mensuração de evolução.",
-    "pain": "Sem intervenção estruturada, os erros se repetem mesmo com boa tecnologia e mantêm a organização exposta.",
+    "name": "Conscientiza��o (SBCP)",
+    "summary": "Programa cont�nuo de comportamento seguro com campanhas, simula��es e refor�o de cultura.",
+    "description": "A abordagem da Active transforma seguran�a em h�bito operacional com est�mulos direcionados e mensura��o de evolu��o.",
+    "pain": "Sem interven��o estruturada, os erros se repetem mesmo com boa tecnologia e mant�m a organiza��o exposta.",
     "deliverables": [
-      "Campanhas contínuas e trilhas segmentadas",
-      "Simulações de phishing e medições de evolução",
-      "Plano de reforço de cultura para segurança e privacidade"
+      "Campanhas cont�nuas e trilhas segmentadas",
+      "Simula��es de phishing e medi��es de evolu��o",
+      "Plano de refor�o de cultura para seguran�a e privacidade"
     ],
     "whenItMakesSense": "Quando comportamento humano ainda cria risco recorrente e a empresa precisa transformar cultura em rotina.",
     "nistFunctions": [
@@ -78,14 +78,14 @@
   },
   "assetManagement": {
     "serviceKey": "assetManagement",
-    "name": "Gestão de Ativos",
-    "summary": "Cria visibilidade contínua sobre ativos, donos, criticidade e relações operacionais.",
-    "description": "Vai além do inventário estático, identificando ativos desconhecidos, shadow IT e dependências que impactam o negócio.",
-    "pain": "Sem visibilidade, ativos críticos ficam expostos sem controle e criam pontos cegos exploráveis antes mesmo de serem percebidos.",
+    "name": "Gest�o de Ativos",
+    "summary": "Cria visibilidade cont�nua sobre ativos, donos, criticidade e rela��es operacionais.",
+    "description": "Vai al�m do invent�rio est�tico, identificando ativos desconhecidos, shadow IT e depend�ncias que impactam o neg�cio.",
+    "pain": "Sem visibilidade, ativos cr�ticos ficam expostos sem controle e criam pontos cegos explor�veis antes mesmo de serem percebidos.",
     "deliverables": [
-      "Inventário com criticidade e ownership",
+      "Invent�rio com criticidade e ownership",
       "Leitura de ciclo de vida, lacunas e ativos desconhecidos",
-      "Base para priorização de proteção e recuperação"
+      "Base para prioriza��o de prote��o e recupera��o"
     ],
     "whenItMakesSense": "Quando a empresa ainda decide sem visibilidade clara de ativos, dados criticos e dependencias.",
     "nistFunctions": [
@@ -103,14 +103,14 @@
   },
   "threatExposure": {
     "serviceKey": "threatExposure",
-    "name": "Gestão de Riscos e Exposição a Ameaças",
-    "summary": "Relaciona vulnerabilidades, superfície de ataque e contexto operacional para priorização acionável.",
-    "description": "A Active correlaciona exposição, criticidade e impacto de negócio para focar energia onde a redução de risco é real.",
-    "pain": "Excesso de vulnerabilidades sem critério drena esforço enquanto exposições realmente críticas continuam abertas.",
+    "name": "Gest�o de Riscos e Exposi��o a Amea�as",
+    "summary": "Relaciona vulnerabilidades, superf�cie de ataque e contexto operacional para prioriza��o acion�vel.",
+    "description": "A Active correlaciona exposi��o, criticidade e impacto de neg�cio para focar energia onde a redu��o de risco � real.",
+    "pain": "Excesso de vulnerabilidades sem crit�rio drena esfor�o enquanto exposi��es realmente cr�ticas continuam abertas.",
     "deliverables": [
-      "Prioridade baseada em probabilidade, impacto e exposição",
-      "Backlog acionável de redução de risco",
-      "Leitura executiva da superfície de ataque"
+      "Prioridade baseada em probabilidade, impacto e exposi��o",
+      "Backlog acion�vel de redu��o de risco",
+      "Leitura executiva da superf�cie de ataque"
     ],
     "whenItMakesSense": "Quando ha exposicao externa relevante e o backlog de risco ainda nao esta priorizado por impacto real.",
     "nistFunctions": [
@@ -129,14 +129,14 @@
   },
   "securityAssessment": {
     "serviceKey": "securityAssessment",
-    "name": "Avaliação de Segurança",
-    "summary": "Combina análise técnica e validação prática para separar falha teórica de risco concreto.",
-    "description": "Integra scans, validação ofensiva e evidência técnica para ajudar a empresa a corrigir primeiro o que realmente pode ser explorado.",
-    "pain": "Sem validação prática, vulnerabilidades são tratadas de forma genérica e falhas exploráveis permanecem abertas.",
+    "name": "Avalia��o de Seguran�a",
+    "summary": "Combina an�lise t�cnica e valida��o pr�tica para separar falha te�rica de risco concreto.",
+    "description": "Integra scans, valida��o ofensiva e evid�ncia t�cnica para ajudar a empresa a corrigir primeiro o que realmente pode ser explorado.",
+    "pain": "Sem valida��o pr�tica, vulnerabilidades s�o tratadas de forma gen�rica e falhas explor�veis permanecem abertas.",
     "deliverables": [
       "Scan e leitura priorizada de vulnerabilidades",
-      "Validação ofensiva em cenários reais de ataque",
-      "Recomendação prática de correção com evidência"
+      "Valida��o ofensiva em cen�rios reais de ataque",
+      "Recomenda��o pr�tica de corre��o com evid�ncia"
     ],
     "whenItMakesSense": "Quando faltam evidencias concretas sobre vulnerabilidades, correcoes e o que realmente merece prioridade.",
     "nistFunctions": [
@@ -155,14 +155,14 @@
   },
   "endpointSecurity": {
     "serviceKey": "endpointSecurity",
-    "name": "Segurança de Endpoints",
-    "summary": "Detecção comportamental e resposta automática para conter abuso, malware e movimentação lateral.",
-    "description": "Vai além do antivírus tradicional e foca em perceber atividade maliciosa mesmo sem assinatura conhecida.",
-    "pain": "Grande parte dos ataques começa no endpoint e evolui sem ser percebida até que o impacto já esteja em curso.",
+    "name": "Seguran�a de Endpoints",
+    "summary": "Detec��o comportamental e resposta autom�tica para conter abuso, malware e movimenta��o lateral.",
+    "description": "Vai al�m do antiv�rus tradicional e foca em perceber atividade maliciosa mesmo sem assinatura conhecida.",
+    "pain": "Grande parte dos ataques come�a no endpoint e evolui sem ser percebida at� que o impacto j� esteja em curso.",
     "deliverables": [
-      "Cobertura comportamental para estações e servidores",
-      "Resposta automatizada e investigação de atividades suspeitas",
-      "Ajuste contínuo para reduzir ruído e melhorar eficácia"
+      "Cobertura comportamental para esta��es e servidores",
+      "Resposta automatizada e investiga��o de atividades suspeitas",
+      "Ajuste cont�nuo para reduzir ru�do e melhorar efic�cia"
     ],
     "whenItMakesSense": "Quando endpoints ainda dependem de esforco manual e a cobertura minima segura nao e consistente.",
     "nistFunctions": [
@@ -178,14 +178,14 @@
   },
   "networkSecurity": {
     "serviceKey": "networkSecurity",
-    "name": "Segurança de Redes",
-    "summary": "Segmentação, arquitetura segura, revisão de regras e controle de tráfego para reduzir exposição.",
-    "description": "A rede passa a operar como camada de contenção e controle, dificultando propagação de ataque e ampliando visibilidade.",
+    "name": "Seguran�a de Redes",
+    "summary": "Segmenta��o, arquitetura segura, revis�o de regras e controle de tr�fego para reduzir exposi��o.",
+    "description": "A rede passa a operar como camada de conten��o e controle, dificultando propaga��o de ataque e ampliando visibilidade.",
     "pain": "Sem controle de rede, um acesso inicial se espalha rapidamente e amplia o impacto de qualquer incidente.",
     "deliverables": [
-      "Arquitetura segura com segmentação e DMZ",
-      "Revisão de regras, acessos remotos e exposição externa",
-      "Contenção de movimentação lateral"
+      "Arquitetura segura com segmenta��o e DMZ",
+      "Revis�o de regras, acessos remotos e exposi��o externa",
+      "Conten��o de movimenta��o lateral"
     ],
     "whenItMakesSense": "Quando rede, acesso remoto e publicacao externa ainda ampliam superficie de ataque e atrito operacional.",
     "nistFunctions": [
@@ -203,14 +203,14 @@
   },
   "cloudSecurity": {
     "serviceKey": "cloudSecurity",
-    "name": "Segurança de Nuvens",
-    "summary": "Protege ambientes cloud com foco em configuração, identidade, workloads e postura contínua.",
-    "description": "A Active integra visibilidade, controle e resposta para impedir que exposições em cloud avancem sem percepção.",
-    "pain": "Erros de configuração e permissões excessivas seguem entre as principais causas de exposição em cloud.",
+    "name": "Seguran�a de Nuvens",
+    "summary": "Protege ambientes cloud com foco em configura��o, identidade, workloads e postura cont�nua.",
+    "description": "A Active integra visibilidade, controle e resposta para impedir que exposi��es em cloud avancem sem percep��o.",
+    "pain": "Erros de configura��o e permiss�es excessivas seguem entre as principais causas de exposi��o em cloud.",
     "deliverables": [
-      "Monitoramento contínuo de postura de segurança em nuvem",
-      "Proteção de workloads e leitura de configurações críticas",
-      "Redução de exposição em ambientes multi-cloud"
+      "Monitoramento cont�nuo de postura de seguran�a em nuvem",
+      "Prote��o de workloads e leitura de configura��es cr�ticas",
+      "Redu��o de exposi��o em ambientes multi-cloud"
     ],
     "whenItMakesSense": "Quando ambientes em nuvem evoluiram rapido, mas governanca, postura e controles criticos ainda estao dispersos.",
     "nistFunctions": [
@@ -230,14 +230,14 @@
   },
   "applicationSecurity": {
     "serviceKey": "applicationSecurity",
-    "name": "Segurança de Aplicações",
-    "summary": "Integra segurança ao ciclo de desenvolvimento, publicação e operação de aplicações.",
-    "description": "A solução antecipa risco desde o código até a produção, conectando dependências, configurações e postura de segurança.",
-    "pain": "Vulnerabilidades criadas no desenvolvimento entram em produção sem controle e ampliam a superfície de ataque.",
+    "name": "Seguran�a de Aplica��es",
+    "summary": "Integra seguran�a ao ciclo de desenvolvimento, publica��o e opera��o de aplica��es.",
+    "description": "A solu��o antecipa risco desde o c�digo at� a produ��o, conectando depend�ncias, configura��es e postura de seguran�a.",
+    "pain": "Vulnerabilidades criadas no desenvolvimento entram em produ��o sem controle e ampliam a superf�cie de ataque.",
     "deliverables": [
-      "Padrões de segurança no ciclo de desenvolvimento",
-      "Validação contínua de aplicações e APIs publicadas",
-      "Redução de falhas antes que avancem para produção"
+      "Padr�es de seguran�a no ciclo de desenvolvimento",
+      "Valida��o cont�nua de aplica��es e APIs publicadas",
+      "Redu��o de falhas antes que avancem para produ��o"
     ],
     "whenItMakesSense": "Quando aplicacoes, APIs e publicacoes web ficaram centrais para o negocio e precisam de mais previsibilidade.",
     "nistFunctions": [
@@ -256,13 +256,13 @@
   "iam": {
     "serviceKey": "iam",
     "name": "Gerenciamento de Identidade e Acesso",
-    "summary": "Trata identidade como perímetro com MFA, RBAC, PAM, NAC e proteção de privilégios.",
-    "description": "A Active estrutura governança contínua sobre quem acessa o quê, em que condições e com qual risco.",
-    "pain": "Credenciais comprometidas são um dos vetores mais recorrentes de ataque e levam o invasor direto a sistemas críticos.",
+    "summary": "Trata identidade como per�metro com MFA, RBAC, PAM, NAC e prote��o de privil�gios.",
+    "description": "A Active estrutura governan�a cont�nua sobre quem acessa o qu�, em que condi��es e com qual risco.",
+    "pain": "Credenciais comprometidas s�o um dos vetores mais recorrentes de ataque e levam o invasor direto a sistemas cr�ticos.",
     "deliverables": [
-      "Cobertura de MFA, RBAC e revisão de acessos sensíveis",
-      "Proteção de contas privilegiadas e segredos críticos",
-      "Modelo contínuo para JML, exceções e menor privilégio"
+      "Cobertura de MFA, RBAC e revis�o de acessos sens�veis",
+      "Prote��o de contas privilegiadas e segredos cr�ticos",
+      "Modelo cont�nuo para JML, exce��es e menor privil�gio"
     ],
     "whenItMakesSense": "Quando acesso critico ainda depende de excecoes, urgencia ou baixa evidencia de controle.",
     "nistFunctions": [
@@ -281,13 +281,13 @@
   "soc": {
     "serviceKey": "soc",
     "name": "SOC",
-    "summary": "Monitoramento, detecção e resposta em tempo real com inteligência de ameaças e profundidade operacional.",
+    "summary": "Monitoramento, detec��o e resposta em tempo real com intelig�ncia de amea�as e profundidade operacional.",
     "description": "Mais do que reagir, o SOC antecipa, investiga e neutraliza ataques com contexto e velocidade.",
     "pain": "Ataques evoluem em minutos. Sem monitoramento ativo e resposta coordenada, a defesa sempre chega atrasada.",
     "deliverables": [
-      "Monitoramento contínuo com analistas e inteligência",
-      "Casos de uso acionáveis para investigação e resposta",
-      "Operação com foco em tempo de detecção e contenção"
+      "Monitoramento cont�nuo com analistas e intelig�ncia",
+      "Casos de uso acion�veis para investiga��o e resposta",
+      "Opera��o com foco em tempo de detec��o e conten��o"
     ],
     "whenItMakesSense": "Quando sinais chegam tarde, sem contexto operacional suficiente para responder com confianca.",
     "nistFunctions": [
@@ -306,13 +306,13 @@
   "siem": {
     "serviceKey": "siem",
     "name": "SIEM",
-    "summary": "Centraliza e correlaciona eventos para transformar logs dispersos em inteligência acionável.",
-    "description": "Organiza fontes, contexto e relatórios para apoiar detecção, investigação e compliance com evidência consistente.",
-    "pain": "Logs dispersos e sem contexto atrasam investigação e impedem detecção eficiente.",
+    "summary": "Centraliza e correlaciona eventos para transformar logs dispersos em intelig�ncia acion�vel.",
+    "description": "Organiza fontes, contexto e relat�rios para apoiar detec��o, investiga��o e compliance com evid�ncia consistente.",
+    "pain": "Logs dispersos e sem contexto atrasam investiga��o e impedem detec��o eficiente.",
     "deliverables": [
-      "Centralização e correlação de eventos críticos",
+      "Centraliza��o e correla��o de eventos cr�ticos",
       "Melhoria da rastreabilidade para resposta e auditoria",
-      "Base consistente para investigação e métricas operacionais"
+      "Base consistente para investiga��o e m�tricas operacionais"
     ],
     "whenItMakesSense": "Quando logs existem, mas ainda nao viram rastreabilidade, correlacao e leitura acionavel.",
     "nistFunctions": [
@@ -330,13 +330,13 @@
   "incidentResponse": {
     "serviceKey": "incidentResponse",
     "name": "Resposta a Incidentes",
-    "summary": "Atuação coordenada para conter, investigar e responder a incidentes com profundidade técnica, forense e privacidade.",
-    "description": "Integra segurança, forense e privacidade para restaurar operação e reduzir impacto regulatório, financeiro e reputacional.",
-    "pain": "Sem resposta estruturada, incidentes escalam, ampliam o dano e expõem a empresa a riscos legais e financeiros.",
+    "summary": "Atua��o coordenada para conter, investigar e responder a incidentes com profundidade t�cnica, forense e privacidade.",
+    "description": "Integra seguran�a, forense e privacidade para restaurar opera��o e reduzir impacto regulat�rio, financeiro e reputacional.",
+    "pain": "Sem resposta estruturada, incidentes escalam, ampliam o dano e exp�em a empresa a riscos legais e financeiros.",
     "deliverables": [
-      "Playbooks e contenção técnica sob pressão",
-      "Investigação com preservação de evidências",
-      "Apoio a incidentes com dados pessoais e tomada de decisão crítica"
+      "Playbooks e conten��o t�cnica sob press�o",
+      "Investiga��o com preserva��o de evid�ncias",
+      "Apoio a incidentes com dados pessoais e tomada de decis�o cr�tica"
     ],
     "whenItMakesSense": "Quando a empresa precisa reduzir improviso nas primeiras horas e responder com papeis, evidencias e contencao.",
     "nistFunctions": [
@@ -355,14 +355,14 @@
   },
   "crisisManagement": {
     "serviceKey": "crisisManagement",
-    "name": "Gestão de Crise",
-    "summary": "Orquestra liderança, jurídico, comunicação e tecnologia em eventos críticos.",
-    "description": "Ajuda a empresa a decidir rápido, comunicar com clareza e reduzir desencontro entre áreas durante a crise.",
-    "pain": "Sem coordenação, a crise escala, decisões se desencontram e o dano reputacional e financeiro se amplifica.",
+    "name": "Gest�o de Crise",
+    "summary": "Orquestra lideran�a, jur�dico, comunica��o e tecnologia em eventos cr�ticos.",
+    "description": "Ajuda a empresa a decidir r�pido, comunicar com clareza e reduzir desencontro entre �reas durante a crise.",
+    "pain": "Sem coordena��o, a crise escala, decis�es se desencontram e o dano reputacional e financeiro se amplifica.",
     "deliverables": [
-      "Modelo de comitê de crise e papéis executivos",
-      "Planos de comunicação e apoio à decisão",
-      "Exercícios e evolução pós-incidente"
+      "Modelo de comit� de crise e pap�is executivos",
+      "Planos de comunica��o e apoio � decis�o",
+      "Exerc�cios e evolu��o p�s-incidente"
     ],
     "whenItMakesSense": "Quando a decisao executiva em crise ainda depende de pouca cadencia, pouco roteiro e baixa integracao entre areas.",
     "nistFunctions": [
@@ -381,14 +381,14 @@
   },
   "backupRecovery": {
     "serviceKey": "backupRecovery",
-    "name": "Backup e Recuperação",
-    "summary": "Estrutura RPO, RTO, testes e rotina de restauração previsível para ambientes críticos.",
-    "description": "A Active desenha e valida estratégias de recuperação para garantir retomada rápida, confiável e com evidência.",
-    "pain": "Sem recuperação confiável, um incidente vira parada total do negócio, com perda de dados e impacto financeiro direto.",
+    "name": "Backup e Recupera��o",
+    "summary": "Estrutura RPO, RTO, testes e rotina de restaura��o previs�vel para ambientes cr�ticos.",
+    "description": "A Active desenha e valida estrat�gias de recupera��o para garantir retomada r�pida, confi�vel e com evid�ncia.",
+    "pain": "Sem recupera��o confi�vel, um incidente vira parada total do neg�cio, com perda de dados e impacto financeiro direto.",
     "deliverables": [
-      "Estratégia de backup com testes periódicos de restauração",
-      "Definição de RPO e RTO alinhada ao negócio",
-      "Retorno seguro com critérios e evidência de validação"
+      "Estrat�gia de backup com testes peri�dicos de restaura��o",
+      "Defini��o de RPO e RTO alinhada ao neg�cio",
+      "Retorno seguro com crit�rios e evid�ncia de valida��o"
     ],
     "whenItMakesSense": "Quando restauracao, RPO e RTO ainda nao estao testados o suficiente para sustentar a retomada com seguranca.",
     "nistFunctions": [
@@ -405,14 +405,14 @@
   },
   "businessContinuity": {
     "serviceKey": "businessContinuity",
-    "name": "Plano de Continuidade de Negócios",
-    "summary": "Define estratégias e processos para manter operações críticas mesmo em cenários severos.",
-    "description": "Com base em BIA, prioridades, RTO e RPO, a Active estrutura continuidade como decisão de negócio e não só tecnologia.",
-    "pain": "Sem planejamento, qualquer incidente interrompe operações e gera perdas financeiras e reputacionais relevantes.",
+    "name": "Plano de Continuidade de Neg�cios",
+    "summary": "Define estrat�gias e processos para manter opera��es cr�ticas mesmo em cen�rios severos.",
+    "description": "Com base em BIA, prioridades, RTO e RPO, a Active estrutura continuidade como decis�o de neg�cio e n�o s� tecnologia.",
+    "pain": "Sem planejamento, qualquer incidente interrompe opera��es e gera perdas financeiras e reputacionais relevantes.",
     "deliverables": [
-      "BIA e priorização de serviços críticos",
-      "Plano de contingência com dependências, SLAs e critérios de retomada",
-      "Testes periódicos de continuidade e melhoria contínua"
+      "BIA e prioriza��o de servi�os cr�ticos",
+      "Plano de conting�ncia com depend�ncias, SLAs e crit�rios de retomada",
+      "Testes peri�dicos de continuidade e melhoria cont�nua"
     ],
     "whenItMakesSense": "Quando continuidade ainda depende de memoria, boa vontade ou dependencias de terceiros pouco mapeadas.",
     "nistFunctions": [
