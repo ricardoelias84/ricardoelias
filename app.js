@@ -2123,6 +2123,14 @@
         <div class="progress-bar" aria-hidden="true">
           <span style="width:${getProgressPercent()}%"></span>
         </div>
+        <div class="progress-card__notes">
+          <p>As 48 perguntas existem para evitar um diagnóstico superficial.</p>
+          <ul>
+            <li>Cobrem estratégia, mapeamento, proteção, monitoramento, ação e recuperação.</li>
+            <li>Usam o porte e o setor para ajustar o rigor da leitura.</li>
+            <li>Entregam prioridades objetivas para avançar até o Tier 3.</li>
+          </ul>
+        </div>
       </section>
     `;
   }
@@ -2263,7 +2271,7 @@
   }
 
   function renderFieldError(name, errors) {
-    const shouldShow = state.leadAttemptedStep === state.leadStep || state.touched[name];
+    const shouldShow = state.leadAttemptedStep > 0 || state.touched[name];
     if (!shouldShow || !errors[name]) return '';
     return `<span class="field__error" id="error-${name}">${escapeHtml(errors[name])}</span>`;
   }
@@ -2437,25 +2445,170 @@
   }
 
   function renderLeadForm() {
-    const errors = validateLeadStep(state.profile, state.leadStep);
-    const leadPayload = buildLeadPayload(state.profile);
+    const errors = validateLeadStep(state.profile, 2);
     return `
       <section class="light-card lead-card">
         <div class="lead-card__head">
           <div>
             <span class="lead-step__eyebrow">Captura de lead</span>
-            <h2>Diagnóstico guiado para a sua realidade</h2>
+            <h2>Comece seu diagnóstico executivo</h2>
           </div>
           <button class="link-button" data-action="back-to-hero">Voltar</button>
         </div>
-        <p class="lead-card__text">Sem recarregar a página, com validação em tempo real e retomada automática se você sair no meio.</p>
-        ${renderLeadProgress()}
-        <div class="lead-score-preview">
-          <span>Lead score atual</span>
-          <strong>${leadPayload.lead_score}</strong>
-          <small>${escapeHtml(leadPayload.lead_classificacao)}</small>
+        <p class="lead-card__text">Pedimos esses dados para calibrar o rigor do diagnóstico ao porte e ao setor da sua empresa e para entregar uma devolutiva útil no final.</p>
+        <div class="lead-card__context">
+          <strong>Por que são 48 perguntas?</strong>
+          <p>Porque um diagnóstico confiável precisa olhar a operação por inteiro, e não só um recorte técnico. Responda com base no que acontece hoje, com honestidade.</p>
         </div>
-        ${state.leadStep === 1 ? renderLeadStepOne(errors) : renderLeadStepTwo(errors)}
+        <form class="lead-form" data-form="lead" novalidate>
+          <label class="field field--full">
+            <span>Nome completo</span>
+            <input
+              type="text"
+              name="name"
+              data-field="name"
+              data-profile-input
+              autocomplete="name"
+              value="${escapeHtml(state.profile.name)}"
+              aria-describedby="error-name"
+              aria-invalid="${errors.name ? 'true' : 'false'}"
+            />
+            ${renderFieldError('name', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>E-mail</span>
+            <input
+              type="email"
+              name="email"
+              data-field="email"
+              data-profile-input
+              autocomplete="email"
+              value="${escapeHtml(state.profile.email)}"
+              aria-describedby="error-email"
+              aria-invalid="${errors.email ? 'true' : 'false'}"
+            />
+            ${renderFieldError('email', errors)}
+            ${renderFieldWarning('email')}
+          </label>
+
+          <label class="field field--full">
+            <span>Telefone</span>
+            <input
+              type="tel"
+              name="phone"
+              data-field="phone"
+              data-profile-input
+              autocomplete="tel"
+              inputmode="tel"
+              value="${escapeHtml(formatPhoneDisplay(state.profile.phone))}"
+              aria-describedby="error-phone"
+              aria-invalid="${errors.phone ? 'true' : 'false'}"
+            />
+            ${renderFieldError('phone', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Empresa</span>
+            <input
+              type="text"
+              name="company"
+              data-field="company"
+              data-profile-input
+              autocomplete="organization"
+              value="${escapeHtml(state.profile.company)}"
+              aria-describedby="error-company"
+              aria-invalid="${errors.company ? 'true' : 'false'}"
+            />
+            ${renderFieldError('company', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Cargo</span>
+            <input
+              type="text"
+              name="role"
+              data-field="role"
+              data-profile-input
+              autocomplete="organization-title"
+              value="${escapeHtml(state.profile.role)}"
+              aria-describedby="error-role"
+              aria-invalid="${errors.role ? 'true' : 'false'}"
+            />
+            ${renderFieldError('role', errors)}
+          </label>
+
+          <label class="field">
+            <span>CEP</span>
+            <input
+              type="text"
+              name="cep"
+              data-field="cep"
+              data-profile-input
+              inputmode="numeric"
+              autocomplete="postal-code"
+              value="${escapeHtml(formatCep(state.profile.cep))}"
+              aria-describedby="error-cep"
+              aria-invalid="${errors.cep ? 'true' : 'false'}"
+            />
+            ${renderFieldError('cep', errors)}
+            ${state.cepLookupPending ? '<span class="field__hint">Buscando cidade e estado...</span>' : ''}
+            ${state.cepLookupFailed ? '<span class="field__hint">CEP não encontrado. Preencha manualmente</span>' : ''}
+          </label>
+
+          <label class="field">
+            <span>Cidade <small>(opcional)</small></span>
+            <input type="text" name="city" data-field="city" data-profile-input autocomplete="address-level2" value="${escapeHtml(state.profile.city)}" />
+          </label>
+
+          <label class="field">
+            <span>Estado <small>(opcional)</small></span>
+            <input type="text" name="state" data-field="state" data-profile-input autocomplete="address-level1" value="${escapeHtml(state.profile.state)}" />
+          </label>
+
+          <label class="field">
+            <span>Faixa de colaboradores</span>
+            <select
+              name="size"
+              data-field="size"
+              data-profile-input
+              aria-describedby="error-size"
+              aria-invalid="${errors.size ? 'true' : 'false'}"
+            >
+              <option value="">Selecione</option>
+              ${SIZE_OPTIONS.map((option) => `<option value="${escapeHtml(option)}" ${state.profile.size === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+            ${renderFieldError('size', errors)}
+          </label>
+
+          <label class="field">
+            <span>Setor</span>
+            <select
+              name="segment"
+              data-field="segment"
+              data-profile-input
+              aria-describedby="error-segment"
+              aria-invalid="${errors.segment ? 'true' : 'false'}"
+            >
+              <option value="">Selecione</option>
+              ${SEGMENT_OPTIONS.map((option) => `<option value="${escapeHtml(option)}" ${state.profile.segment === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+            ${renderFieldError('segment', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Site <small>(opcional)</small></span>
+            <input type="url" name="site" data-field="site" data-profile-input autocomplete="url" value="${escapeHtml(state.profile.site)}" />
+          </label>
+
+          <label class="checkbox-field field--full">
+            <input type="checkbox" name="consentMarketing" data-field="consentMarketing" data-profile-input ${state.profile.consentMarketing ? 'checked' : ''} />
+            <span>Ao continuar, você concorda com o uso dos seus dados para contato e comunicações da Active Solutions.</span>
+          </label>
+          ${renderFieldError('consentMarketing', errors)}
+
+          <button class="primary-button primary-button--full field--full" type="submit">Continuar para diagnóstico</button>
+        </form>
       </section>
     `;
   }
@@ -2469,8 +2622,13 @@
       <main class="app-shell">
         <section class="entry">
           <div class="entry__copy">
-            <h1>Segurança não é só TI.<br />É clareza para decidir melhor.</h1>
-            <p>Comece com uma etapa rápida. Depois, a leitura fica calibrada para o porte e o setor da sua empresa.</p>
+            <h1>Avaliação de Maturidade de Segurança da Informação segundo NIST CSF 2.0</h1>
+            <p>São 48 perguntas para produzir uma leitura confiável, sem superficialidade, sobre como sua empresa decide, protege, monitora, reage e se recupera.</p>
+            <ul class="entry__list">
+              <li>Você não precisa ser técnico para responder bem.</li>
+              <li>O que importa é descrever o que acontece na prática hoje.</li>
+              <li>No final, você recebe prioridades objetivas para evoluir até o Tier 3.</li>
+            </ul>
             <button class="primary-button" data-action="start-journey">
               ${hasProgress && isLeadReady() ? 'Continuar avaliação' : 'Começar avaliação'}
             </button>
@@ -3467,9 +3625,10 @@
 
   function sanitizeFieldInput(name, value) {
     if (name === 'consentMarketing') return Boolean(value);
-    if (name === 'email') return String(value || '').replace(/\s+/g, '').toLowerCase();
+    if (name === 'email') return String(value || '').replace(/[<>]/g, '');
     if (name === 'phone') return formatPhoneDisplay(value);
     if (name === 'cep') return formatCep(value);
+    if (name === 'size' || name === 'segment') return String(value || '');
     if (name === 'state') return String(value || '').replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase();
     return String(value || '').replace(/[<>]/g, '');
   }
@@ -3582,21 +3741,15 @@
       return;
     }
     state.entryMode = 'lead';
-    state.leadStep = inferLeadStep(state.profile);
     updateLeadComputedState();
     saveState();
     render();
   }
 
   function handleSubmit(event) {
-    const stepOneForm = event.target.closest('[data-form="lead-step-one"]');
-    const stepTwoForm = event.target.closest('[data-form="lead-step-two"]');
-    if (!stepOneForm && !stepTwoForm) return;
+    const leadForm = event.target.closest('[data-form="lead"]');
+    if (!leadForm) return;
     event.preventDefault();
-    if (stepOneForm) {
-      goToLeadStepTwo();
-      return;
-    }
     submitLead();
   }
 
@@ -3623,9 +3776,8 @@
     if (field.name === 'cep') {
       scheduleCepLookup(value);
     }
-
-    if (state.entryMode === 'lead' && (state.touched[field.name] || state.leadAttemptedStep === state.leadStep || field.name === 'email' || field.name === 'consentMarketing' || field.name === 'cep')) {
-      renderPreservingFocus(field.name, selectionStart, selectionEnd);
+    if (field.type === 'checkbox') {
+      render();
     }
   }
 
