@@ -868,8 +868,8 @@
     const scoreBruto = pesoEsperado ? (pesoObtido / pesoEsperado) * 100 : 0;
     const gap = pesoEsperado - pesoObtido;
     const gapAjustado = gap * wrNorm;
-    const scoreFinal = pesoEsperado - gapAjustado;
-    const scorePercentual = pesoEsperado ? (scoreFinal / pesoEsperado) * 100 : 0;
+    const scoreFinal = pesoObtido;
+    const scorePercentual = scoreBruto;
 
     return {
       domainKey,
@@ -1238,7 +1238,7 @@
           option,
           rawScore,
           answerRatio,
-          gapValue: (1 - answerRatio) * question.peso,
+          gapValue: (1 - answerRatio) * question.peso * (leadContext.rigorNorm || 0.5),
         };
       })
       .filter(Boolean);
@@ -1254,15 +1254,15 @@
 
     const totalFinalWeight = domainResults.reduce((sum, item) => sum + item.scoreFinal, 0);
     const totalExpectedWeight = domainResults.reduce((sum, item) => sum + item.pesoEsperado, 0);
-    const overallPercentRaw =
-      domainResults.reduce((sum, item) => sum + item.scorePercentual, 0) / domainResults.length;
     const overallWeightedPercent = totalExpectedWeight ? (totalFinalWeight / totalExpectedWeight) * 100 : 0;
+    const overallPercentRaw = overallWeightedPercent;
 
     const score = Math.max(0, Math.min(4, overallPercentRaw / 25));
     const percent = Math.round(overallPercentRaw);
     const observedTier = getObservedTier(score);
+    const observedTierRank = Number(observedTier.rank ?? observedTier.level ?? 0);
     const expectedTier = leadContext.expectedTier;
-    const gap = Math.max(expectedTier - observedTier.level, 0);
+    const gap = Math.max(expectedTier - observedTierRank, 0);
     const topGaps = answeredQuestions.sort((a, b) => b.gapValue - a.gapValue);
     const rankedServices = rankServices(domainResults, topGaps);
     const topServices = rankedServices.slice(0, 3);
@@ -1279,11 +1279,11 @@
               : 'Exposto';
 
     const summary =
-      observedTier.level <= 1
+      observedTierRank <= 1
         ? 'Você ainda depende de improviso em pontos que já deveriam ter dono e rotina.'
-        : observedTier.level === 2
+        : observedTierRank === 2
           ? 'Você já tem base, mas ainda depende de esforço manual em pontos críticos.'
-          : observedTier.level === 3
+          : observedTierRank === 3
             ? 'Você tem uma base mais consistente, mas ainda pode reduzir atrito e exceção em frentes importantes.'
             : 'Você já mostra uma operação mais estruturada, mas ainda vale consolidar o que sustenta crescimento com segurança.';
     const results = {
@@ -3911,5 +3911,85 @@
       default:
         break;
     }
+  }
+  function getObservedTier(score) {
+    if (score < 1) {
+      return {
+        level: 'Base',
+        rank: 0,
+        title: 'abaixo do nÃ­vel 1 de maturidade',
+        description: 'A operaÃ§Ã£o ainda depende mais de improviso do que de padrÃ£o.',
+      };
+    }
+    if (score < 2) {
+      return {
+        level: 1,
+        rank: 1,
+        title: 'nÃ­vel 1 de maturidade',
+        description: 'JÃ¡ existe base, mas pontos crÃ­ticos ainda pedem esforÃ§o manual demais.',
+      };
+    }
+    if (score < 3) {
+      return {
+        level: 2,
+        rank: 2,
+        title: 'nÃ­vel 2 de maturidade',
+        description: 'A empresa jÃ¡ opera com mais consistÃªncia, mas ainda hÃ¡ espaÃ§o claro para integrar melhor.',
+      };
+    }
+    if (score < 3.7) {
+      return {
+        level: 3,
+        rank: 3,
+        title: 'nÃ­vel 3 de maturidade',
+        description: 'A prÃ¡tica jÃ¡ aparece de forma mais estruturada e conectada ao negÃ³cio.',
+      };
+    }
+    return {
+      level: 4,
+      rank: 4,
+      title: 'nÃ­vel 4 de maturidade',
+      description: 'A operaÃ§Ã£o mostra disciplina forte, previsibilidade e integraÃ§Ã£o real com o negÃ³cio.',
+    };
+  }
+  function getObservedTier(score) {
+    if (score < 1) {
+      return {
+        level: 'Base',
+        rank: 0,
+        title: 'abaixo do nivel 1 de maturidade',
+        description: 'A operacao ainda depende mais de improviso do que de padrao.',
+      };
+    }
+    if (score < 2) {
+      return {
+        level: 1,
+        rank: 1,
+        title: 'nivel 1 de maturidade',
+        description: 'Ja existe base, mas pontos criticos ainda pedem esforco manual demais.',
+      };
+    }
+    if (score < 3) {
+      return {
+        level: 2,
+        rank: 2,
+        title: 'nivel 2 de maturidade',
+        description: 'A empresa ja opera com mais consistencia, mas ainda ha espaco claro para integrar melhor.',
+      };
+    }
+    if (score < 3.7) {
+      return {
+        level: 3,
+        rank: 3,
+        title: 'nivel 3 de maturidade',
+        description: 'A pratica ja aparece de forma mais estruturada e conectada ao negocio.',
+      };
+    }
+    return {
+      level: 4,
+      rank: 4,
+      title: 'nivel 4 de maturidade',
+      description: 'A operacao mostra disciplina forte, previsibilidade e integracao real com o negocio.',
+    };
   }
 })();

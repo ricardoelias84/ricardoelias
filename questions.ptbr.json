@@ -1,1301 +1,1729 @@
-﻿{
+{
   "meta": {
     "name": "N.A.V.E",
-    "subtitle": "Nist para Avalia��o de Vulnerabilidades e Estrat�gia",
+    "subtitle": "Nist para Avaliacao de Vulnerabilidades e Estrategia",
     "company": "Active Solutions",
     "brandAssets": {
       "logoColor": "./assets/logo-active-color.jpg",
       "logoNegative": "./assets/logo-active-negative.jpg"
     },
-    "specialistMessage": "Ol�! Estou preenchendo o assessment NAVE e gostaria de falar com um especialista da Active Solutions."
+    "specialistMessage": "Ola! Estou preenchendo o assessment NAVE e gostaria de falar com um especialista da Active Solutions."
   },
   "questions": [
     {
       "id": "Q01",
-      "pergunta": "Seguran�a e Privacidade entram na estrat�gia do neg�cio (n�o s� na TI)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Reativo (s� quando d� problema/auditoria).",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Inten��o com regras irregulares.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Direcionamento claro e objetivos m�nimos.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Integrado a decis�es de produto/mercado/terceiros.",
+      "pergunta": "Qual frase descreve melhor como Segurança e Privacidade entram na estratégia do negócio (não só na TI)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Reativo (só quando dá problema/auditoria).",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Intenção com regras irregulares.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Direcionamento claro e objetivos mínimos.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Integrado a decisões de produto/mercado/terceiros.",
       "peso": 3,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre proteção de acesso e governança de dados pessoais.",
       "exemplos": [
         "Atas/pauta executiva",
         "OKRs/KPIs",
-        "Or�amento priorizado por risco"
+        "Orçamento priorizado por risco"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Atas/pauta executiva.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Atas/pauta executiva.",
       "capacidade": [
         "access-protection",
         "personal-data-governance",
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "iam",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q02",
-      "pergunta": "H� um risco relevante (novo fornecedor com dados pessoais / acesso remoto liberado), quem tem autoridade clara para dizer �sim�, �n�o� ou �sim, com condi��es�?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o � claro.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "TI decide sem crit�rios e sem registro.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Respons�vel/f�rum e crit�rios gerais; decis�es registradas.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Decis�o considera neg�cio + risco e envolve �reas certas.",
+      "pergunta": "Quando há um risco relevante (novo fornecedor com dados pessoais / acesso remoto liberado), quem tem autoridade clara para dizer “sim”, “não” ou “sim, com condições”?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não é claro.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "TI decide sem critérios e sem registro.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Responsável/fórum e critérios gerais; decisões registradas.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Decisão considera negócio + risco e envolve áreas certas.",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e governança de dados pessoais.",
       "exemplos": [
         "RACI",
-        "Pol�tica de exce��es",
-        "Workflow/tickets/atas de decis�o."
+        "Política de exceções",
+        "Workflow/tickets/atas de decisão."
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: RACI.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: RACI.",
       "capacidade": [
         "third-party-response",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q03",
-      "pergunta": "A empresa revisa (e reprioriza) seus principais riscos digitais (ciber + privacidade) e planos de a��o?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o revisa.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "S� ap�s incidente/auditoria/exig�ncia.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Eventual, sem cad�ncia forte.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Cad�ncia definida e acompanhamento.",
+      "pergunta": "Com que frequência a empresa revisa (e reprioriza) seus principais riscos digitais (ciber + privacidade) e planos de ação?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não revisa.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Só após incidente/auditoria/exigência.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Eventual, sem cadência forte.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Cadência definida e acompanhamento.",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e proteção de acesso.",
       "exemplos": [
-        "Ritual e calend�rio",
-        "Painel de riscos/a��es",
-        "Evid�ncia de reprioriza��o."
+        "Ritual e calendário",
+        "Painel de riscos/ações",
+        "Evidência de repriorização."
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Ritual e calend�rio.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Ritual e calendário.",
       "capacidade": [
         "third-party-response",
         "access-protection",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity",
+        "iam"
+      ]
     },
     {
       "id": "Q04",
-      "pergunta": "Algu�m pede uma exce��o (ex.: acesso sem dupla verifica��o / exposi��o �s� por hoje�), o que acontece na pr�tica?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Quando alguém pede uma exceção (ex.: acesso sem dupla verificação / exposição “só por hoje”), o que acontece na prática?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Libera informal, sem prazo.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Registra �s vezes, sem padr�o.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Registra e aprova, sem revis�o de exce��es.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Exce��o com prazo, justificativa, compensa��o e revis�o.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Registra às vezes, sem padrão.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Registra e aprova, sem revisão de exceções.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Exceção com prazo, justificativa, compensação e revisão.",
       "peso": 3,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre proteção de acesso e governança de exposição externa.",
       "exemplos": [
-        "Workflow de exce��es",
-        "Lista de exce��es com prazo",
-        "Evid�ncia de revis�o/encerramento."
+        "Workflow de exceções",
+        "Lista de exceções com prazo",
+        "Evidência de revisão/encerramento."
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Workflow de exce��es.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Workflow de exceções.",
       "capacidade": [
         "access-protection",
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q05",
-      "pergunta": "Qual frase descreve melhor o que a empresa faz ap�s incidente/quase-incidente relevante?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o tivemos/n�o sabemos; sem pr�tica de p�s-evento.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Apaga inc�ndio e segue.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Revis�o pontual e corrige o �bvio.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "P�s-evento estruturado + acompanhamento de a��es.",
+      "pergunta": "Nos últimos 12 meses: qual frase descreve melhor o que a empresa faz após incidente/quase-incidente relevante?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não tivemos/não sabemos; sem prática de pós-evento.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Apaga incêndio e segue.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Revisão pontual e corrige o óbvio.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Pós-evento estruturado + acompanhamento de ações.",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e monitoramento e rastreabilidade.",
       "exemplos": [
         "Post-mortem",
-        "Plano de a��o",
-        "Evid�ncia de melhoria implantada"
+        "Plano de ação",
+        "Evidência de melhoria implantada"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Post-mortem.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Post-mortem.",
       "capacidade": [
         "third-party-response",
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity",
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q06",
-      "pergunta": "Tivesse 10 minutos para mostrar ao Conselho que risco digital est� sob controle, qual evid�ncia voc� apresenta hoje?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Nenhuma consistente; s� relato verbal.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Documentos existem, mas sem opera��o.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Relat�rios pontuais, sem vis�o recorrente.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Painel simples e recorrente, usado para gest�o.",
+      "pergunta": "Se você tivesse 10 minutos para mostrar ao Conselho que risco digital está sob controle, qual evidência você apresenta hoje?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Nenhuma consistente; só relato verbal.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Documentos existem, mas sem operação.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Relatórios pontuais, sem visão recorrente.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Painel simples e recorrente, usado para gestão.",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade e hardening e atualiza��o.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade e hardening e atualização.",
       "exemplos": [
         "Dashboard",
         "Lista de top riscos",
-        "Indicadores (tempo de detec��o/resposta"
+        "Indicadores (tempo de detecção/resposta"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Dashboard.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Dashboard.",
       "capacidade": [
         "monitoring-traceability",
         "hardening-updates",
         "access-protection",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "soc",
+        "siem",
+        "securityAssessment",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "iam"
+      ]
     },
     {
       "id": "Q07",
-      "pergunta": "Fornecedores/parceiros que tratam dados ou suportam processos cr�ticos: qual cen�rio � mais real?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Sem vis�o completa; cl�usulas gen�ricas.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Lista parcial; avalia s� quando exigem.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Avalia antes de contratar, pouca verifica��o/monitoramento.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Classifica por risco; exige controles em contrato; revisa cr�ticos.",
+      "pergunta": "Sobre fornecedores/parceiros que tratam dados ou suportam processos críticos: qual cenário é mais real?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Sem visão completa; cláusulas genéricas.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Lista parcial; avalia só quando exigem.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Avalia antes de contratar, pouca verificação/monitoramento.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Classifica por risco; exige controles em contrato; revisa críticos.",
       "peso": 3,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e governança de dados pessoais.",
       "exemplos": [
-        "Invent�rio e classifica��o",
-        "Cl�usulas/DPA",
-        "Registros de avalia��o"
+        "Inventário e classificação",
+        "Cláusulas/DPA",
+        "Registros de avaliação"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio e classifica��o.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário e classificação.",
       "capacidade": [
         "third-party-response",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q08",
-      "pergunta": "Se amanh� ocorrer incidente envolvendo dados pessoais, a empresa conseguiria decidir e executar comunica��es necess�rias com qualidade e no prazo aplic�vel?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o; improviso.",
-      "opcao_b_titulo": "Parcial",
+      "pergunta": "Se amanhã ocorrer incidente envolvendo dados pessoais, a empresa conseguiria decidir e executar comunicações necessárias com qualidade e no prazo aplicável?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não; improviso.",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Talvez; risco de atraso/incompletude.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Fluxo b�sico, pouco testado.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Fluxo básico, pouco testado.",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Fluxo estruturado + checklist + registro.",
       "peso": 3,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e governança de dados pessoais.",
       "exemplos": [
         "Playbook",
         "Checklist",
         "Templates"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Playbook.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Playbook.",
       "capacidade": [
         "third-party-response",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q09",
-      "pergunta": "Pedir a lista dos �10 servi�os/sistemas que n�o podem parar�, qual cen�rio descreve melhor?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o existe lista confi�vel.",
-      "opcao_b_titulo": "Parcial",
+      "pergunta": "Se você pedir a lista dos “10 serviços/sistemas que não podem parar”, qual cenário descreve melhor?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não existe lista confiável.",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Lista informal, sem donos.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Lista com donos, sem depend�ncias claras.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Lista com donos, criticidade e revis�o peri�dica.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Lista com donos, sem dependências claras.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Lista com donos, criticidade e revisão periódica.",
       "peso": 3,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre governan�a de exposi��o externa e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre governança de exposição externa e proteção de acesso.",
       "exemplos": [
-        "Invent�rio de cr�ticos",
+        "Inventário de críticos",
         "Owners",
-        "Depend�ncias"
+        "Dependências"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio de cr�ticos.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário de críticos.",
       "capacidade": [
         "external-exposure",
         "access-protection",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "networkSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q10",
-      "pergunta": "A empresa sabe onde (geograficamente e tecnicamente) os dados pessoais relevantes s�o tratados/armazenados (interno, nuvem, terceiros)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o sabe.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Parcial, sem vis�o consolidada.",
-      "opcao_c_titulo": "Funciona",
+      "pergunta": "A empresa sabe onde (geograficamente e tecnicamente) os dados pessoais relevantes são tratados/armazenados (interno, nuvem, terceiros)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não sabe.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Parcial, sem visão consolidada.",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Maior parte, com lacunas.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Vis�o consolidada e revisada, com respons�veis.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Visão consolidada e revisada, com responsáveis.",
       "peso": 2,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais e governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais e governança de terceiros e resposta.",
       "exemplos": [
         "Mapa de dados",
         "Lista de provedores/localidades",
         "Registros de processamento"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Mapa de dados.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Mapa de dados.",
       "capacidade": [
         "personal-data-governance",
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "privacyGovernance",
+        "awareness",
+        "securityGovernance",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q11",
-      "pergunta": "Com que disciplina a empresa sabe o que est� exposto para fora e revisa se � necess�rio?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o sabe.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Sabe por mem�ria; revisa s� quando d� problema.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Lista parcial; revis�es pontuais.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Invent�rio + revis�o peri�dica com respons�veis.",
+      "pergunta": "Com que disciplina a empresa sabe o que está exposto para fora e revisa se é necessário?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não sabe.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Sabe por memória; revisa só quando dá problema.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Lista parcial; revisões pontuais.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Inventário + revisão periódica com responsáveis.",
       "peso": 3,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre governan�a de exposi��o externa e seguran�a de aplica��o.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre governança de exposição externa e segurança de aplicação.",
       "exemplos": [
-        "Invent�rio de exposi��o",
+        "Inventário de exposição",
         "Varredura externa",
-        "Decis�es de despublica��o"
+        "Decisões de despublicação"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio de exposi��o.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário de exposição.",
       "capacidade": [
         "external-exposure",
         "application-security"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam"
+      ]
     },
     {
       "id": "Q12",
-      "pergunta": "Dados pessoais, qual cen�rio descreve melhor o mapeamento de uso e finalidade?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Coleta/guarda por h�bito; finalidade/prazo pouco claros.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "No��o geral, sem documenta��o e sem reten��o aplicada.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Mapeado em alguns processos cr�ticos.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Mapeamento consistente (o qu�, por qu�, base, prazo, onde, quem acessa).",
+      "pergunta": "Sobre dados pessoais, qual cenário descreve melhor o mapeamento de uso e finalidade?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Coleta/guarda por hábito; finalidade/prazo pouco claros.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Noção geral, sem documentação e sem retenção aplicada.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Mapeado em alguns processos críticos.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Mapeamento consistente (o quê, por quê, base, prazo, onde, quem acessa).",
       "peso": 3,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais.",
       "exemplos": [
-        "Registro de opera��es",
+        "Registro de operações",
         "Mapa de dados",
-        "Pol�tica de reten��o"
+        "Política de retenção"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Registro de opera��es.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Registro de operações.",
       "capacidade": [
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q13",
-      "pergunta": "Surge vulnerabilidade relevante em tecnologia usada, qual cen�rio � mais prov�vel?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Quando surge vulnerabilidade relevante em tecnologia usada, qual cenário é mais provável?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Descobre tarde/por acaso; sem processo.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Depende de quem percebe e do tempo.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Processo b�sico, atrasos comuns.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Prioriza��o por risco e prazos por severidade, com acompanhamento at� fechar.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Processo básico, atrasos comuns.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Priorização por risco e prazos por severidade, com acompanhamento até fechar.",
       "peso": 3,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre hardening e atualiza��o.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre hardening e atualização.",
       "exemplos": [
-        "Gest�o de vulnerabilidades",
+        "Gestão de vulnerabilidades",
         "SLAs",
         "Aging report"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Gest�o de vulnerabilidades.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Gestão de vulnerabilidades.",
       "capacidade": [
         "hardening-updates"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam"
+      ]
     },
     {
       "id": "Q14",
-      "pergunta": "A empresa sabe identificar �pontos de dom�nio� (contas/chaves/sistemas que, se comprometidos, dominam grande parte do ambiente)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o sabe.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Sabe informalmente, sem revis�o.",
-      "opcao_c_titulo": "Funciona",
+      "pergunta": "A empresa sabe identificar “pontos de domínio” (contas/chaves/sistemas que, se comprometidos, dominam grande parte do ambiente)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não sabe.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Sabe informalmente, sem revisão.",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Parcial, sem plano completo.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Mapeado + plano espec�fico + revis�o peri�dica.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Mapeado + plano específico + revisão periódica.",
       "peso": 2,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre prote��o de identidade cr�tica e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre proteção de identidade crítica e proteção de acesso.",
       "exemplos": [
-        "Invent�rio de contas privilegiadas/segredos cr�ticos",
-        "Plano de prote��o",
-        "Evid�ncia de revis�o."
+        "Inventário de contas privilegiadas/segredos críticos",
+        "Plano de proteção",
+        "Evidência de revisão."
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio de contas privilegiadas/segredos cr�ticos.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário de contas privilegiadas/segredos críticos.",
       "capacidade": [
         "critical-identity",
         "access-protection"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "iam"
+      ]
     },
     {
       "id": "Q15",
-      "pergunta": "Qual foi a �ltima vez que revisaram a lista de fornecedores com acesso a dados/sistemas cr�ticos (e reclassificaram por risco)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Qual foi a última vez que revisaram a lista de fornecedores com acesso a dados/sistemas críticos (e reclassificaram por risco)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nunca revisou como lista.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Revisou uma vez, sem cad�ncia.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Ocasional, por exig�ncia externa.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Cad�ncia definida, com crit�rios e registro.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Revisou uma vez, sem cadência.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Ocasional, por exigência externa.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Cadência definida, com critérios e registro.",
       "peso": 2,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e governança de dados pessoais.",
       "exemplos": [
-        "Invent�rio de terceiros",
-        "Crit�rios",
-        "Registros de reavalia��o"
+        "Inventário de terceiros",
+        "Critérios",
+        "Registros de reavaliação"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio de terceiros.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário de terceiros.",
       "capacidade": [
         "third-party-response",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity",
+        "awareness"
+      ]
     },
     {
       "id": "Q16",
-      "pergunta": "H� muitas corre��es poss�veis, como decide o que vem primeiro?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Press�o/urg�ncia do momento.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Severidade t�cnica sem criticidade de neg�cio.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Considera criticidade, sem m�todo consistente.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Crit�rios consistentes (prob x impacto, criticidade, exposi��o) com registro.",
+      "pergunta": "Quando há muitas correções possíveis, como decide o que vem primeiro?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Pressão/urgência do momento.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Severidade técnica sem criticidade de negócio.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Considera criticidade, sem método consistente.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Critérios consistentes (prob x impacto, criticidade, exposição) com registro.",
       "peso": 2,
       "categoria": "ID",
-      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na opera��o do dia a dia e d� pistas sobre hardening e atualiza��o e governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como identificar aparece na operação do dia a dia e dá pistas sobre hardening e atualização e governança de exposição externa.",
       "exemplos": [
         "Metodologia simples",
         "Matriz de risco",
         "Backlog priorizado"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Metodologia simples.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Metodologia simples.",
       "capacidade": [
         "hardening-updates",
         "external-exposure",
         "personal-data-governance",
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "incidentResponse",
+        "crisisManagement",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q17",
-      "pergunta": "Acessar sistemas sens�veis de fora (home office/viagem/terceiros), qual descri��o � mais verdadeira?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Para acessar sistemas sensíveis de fora (home office/viagem/terceiros), qual descrição é mais verdadeira?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Senha simples resolve na maioria.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Dupla verifica��o em alguns; muitas exce��es.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Dupla verifica��o para usu�rios; falha em privilegiados/terceiros ou cr�ticos.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Dupla verifica��o obrigat�ria para sens�veis e privilegiados; exce��es raras e registradas.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Dupla verificação em alguns; muitas exceções.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Dupla verificação para usuários; falha em privilegiados/terceiros ou críticos.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Dupla verificação obrigatória para sensíveis e privilegiados; exceções raras e registradas.",
       "peso": 3,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre proteção de acesso e governança de exposição externa.",
       "exemplos": [
-        "Pol�tica e configura��o",
-        "Relat�rio de cobertura",
-        "Exce��es com prazo"
+        "Política e configuração",
+        "Relatório de cobertura",
+        "Exceções com prazo"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Pol�tica e configura��o.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Política e configuração.",
       "capacidade": [
         "access-protection",
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q18",
-      "pergunta": "Qu�o consistente � o ajuste/remo��o de acessos quando algu�m muda de fun��o ou sai (incl. SaaS e dados pessoais)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Quão consistente é o ajuste/remoção de acessos quando alguém muda de função ou sai (incl. SaaS e dados pessoais)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Inconsistente; pode demorar semanas.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Alguns removem r�pido; outros ficam esquecidos.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Processo b�sico, sem auditoria recorrente.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Prazos definidos + revis�o peri�dica de acessos sens�veis.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Alguns removem rápido; outros ficam esquecidos.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Processo básico, sem auditoria recorrente.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Prazos definidos + revisão periódica de acessos sensíveis.",
       "peso": 3,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre proteção de acesso e governança de dados pessoais.",
       "exemplos": [
         "Processo JML",
-        "Evid�ncia de desligamentos",
-        "Revis�es de acesso"
+        "Evidência de desligamentos",
+        "Revisões de acesso"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Processo JML.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Processo JML.",
       "capacidade": [
         "access-protection",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q19",
-      "pergunta": "A empresa trata �acessos de poder� (admins, contas de servi�o, acesso a produ��o, segredos)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Como a empresa trata “acessos de poder” (admins, contas de serviço, acesso a produção, segredos)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Igual aos demais acessos.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Alguns cuidados, sem padr�o.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Alguns cuidados, sem padrão.",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Muitos controlados, mas com pontos cegos.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Padr�o forte (menor privil�gio, segrega��o, rastreio, revis�o).",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Padrão forte (menor privilégio, segregação, rastreio, revisão).",
       "peso": 3,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e prote��o de identidade cr�tica.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre proteção de acesso e proteção de identidade crítica.",
       "exemplos": [
-        "Invent�rio",
+        "Inventário",
         "Cofre/PAM",
-        "Rota��o"
+        "Rotação"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Invent�rio.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventário.",
       "capacidade": [
         "access-protection",
         "critical-identity"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance"
+      ]
     },
     {
       "id": "Q20",
-      "pergunta": "Sistemas centrais de identidade e segredos cr�ticos: qual pr�tica descreve melhor a empresa?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Sem cuidados especiais; �ltima revis�o � desconhecida.",
-      "opcao_b_titulo": "Parcial",
+      "pergunta": "Para sistemas centrais de identidade e segredos críticos: qual prática descreve melhor a empresa?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Sem cuidados especiais; última revisão é desconhecida.",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Cuidados pontuais, sem rotina.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Rotina parcial, pouco audit�vel.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Plano espec�fico (prote��o, segmenta��o, rota��o, revis�o peri�dica).",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Rotina parcial, pouco auditável.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Plano específico (proteção, segmentação, rotação, revisão periódica).",
       "peso": 2,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre prote��o de identidade cr�tica.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre proteção de identidade crítica.",
       "exemplos": [
         "Plano de identidade",
-        "Evid�ncia de rota��o/renova��o",
+        "Evidência de rotação/renovação",
         "Auditorias"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Plano de identidade.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Plano de identidade.",
       "capacidade": [
         "critical-identity"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance"
+      ]
     },
     {
       "id": "Q21",
-      "pergunta": "Atualiza��o/corre��o (servidores, esta��es, apps, appliances): qual cen�rio � mais real?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Irregular e reativo, �heroico�.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Existe, sem prioriza��o por criticidade; atrasos frequentes.",
-      "opcao_c_titulo": "Funciona",
+      "pergunta": "Sobre atualização/correção (servidores, estações, apps, appliances): qual cenário é mais real?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Irregular e reativo, “heroico”.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Existe, sem priorização por criticidade; atrasos frequentes.",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Bom nos principais; lacunas em legados/menos assistidos.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Gerenciado: invent�rio, prioriza��o por risco, janelas e verifica��o.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Gerenciado: inventário, priorização por risco, janelas e verificação.",
       "peso": 3,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre hardening e atualiza��o.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre hardening e atualização.",
       "exemplos": [
-        "Pol�tica/processo",
+        "Política/processo",
         "Compliance",
         "SLAs"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Pol�tica/processo.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Política/processo.",
       "capacidade": [
         "hardening-updates"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q22",
-      "pergunta": "Com que disciplina firewall/acessos remotos/regras de entrada/sa�da s�o revisados para reduzir exposi��o e remover permiss�es antigas?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o existe rotina; acumula.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "S� quando quebra ou ap�s incidente.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Pontual, sem dono/crit�rio.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Cad�ncia + crit�rios + gest�o de exce��es.",
+      "pergunta": "Com que disciplina firewall/acessos remotos/regras de entrada/saída são revisados para reduzir exposição e remover permissões antigas?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não existe rotina; acumula.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Só quando quebra ou após incidente.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Pontual, sem dono/critério.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Cadência + critérios + gestão de exceções.",
       "peso": 2,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre governança de exposição externa.",
       "exemplos": [
-        "Calend�rio de revis�o",
-        "Relat�rios",
-        "Gest�o de mudan�a"
+        "Calendário de revisão",
+        "Relatórios",
+        "Gestão de mudança"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Calend�rio de revis�o.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Calendário de revisão.",
       "capacidade": [
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q23",
-      "pergunta": "Publica site/portal/API, qual cen�rio representa a pr�tica de seguran�a de aplica��o?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "Publica e torce; seguran�a entra depois.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Revis�o pontual; sem checklist consistente.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Checklist b�sico, n�o cobre abuso/exposi��o de info.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Padr�o aplicado (prote��o contra abuso, erros seguros, criptografia moderna).",
+      "pergunta": "Quando publica site/portal/API, qual cenário representa a prática de segurança de aplicação?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Publica e torce; segurança entra depois.",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Revisão pontual; sem checklist consistente.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Checklist básico, não cobre abuso/exposição de info.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Padrão aplicado (proteção contra abuso, erros seguros, criptografia moderna).",
       "peso": 2,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre seguran�a de aplica��o e governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre segurança de aplicação e governança de exposição externa.",
       "exemplos": [
         "Checklist de publicacao",
         "Evidencia de testes/varreduras",
         "Padroes minimos"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Checklist de publicacao.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Checklist de publicacao.",
       "capacidade": [
         "application-security",
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q24",
-      "pergunta": "Acesso a dados pessoais (ex.: RH/candidatos): qual cen�rio � mais real?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Sobre acesso a dados pessoais (ex.: RH/candidatos): qual cenário é mais real?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Acesso amplo por conveniencia.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Alguma restricao; pouca revisao.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Restringe em alguns pontos; lacunas por ferramenta/perfil.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Minimo privilegio + revisao + excecoes tratadas.",
       "peso": 3,
       "categoria": "PR",
-      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como proteger aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais e proteção de acesso.",
       "exemplos": [
         "Matriz de acesso",
         "Revisao periodica",
         "Relatorios de permissoes"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Matriz de acesso.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Matriz de acesso.",
       "capacidade": [
         "personal-data-governance",
         "access-protection"
       ],
-      "servicos": []
+      "servicos": [
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q25",
-      "pergunta": "Se houver acesso indevido hoje, a empresa consegue reconstruir �o que aconteceu� com logs relevantes e centralizados?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
-      "opcao_a_desc": "N�o; logs insuficientes/espalhados.",
-      "opcao_b_titulo": "Parcial",
+      "pergunta": "Se houver acesso indevido hoje, a empresa consegue reconstruir “o que aconteceu” com logs relevantes e centralizados?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
+      "opcao_a_desc": "Não; logs insuficientes/espalhados.",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Parcial, com lacunas.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Em alguns cr�ticos, n�o consistente.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Consistente nos cr�ticos, com correla��o.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Em alguns críticos, não consistente.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Consistente nos críticos, com correlação.",
       "peso": 3,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Lista de fontes",
         "Centralizacao",
         "Exemplo de investigacao"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Lista de fontes.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Lista de fontes.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q26",
-      "pergunta": "Logs/evid�ncias: prote��o contra perda e reten��o para investiga��o �:?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Sobre logs/evidências: proteção contra perda e retenção para investigação é:",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Sem regra; pode perder/excluir.",
-      "opcao_b_titulo": "Parcial",
-      "opcao_b_desc": "Alguma reten��o, sem prote��o.",
-      "opcao_c_titulo": "Funciona",
-      "opcao_c_desc": "Reten��o em alguns, n�o cobre o cr�tico.",
-      "opcao_d_titulo": "Estruturado",
-      "opcao_d_desc": "Reten��o/prote��o definida nos cr�ticos (acesso controlado, trilha).",
+      "opcao_b_titulo": "Esta comecando",
+      "opcao_b_desc": "Alguma retenção, sem proteção.",
+      "opcao_c_titulo": "Ja funciona",
+      "opcao_c_desc": "Retenção em alguns, não cobre o crítico.",
+      "opcao_d_titulo": "Esta bem resolvido",
+      "opcao_d_desc": "Retenção/proteção definida nos críticos (acesso controlado, trilha).",
       "peso": 3,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Politica de retencao",
         "Configuracao",
         "Controle de acesso"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Politica de retencao.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Politica de retencao.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q27",
-      "pergunta": "Em PCs/servidores cr�ticos, a empresa detecta comportamento malicioso (scripts, malware, movimenta��o)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Em PCs/servidores críticos, a empresa detecta comportamento malicioso (scripts, malware, movimentação)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "So antivirus basico/percepcao humana.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Ferramenta com cobertura parcial.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Cobertura boa, faltam ajustes e resposta e lenta.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Cobertura consistente + alertas acionaveis + time preparado.",
       "peso": 2,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Inventario de cobertura",
         "Relatorios",
         "Exemplos de alertas"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Inventario de cobertura.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Inventario de cobertura.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam"
+      ]
     },
     {
       "id": "Q28",
-      "pergunta": "A empresa junta sinais de rede/identidade/endpoints/apps para entender r�pido se � ataque ou falso alarme?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "A empresa junta sinais de rede/identidade/endpoints/apps para entender rápido se é ataque ou falso alarme?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao; alertas isolados.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "As vezes; esforco manual alto.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Parcial; depende de especialistas.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Consistente nos criticos; correlacao e contexto.",
       "peso": 2,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Casos de uso",
         "Playbooks",
         "Exemplos de correlacao"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Casos de uso.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Casos de uso.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q29",
-      "pergunta": "H� tentativas repetidas de login/uso abusivo, qual cen�rio descreve perceber e reagir?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Quando há tentativas repetidas de login/uso abusivo, qual cenário descreve perceber e reagir?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao ha bloqueio/alerta confiavel.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Em alguns sistemas, inconsistente.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Bloqueia nos principais; resposta lenta/irregular.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Bloqueia e alerta; investiga e age rapido.",
       "peso": 2,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre seguran�a de aplica��o e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre segurança de aplicação e proteção de acesso.",
       "exemplos": [
         "Politica de bloqueio",
         "Logs/alertas",
         "Playbook"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Politica de bloqueio.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Politica de bloqueio.",
       "capacidade": [
         "application-security",
         "access-protection"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityAssessment",
+        "securityGovernance"
+      ]
     },
     {
       "id": "Q30",
-      "pergunta": "Se um invasor usar credencial real (login/senha v�lidos), qual cen�rio � mais prov�vel?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Se um invasor usar credencial real (login/senha válidos), qual cenário é mais provável?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "So perceberiamos apos dano.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Talvez, por sensacao, sem garantia.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Em alguns casos, sem padrao.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Alertas consistentes + resposta rapida.",
       "peso": 3,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre proteção de acesso e monitoramento e rastreabilidade.",
       "exemplos": [
         "Alertas de identidade",
         "Exemplos de resposta",
         "Playbook de contencao."
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Alertas de identidade.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Alertas de identidade.",
       "capacidade": [
         "access-protection",
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "incidentResponse",
+        "crisisManagement",
+        "iam",
+        "securityGovernance"
+      ]
     },
     {
       "id": "Q31",
-      "pergunta": "A empresa monitora mudan�as na exposi��o externa (novos servi�os publicados, configura��es perigosas)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "A empresa monitora mudanças na exposição externa (novos serviços publicados, configurações perigosas)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao monitora.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Pontual, sem continuidade.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Parcial, pouca capacidade de resposta.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Recorrente + dono para corrigir rapido.",
       "peso": 2,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre governan�a de exposi��o externa.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre governança de exposição externa.",
       "exemplos": [
         "Varredura externa",
         "Inventario publicado",
         "Alertas"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Varredura externa.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Varredura externa.",
       "capacidade": [
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "networkSecurity",
+        "applicationSecurity"
+      ]
     },
     {
       "id": "Q32",
-      "pergunta": "�quanto tempo levamos para perceber algo s�rio?�, qual resposta a empresa consegue dar?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Se eu perguntar “quanto tempo levamos para perceber algo sério?”, qual resposta a empresa consegue dar?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao sabe; nao mede.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Intuicao, sem dado.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Estima por alguns casos, pouco confiavel.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Mede e usa para melhorar.",
       "peso": 2,
       "categoria": "DE",
-      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como detectar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Registro com linha do tempo",
         "Metricas",
         "Metas"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Registro com linha do tempo.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Registro com linha do tempo.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "soc",
+        "siem",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness"
+      ]
     },
     {
       "id": "Q33",
-      "pergunta": "Acontece um incidente, qual cen�rio descreve melhor a coordenacao (quem lidera/decide/executa)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Quando acontece um incidente, qual cenário descreve melhor a coordenacao (quem lidera/decide/executa)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Cada area reage; confuso.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "TI conduz; papeis incertos.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Plano existe, depende de pessoas especificas.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Papeis claros (tecnico, juridico, comunicacao, privacidade) + registro de decisoes.",
       "peso": 3,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e monitoramento e rastreabilidade.",
       "exemplos": [
         "Plano",
         "Contatos",
         "Logs/registros"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Plano.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Plano.",
       "capacidade": [
         "third-party-response",
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "securityGovernance",
+        "privacyGovernance",
+        "businessContinuity",
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q34",
-      "pergunta": "Se houver suspeita de credencial comprometida, qual cen�rio � mais prov�vel nas primeiras horas?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Se houver suspeita de credencial comprometida, qual cenário é mais provável nas primeiras horas?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Sem roteiro.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Acoes isoladas, sem coordenacao.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Roteiro basico; contencao pode ser lenta ou exagerada.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Playbook: contencao rapida e proporcional + investigacao em paralelo.",
       "peso": 3,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre prote��o de acesso e governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre proteção de acesso e governança de terceiros e resposta.",
       "exemplos": [
         "Playbook",
         "Evidencias de contencao",
         "Templates"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Playbook.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Playbook.",
       "capacidade": [
         "access-protection",
         "third-party-response",
         "external-exposure"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityGovernance",
+        "privacyGovernance",
+        "businessContinuity",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q35",
-      "pergunta": "Durante um incidente, a empresa preserva evidencias e registra a��es de modo confiavel?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Durante um incidente, a empresa preserva evidencias e registra ações de modo confiavel?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Evidencia se perde; pouco registro.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Registro informal (chat/e-mail).",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Registro parcial; sem disciplina de evidencia.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Padrao de registro/preservacao, acesso controlado.",
       "peso": 2,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade.",
       "exemplos": [
         "Template de linha do tempo",
         "Repositorio restrito",
         "Checklist"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Template de linha do tempo.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Template de linha do tempo.",
       "capacidade": [
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q36",
-      "pergunta": "Em incidente relevante, comunica��o com lideranca/negocio e (quando necessario) cliente/publico e:?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Em incidente relevante, comunicação com lideranca/negocio e (quando necessario) cliente/publico e:",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Caotica/tardia; sem mensagens preparadas.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Improviso; varia muito.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Caminho basico, papeis/frases pouco definidos.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Plano com papeis e templates.",
       "peso": 2,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta.",
       "exemplos": [
         "Plano de comunicacao",
         "Templates",
         "Stakeholders"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Plano de comunicacao.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Plano de comunicacao.",
       "capacidade": [
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q37",
-      "pergunta": "Incidentes com dados pessoais: a empresa avalia risco/dano relevante e produz informa��es minimas para comunicacao quando necessario?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Para incidentes com dados pessoais: a empresa avalia risco/dano relevante e produz informações minimas para comunicacao quando necessario?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao sabe avaliar nem reunir info.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Lento e dependente de pessoas.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Checklist basico pouco testado.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Processo estruturado (criterios, checklist, templates) e executa no prazo.",
       "peso": 3,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais e governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais e governança de terceiros e resposta.",
       "exemplos": [
         "Checklist",
         "Template",
         "Registro do incidente"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Checklist.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Checklist.",
       "capacidade": [
         "personal-data-governance",
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q38",
-      "pergunta": "A empresa testa resposta e recuperacao (simulacoes/tabletop/teste tecnico)?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Com que frequencia a empresa testa resposta e recuperacao (simulacoes/tabletop/teste tecnico)?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nunca.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Raramente, sem aprendizado claro.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Ocasional, melhora pouco.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Cadencia definida, plano de melhoria.",
       "peso": 2,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e monitoramento e rastreabilidade.",
       "exemplos": [
         "Agenda",
         "Relatorio",
         "Plano pos-exercicio"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Agenda.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Agenda.",
       "capacidade": [
         "third-party-response",
         "monitoring-traceability"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "backupRecovery",
+        "businessContinuity",
+        "securityGovernance",
+        "privacyGovernance",
+        "soc",
+        "siem"
+      ]
     },
     {
       "id": "Q39",
       "pergunta": "Se o incidente envolver fornecedor (SaaS/infra), qual cenario descreve melhor coordenacao?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Sem contato/SLAs claros.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Contato existe, sem responsabilidade/tempo acordados.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Acordos basicos, pouca visibilidade do que o fornecedor faz.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Requisitos/SLAs + canal de crise + plano conjunto.",
       "peso": 3,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta.",
       "exemplos": [
         "Clausulas de incidente/SLAs",
         "Contatos",
         "Playbook conjunto"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Clausulas de incidente/SLAs.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Clausulas de incidente/SLAs.",
       "capacidade": [
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "businessContinuity"
+      ]
     },
     {
       "id": "Q40",
-      "pergunta": "Um incidente, as acoes atacam mais sintoma ou causa?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Depois de um incidente, as acoes atacam mais sintoma ou causa?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Sintoma e segue igual.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Um pouco de causa, sem acompanhamento.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Causa em alguns casos, sem medir eficacia.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Causa raiz com plano + verificacao de resolucao.",
       "peso": 2,
       "categoria": "RS",
-      "ajuda": "Esta pergunta ajuda a entender como responder aparece na opera��o do dia a dia e d� pistas sobre hardening e atualiza��o e monitoramento e rastreabilidade.",
+      "ajuda": "Esta pergunta ajuda a entender como responder aparece na operação do dia a dia e dá pistas sobre hardening e atualização e monitoramento e rastreabilidade.",
       "exemplos": [
         "RCA",
         "Plano corretivo/preventivo",
         "Verificacao"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: RCA.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: RCA.",
       "capacidade": [
         "hardening-updates",
         "monitoring-traceability",
         "access-protection"
       ],
-      "servicos": []
+      "servicos": [
+        "incidentResponse",
+        "crisisManagement",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "soc",
+        "siem",
+        "iam"
+      ]
     },
     {
       "id": "Q41",
-      "pergunta": "Backups e restauracao de sistemas criticos: qual cenario descreve melhor a realidade?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Sobre backups e restauracao de sistemas criticos: qual cenario descreve melhor a realidade?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Backups existem, nao confiamos; nao testa.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Testa as vezes, sem cobertura/criterio claro.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Testa principais; lacunas de dependencia/configuracao.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Testa em cadencia definida e corrige falhas.",
       "peso": 3,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre monitoramento e rastreabilidade e hardening e atualiza��o.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre monitoramento e rastreabilidade e hardening e atualização.",
       "exemplos": [
         "Relatorios de teste",
         "Correcoes",
         "Protecao de backup"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Relatorios de teste.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Relatorios de teste.",
       "capacidade": [
         "monitoring-traceability",
         "hardening-updates",
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "soc",
+        "siem",
+        "securityAssessment",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "securityGovernance",
+        "privacyGovernance",
+        "incidentResponse",
+        "crisisManagement"
+      ]
     },
     {
       "id": "Q42",
-      "pergunta": "Servicos criticos, a empresa definiu quanto pode ficar fora e quanto pode perder de dados em linguagem simples?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Para servicos criticos, a empresa definiu quanto pode ficar fora e quanto pode perder de dados em linguagem simples?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao definido.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Ideia geral, sem decisao/teste.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Definido para alguns, sem revisao.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Definido e testado para os criticos.",
       "peso": 2,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta e governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta e governança de dados pessoais.",
       "exemplos": [
         "Metas de recuperacao",
         "Evidencia de teste",
         "Decisoes registradas"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Metas de recuperacao.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Metas de recuperacao.",
       "capacidade": [
         "third-party-response",
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance",
+        "privacyGovernance",
+        "incidentResponse",
+        "crisisManagement",
+        "awareness"
+      ]
     },
     {
       "id": "Q43",
-      "pergunta": "Decide ordem de recuperacao e valida retorno seguro?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "pergunta": "Em crise, como decide ordem de recuperacao e valida retorno seguro?",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Improviso por pressao.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Nocao geral, muda na crise.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Plano basico, depende de pessoas, pouco testado.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Plano com prioridades e criterios, testado.",
       "peso": 2,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta.",
       "exemplos": [
         "Plano",
         "Prioridades",
         "Criterios"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Plano.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Plano.",
       "capacidade": [
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "incidentResponse",
+        "crisisManagement"
+      ]
     },
     {
       "id": "Q44",
       "pergunta": "Apos um incidente, como reativa acessos externos e privilegios?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Reativa quando parece estavel, sem checklist.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Valida parcialmente, sem padrao.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Checklist basico, pode reabrir brecha.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Valida causa raiz e aplica checklist robusto antes de reativar, com aprovacao/registro.",
       "peso": 3,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre governan�a de exposi��o externa e prote��o de acesso.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre governança de exposição externa e proteção de acesso.",
       "exemplos": [
         "Checklist de retorno",
         "Evidencia de correcoes antes de reativar",
         "Aprovacoes"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Checklist de retorno.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Checklist de retorno.",
       "capacidade": [
         "external-exposure",
         "access-protection"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "incidentResponse",
+        "crisisManagement",
+        "threatExposure",
+        "securityAssessment",
+        "securityGovernance"
+      ]
     },
     {
       "id": "Q45",
       "pergunta": "Se um titular pedir acesso/correcao/eliminacao de dados pessoais, qual cenario descreve melhor a capacidade de responder ponta a ponta?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao existe processo; dependeria de cacar dados.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Fazemos manualmente, lento e sem rastreio consistente.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Existe fluxo basico, mas sem padronizacao e com risco de prazo/qualidade.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Existe fluxo definido, com papeis (privacidade, TI, negocio), registro e evidencia.",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais.",
       "exemplos": [
         "Canal de atendimento",
         "Workflow",
         "Registro"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Canal de atendimento.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Canal de atendimento.",
       "capacidade": [
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "incidentResponse",
+        "crisisManagement"
+      ]
     },
     {
       "id": "Q46",
       "pergunta": "Em processos que usam analise automatizada/perfilamento (ex.: triagem de candidatos), a empresa consegue explicar criterios, reduzir vieses e oferecer revisao humana quando aplicavel?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao; e caixa-preta do sistema/processo.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Explicamos informalmente, sem documentacao nem revisao.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Documentamos parcialmente, sem governanca continua.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Documentamos, revisamos e temos controles (transparencia, revisao humana, minimizacao do dado).",
       "peso": 2,
       "categoria": "GV",
-      "ajuda": "Esta pergunta ajuda a entender como governar aparece na opera��o do dia a dia e d� pistas sobre governan�a de dados pessoais.",
+      "ajuda": "Esta pergunta ajuda a entender como governar aparece na operação do dia a dia e dá pistas sobre governança de dados pessoais.",
       "exemplos": [
         "Documentacao do processo",
         "Criterios",
         "Registros de revisao"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Documentacao do processo.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Documentacao do processo.",
       "capacidade": [
         "personal-data-governance"
       ],
-      "servicos": []
+      "servicos": [
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q47",
       "pergunta": "Apos restaurar um ambiente/sistema, como voces validam que ele voltou no minimo seguro, nao apenas funcionando?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao validamos; se funciona, vai para o ar.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Validacao informal, depende do time.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Checklist basico (disponibilidade), pouca validacao de seguranca/configuracao.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Checklist robusto (configuracao minima, correcoes criticas, acessos), com registro e responsavel.",
       "peso": 2,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre hardening e atualiza��o.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre hardening e atualização.",
       "exemplos": [
         "Checklist assinado",
         "Evidencia de patch/hardening",
         "Revisao de acessos"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Checklist assinado.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Checklist assinado.",
       "capacidade": [
         "hardening-updates"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "endpointSecurity",
+        "networkSecurity",
+        "cloudSecurity",
+        "applicationSecurity",
+        "iam",
+        "securityAssessment"
+      ]
     },
     {
       "id": "Q48",
       "pergunta": "Se um provedor critico (infra/SaaS) ficar indisponivel ou sofrer incidente, qual cenario descreve melhor sua continuidade?",
-      "subtexto": "Responda com base na pr?tica atual.",
-      "opcao_a_titulo": "Inexistente",
+      "subtexto": "Considere o que acontece na pratica, nao no ideal.",
+      "opcao_a_titulo": "Nao existe ainda",
       "opcao_a_desc": "Nao temos plano B; aguardamos o fornecedor.",
-      "opcao_b_titulo": "Parcial",
+      "opcao_b_titulo": "Esta comecando",
       "opcao_b_desc": "Ha plano informal, pouco realista.",
-      "opcao_c_titulo": "Funciona",
+      "opcao_c_titulo": "Ja funciona",
       "opcao_c_desc": "Existe alternativa parcial (manual ou tecnica), mas sem teste e sem criterios claros.",
-      "opcao_d_titulo": "Estruturado",
+      "opcao_d_titulo": "Esta bem resolvido",
       "opcao_d_desc": "Existe plano de contingencia para servicos criticos, testado e alinhado com SLAs/contratos.",
       "peso": 3,
       "categoria": "RC",
-      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na opera��o do dia a dia e d� pistas sobre governan�a de terceiros e resposta.",
+      "ajuda": "Esta pergunta ajuda a entender como recuperar aparece na operação do dia a dia e dá pistas sobre governança de terceiros e resposta.",
       "exemplos": [
         "Plano de contingencia",
         "Testes",
         "SLAs"
       ],
-      "dica": "Se bater d�vida entre duas respostas, pense na evid�ncia mais simples que voc� conseguiria mostrar hoje: Plano de contingencia.",
+      "dica": "Se bater dúvida entre duas respostas, pense na evidência mais simples que você conseguiria mostrar hoje: Plano de contingencia.",
       "capacidade": [
         "third-party-response"
       ],
-      "servicos": []
+      "servicos": [
+        "backupRecovery",
+        "businessContinuity",
+        "securityGovernance",
+        "privacyGovernance",
+        "awareness",
+        "assetManagement",
+        "threatExposure",
+        "securityAssessment",
+        "incidentResponse",
+        "crisisManagement"
+      ]
     }
   ]
 }
