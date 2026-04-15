@@ -297,6 +297,7 @@
       site: '',
       interest: '',
       observations: '',
+      assessmentMode: 'full',
       consentMarketing: false,
     };
   }
@@ -364,6 +365,7 @@
       ...(state.profile || {}),
       size: mapLegacySizeValue(state.profile?.size || ''),
       segment: mapLegacySegmentValue(state.profile?.segment || ''),
+      assessmentMode: state.profile?.assessmentMode === 'pocket' ? 'pocket' : 'full',
     };
     if (state.profile && Object.values(state.profile).some((value) => String(value || '').trim())) {
       state.leadContext = buildLeadContext(state.profile);
@@ -378,10 +380,11 @@
     if (state.modalServiceKey && !services[state.modalServiceKey]) state.modalServiceKey = '';
     if (state.schedulerServiceKey && !services[state.schedulerServiceKey]) state.schedulerServiceKey = '';
     if (state.currentIndex < 0) state.currentIndex = 0;
-    if (content && state.currentIndex >= content.questions.length) {
-      state.currentIndex = content.questions.length - 1;
+    const activeQuestions = content ? getAssessmentQuestions() : [];
+    if (content && state.currentIndex >= activeQuestions.length) {
+      state.currentIndex = Math.max(activeQuestions.length - 1, 0);
     }
-    if (state.screen === 'results' && content && getAnsweredCount() < content.questions.length) {
+    if (state.screen === 'results' && content && getAnsweredCount() < activeQuestions.length) {
       state.screen = 'questions';
     }
   }
@@ -674,6 +677,7 @@
       state: sanitizeInlineText(profile.state).toUpperCase().slice(0, 2),
       size: mapLegacySizeValue(profile.size),
       segment: mapLegacySegmentValue(profile.segment),
+      assessmentMode: profile.assessmentMode === 'pocket' ? 'pocket' : 'full',
       site: sanitizeInlineText(profile.site),
       interest: sanitizeInlineText(profile.interest),
       observations: sanitizeTextareaText(profile.observations),
@@ -785,16 +789,38 @@
     };
   }
 
+  function getAssessmentQuestions(profile = state.profile) {
+    if (!content?.questions?.length) return [];
+    const mode = profile?.assessmentMode === 'pocket' ? 'pocket' : 'full';
+    if (mode === 'full') return content.questions;
+
+    const bucket = new Map();
+    content.questions.forEach((question) => {
+      const category = question.categoria || '';
+      const items = bucket.get(category) || [];
+      items.push(question);
+      bucket.set(category, items);
+    });
+
+    return Object.keys(STAGE_META).flatMap((category) => (bucket.get(category) || []).slice(0, 2));
+  }
+
+  function getAssessmentQuestionCount(profile = state.profile) {
+    return getAssessmentQuestions(profile).length;
+  }
+
   function getAnsweredCount() {
-    return Object.keys(state.answers).length;
+    const questionIds = new Set(getAssessmentQuestions().map((question) => question.id));
+    return Object.keys(state.answers).filter((id) => questionIds.has(id)).length;
   }
 
   function getProgressPercent() {
-    return (getAnsweredCount() / content.questions.length) * 100;
+    const total = getAssessmentQuestionCount();
+    return total ? (getAnsweredCount() / total) * 100 : 0;
   }
 
   function getCurrentQuestion() {
-    return content.questions[state.currentIndex];
+    return getAssessmentQuestions()[state.currentIndex];
   }
 
   function getCurrentAnswer() {
@@ -1763,13 +1789,7 @@
         color: [0, 87, 231],
         spacingAfter: 4,
       });
-      if (row.reason) {
-        addParagraph(row.reason, {
-          fontSize: 10,
-          lineHeight: 16,
-          spacingAfter: 10,
-        });
-      }
+      cursorY += 6;
     });
 
     addRule();
@@ -2138,10 +2158,11 @@
   }
 
   function renderHeader() {
+    const totalQuestions = getAssessmentQuestionCount();
     const questionIndex = state.screen === 'questions' ? state.currentIndex + 1 : getAnsweredCount();
     const progressLabel =
       state.screen === 'questions'
-        ? `Pergunta ${questionIndex} de ${content.questions.length}`
+        ? `Pergunta ${questionIndex} de ${totalQuestions}`
         : state.screen === 'results'
           ? 'Resultado'
           : 'Entrada';
@@ -2860,9 +2881,9 @@
             <section class="report-preview__section">
               <h3>Plano 30 / 60 / 90 dias</h3>
               <div class="report-preview__grid report-preview__grid--three">
-                <article class="pdsi-card pdsi-card--now"><span class="pdsi-card__label">30 dias</span><p>${plan306090[30].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
-                <article class="pdsi-card pdsi-card--soon"><span class="pdsi-card__label">60 dias</span><p>${plan306090[60].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
-                <article class="pdsi-card pdsi-card--later"><span class="pdsi-card__label">90 dias</span><p>${plan306090[90].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
+                <article class="pdsi-card pdsi-card--now"><span class="pdsi-card__label">30 dias</span><p>${plan306090[30].map((item) => `- ${escapeHtml(item)}`).join('<br/>')}</p></article>
+                <article class="pdsi-card pdsi-card--soon"><span class="pdsi-card__label">60 dias</span><p>${plan306090[60].map((item) => `- ${escapeHtml(item)}`).join('<br/>')}</p></article>
+                <article class="pdsi-card pdsi-card--later"><span class="pdsi-card__label">90 dias</span><p>${plan306090[90].map((item) => `- ${escapeHtml(item)}`).join('<br/>')}</p></article>
               </div>
             </section>
 
@@ -2873,7 +2894,6 @@
                   <span>Pergunta</span>
                   <span>Você</span>
                   <span>Esperado</span>
-                  <span>Leitura</span>
                 </div>
                 ${questionRows
                   .map(
@@ -2882,7 +2902,6 @@
                         <span>${escapeHtml(row.question)}</span>
                         <span>${escapeHtml(row.answer)}</span>
                         <span>${escapeHtml(row.expected)}</span>
-                        <span>${row.reason ? escapeHtml(row.reason) : '—'}</span>
                       </div>
                     `
                   )
@@ -3501,7 +3520,6 @@
                   <span>Pergunta</span>
                   <span>Você</span>
                   <span>Esperado</span>
-                  <span>Leitura</span>
                 </div>
                 ${questionRows
                   .map(
@@ -3510,7 +3528,6 @@
                         <span>${escapeHtml(row.question)}</span>
                         <span>${escapeHtml(row.answer)}</span>
                         <span>${escapeHtml(row.expected)}</span>
-                        <span>${row.reason ? escapeHtml(row.reason) : '—'}</span>
                       </div>
                     `
                   )
@@ -3681,6 +3698,7 @@
     if (name === 'email') return String(value || '').replace(/[<>]/g, '');
     if (name === 'phone') return formatPhoneDisplay(value);
     if (name === 'cep') return formatCep(value);
+    if (name === 'assessmentMode') return value === 'pocket' ? 'pocket' : 'full';
     if (name === 'size' || name === 'segment') return String(value || '');
     if (name === 'state') return String(value || '').replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase();
     return String(value || '').replace(/[<>]/g, '');
@@ -3693,6 +3711,7 @@
       return sanitizeInlineText(value);
     }
     if (name === 'observations') return sanitizeTextareaText(value);
+    if (name === 'assessmentMode') return value === 'pocket' ? 'pocket' : 'full';
     if (name === 'size') return mapLegacySizeValue(value);
     if (name === 'segment') return mapLegacySegmentValue(value);
     if (name === 'phone') return formatPhoneDisplay(value);
@@ -3829,7 +3848,11 @@
     if (field.name === 'cep') {
       scheduleCepLookup(value);
     }
-    if (field.type === 'checkbox') {
+    if (field.name === 'assessmentMode') {
+      const total = getAssessmentQuestionCount(state.profile);
+      state.currentIndex = Math.min(state.currentIndex, Math.max(total - 1, 0));
+      render();
+    } else if (field.type === 'checkbox') {
       render();
     }
   }
@@ -4044,5 +4067,978 @@
       title: 'nivel 4 de maturidade',
       description: 'A operacao mostra disciplina forte, previsibilidade e integracao real com o negocio.',
     };
+  }
+  function getAnsweredCount() {
+    const questionIds = new Set(getAssessmentQuestions().map((question) => question.id));
+    return Object.keys(state.answers).filter((id) => questionIds.has(id)).length;
+  }
+
+  function getProgressPercent() {
+    const total = getAssessmentQuestionCount();
+    return total ? (getAnsweredCount() / total) * 100 : 0;
+  }
+
+  function getCurrentQuestion() {
+    const questions = getAssessmentQuestions();
+    if (!questions.length) return null;
+    const index = Math.min(state.currentIndex, Math.max(questions.length - 1, 0));
+    return questions[index];
+  }
+
+  function renderHeader() {
+    const totalQuestions = getAssessmentQuestionCount();
+    const questionIndex = state.screen === 'questions' ? Math.min(state.currentIndex + 1, totalQuestions) : getAnsweredCount();
+    const progressLabel =
+      state.screen === 'questions'
+        ? `Pergunta ${questionIndex} de ${totalQuestions}`
+        : state.screen === 'results'
+          ? 'Resultado'
+          : 'Entrada';
+    const showProgress = state.screen !== 'results';
+
+    return `
+      <header class="topbar">
+        <div class="topbar__inner">
+          <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada">
+            <span class="brand__name">${escapeHtml(content.meta.name)}</span>
+          </button>
+          ${showProgress ? `<span class="topbar__progress">${escapeHtml(progressLabel)}</span>` : ''}
+        </div>
+      </header>
+    `;
+  }
+
+  function renderProgressCard(answered) {
+    const totalQuestions = getAssessmentQuestionCount();
+    const modeLabel = state.profile.assessmentMode === 'pocket' ? 'Pocket' : 'Full';
+    return `
+      <section class="light-card progress-card">
+        <span class="progress-card__count">${answered} de ${totalQuestions} perguntas</span>
+        <div class="progress-bar" aria-hidden="true">
+          <span style="width:${getProgressPercent()}%"></span>
+        </div>
+        <div class="progress-card__notes">
+          <p>Modo ${modeLabel}: ${totalQuestions} perguntas para entregar uma leitura proporcional ao tempo que voce quer investir agora.</p>
+          <ul>
+            <li>Cobrem estrategia, mapeamento, protecao, monitoramento, acao e recuperacao.</li>
+            <li>Usam o porte e o setor para ajustar o rigor da leitura.</li>
+            <li>Entregam prioridades objetivas para avancar ate o Tier 3.</li>
+          </ul>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderLeadForm() {
+    const errors = validateLeadStep(state.profile, 2);
+    const mode = state.profile.assessmentMode === 'pocket' ? 'pocket' : 'full';
+    return `
+      <section class="light-card lead-card">
+        <div class="lead-card__head">
+          <div>
+            <span class="lead-step__eyebrow">Captura de lead</span>
+            <h2>Comece seu diagnostico executivo</h2>
+          </div>
+          <button class="link-button" data-action="back-to-hero">Voltar</button>
+        </div>
+        <p class="lead-card__text">Pedimos esses dados para calibrar o rigor do diagnostico ao porte e ao setor da sua empresa e para devolver prioridades realmente uteis no final.</p>
+        <div class="lead-card__context">
+          <strong>Por que responder com atencao?</strong>
+          <p>A versao Full investiga a operacao inteira e reduz superficialidade. A Pocket acelera a entrada e entrega uma leitura inicial, mas com menos profundidade.</p>
+        </div>
+        <form class="lead-form" data-form="lead" novalidate>
+          <fieldset class="field field--full assessment-mode" aria-describedby="hint-assessment-mode">
+            <span>Versao da avaliacao</span>
+            <div class="assessment-mode__grid">
+              <label class="mode-card ${mode === 'full' ? 'is-selected' : ''}">
+                <input type="radio" name="assessmentMode" value="full" data-field="assessmentMode" data-profile-input ${mode === 'full' ? 'checked' : ''} />
+                <strong>Full</strong>
+                <small>48 perguntas para uma leitura mais completa e confiavel.</small>
+              </label>
+              <label class="mode-card ${mode === 'pocket' ? 'is-selected' : ''}">
+                <input type="radio" name="assessmentMode" value="pocket" data-field="assessmentMode" data-profile-input ${mode === 'pocket' ? 'checked' : ''} />
+                <strong>Pocket</strong>
+                <small>12 perguntas para uma analise inicial mais rapida.</small>
+              </label>
+            </div>
+            <span class="field__hint" id="hint-assessment-mode">A versao Full ja vem marcada por padrao.</span>
+          </fieldset>
+
+          <label class="field field--full">
+            <span>Nome completo</span>
+            <input type="text" name="name" data-field="name" data-profile-input autocomplete="name" value="${escapeHtml(state.profile.name)}" aria-describedby="error-name" aria-invalid="${errors.name ? 'true' : 'false'}" />
+            ${renderFieldError('name', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>E-mail</span>
+            <input type="email" name="email" data-field="email" data-profile-input autocomplete="email" value="${escapeHtml(state.profile.email)}" aria-describedby="error-email" aria-invalid="${errors.email ? 'true' : 'false'}" />
+            ${renderFieldError('email', errors)}
+            ${renderFieldWarning('email')}
+          </label>
+
+          <label class="field field--full">
+            <span>Telefone</span>
+            <input type="tel" name="phone" data-field="phone" data-profile-input autocomplete="tel" inputmode="tel" value="${escapeHtml(formatPhoneDisplay(state.profile.phone))}" aria-describedby="error-phone" aria-invalid="${errors.phone ? 'true' : 'false'}" />
+            ${renderFieldError('phone', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Empresa</span>
+            <input type="text" name="company" data-field="company" data-profile-input autocomplete="organization" value="${escapeHtml(state.profile.company)}" aria-describedby="error-company" aria-invalid="${errors.company ? 'true' : 'false'}" />
+            ${renderFieldError('company', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Cargo</span>
+            <input type="text" name="role" data-field="role" data-profile-input autocomplete="organization-title" value="${escapeHtml(state.profile.role)}" aria-describedby="error-role" aria-invalid="${errors.role ? 'true' : 'false'}" />
+            ${renderFieldError('role', errors)}
+          </label>
+
+          <label class="field">
+            <span>CEP</span>
+            <input type="text" name="cep" data-field="cep" data-profile-input inputmode="numeric" autocomplete="postal-code" value="${escapeHtml(formatCep(state.profile.cep))}" aria-describedby="error-cep" aria-invalid="${errors.cep ? 'true' : 'false'}" />
+            ${renderFieldError('cep', errors)}
+            ${state.cepLookupPending ? '<span class="field__hint">Buscando cidade e estado...</span>' : ''}
+            ${state.cepLookupFailed ? '<span class="field__hint">CEP nao encontrado. Preencha manualmente</span>' : ''}
+          </label>
+
+          <label class="field">
+            <span>Cidade <small>(opcional)</small></span>
+            <input type="text" name="city" data-field="city" data-profile-input autocomplete="address-level2" value="${escapeHtml(state.profile.city)}" />
+          </label>
+
+          <label class="field">
+            <span>Estado <small>(opcional)</small></span>
+            <input type="text" name="state" data-field="state" data-profile-input autocomplete="address-level1" value="${escapeHtml(state.profile.state)}" />
+          </label>
+
+          <label class="field">
+            <span>Faixa de colaboradores</span>
+            <select name="size" data-field="size" data-profile-input aria-describedby="error-size" aria-invalid="${errors.size ? 'true' : 'false'}">
+              <option value="">Selecione</option>
+              ${SIZE_OPTIONS.map((option) => `<option value="${escapeHtml(option)}" ${state.profile.size === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+            ${renderFieldError('size', errors)}
+          </label>
+
+          <label class="field">
+            <span>Setor</span>
+            <select name="segment" data-field="segment" data-profile-input aria-describedby="error-segment" aria-invalid="${errors.segment ? 'true' : 'false'}">
+              <option value="">Selecione</option>
+              ${SEGMENT_OPTIONS.map((option) => `<option value="${escapeHtml(option)}" ${state.profile.segment === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+            ${renderFieldError('segment', errors)}
+          </label>
+
+          <label class="field field--full">
+            <span>Site <small>(opcional)</small></span>
+            <input type="url" name="site" data-field="site" data-profile-input autocomplete="url" value="${escapeHtml(state.profile.site)}" />
+          </label>
+
+          <label class="checkbox-field field--full">
+            <input type="checkbox" name="consentMarketing" data-field="consentMarketing" data-profile-input ${state.profile.consentMarketing ? 'checked' : ''} />
+            <span>Ao continuar, voce concorda com o uso dos seus dados para contato e comunicacoes da Active Solutions.</span>
+          </label>
+          ${renderFieldError('consentMarketing', errors)}
+
+          <button class="primary-button primary-button--full field--full" type="submit">Continuar para diagnostico</button>
+        </form>
+      </section>
+    `;
+  }
+
+  function renderEntry() {
+    const answered = getAnsweredCount();
+    const hasProgress = answered > 0;
+    const showForm = state.entryMode === 'lead';
+
+    return `
+      <main class="app-shell">
+        <section class="entry">
+          <div class="entry__copy">
+            <h1>Avaliacao de Maturidade de Seguranca da Informacao segundo NIST CSF 2.0</h1>
+            <p>Uma jornada leve e guiada para transformar respostas em direcao pratica de negocio.</p>
+            <ul class="entry__list">
+              <li>A versao Full aprofunda a leitura com 48 perguntas.</li>
+              <li>A versao Pocket acelera a entrada com uma leitura inicial mais rapida.</li>
+              <li>Voce nao precisa ser tecnico para responder bem.</li>
+            </ul>
+            <button class="primary-button" data-action="start-journey">
+              ${hasProgress && isLeadReady() ? 'Continuar avaliacao' : 'Comecar avaliacao'}
+            </button>
+          </div>
+
+          <div class="entry__side">
+            ${showForm ? renderLeadForm() : renderProgressCard(answered)}
+          </div>
+        </section>
+      </main>
+    `;
+  }
+
+  function renderQuestionScreen() {
+    const question = getCurrentQuestion();
+    const totalQuestions = getAssessmentQuestionCount();
+    if (!question) {
+      return `
+        <main class="app-shell app-shell--question">
+          <section class="question-screen">
+            <article class="question-card">
+              <div class="question-card__body">
+                <h1>Nenhuma pergunta disponivel no modo selecionado.</h1>
+              </div>
+            </article>
+          </section>
+        </main>
+      `;
+    }
+    const answer = getCurrentAnswer();
+    const stage = getStageMeta(question.categoria);
+
+    return `
+      <main class="app-shell app-shell--question">
+        <section class="question-screen">
+          <article class="question-card">
+            <div class="question-card__header">
+              <span class="question-card__step">Etapa ${stage.order} — ${escapeHtml(stage.label)}</span>
+            </div>
+
+            <div class="question-card__body">
+              <h1>${escapeHtml(question.pergunta)}</h1>
+              <p class="question-card__guide">${escapeHtml(getRoleAwareHint())}</p>
+            </div>
+
+            <div class="question-card__choices">
+              ${OPTION_ORDER.map((key) => renderOptionCard(question, key, answer)).join('')}
+            </div>
+
+            <div class="question-card__actions">
+              <button class="primary-button primary-button--full-mobile" data-action="next-question" ${answer ? '' : 'disabled'}>
+                ${state.currentIndex === totalQuestions - 1 ? 'Ver resultado' : 'Proxima pergunta'}
+              </button>
+            </div>
+          </article>
+        </section>
+      </main>
+    `;
+  }
+
+  function buildExecutiveReportModel() {
+    const lead = state.leadContext || buildLeadContext(state.profile);
+    const results = computeResults();
+    const domainHighlights = getStrongestAndWeakestDomains(results.domainResults);
+    const plan306090 = buildPlan306090(results);
+    const generatedAt = new Date();
+    const questionRows = getAssessmentQuestions().map((question) => ({
+      question: question.pergunta,
+      domain: getStageMeta(question.categoria).label,
+      answer: getQuestionAnswerLabel(state.answers[question.id]),
+      expected: getQuestionExpectedAnswer(question),
+    }));
+
+    return {
+      lead,
+      results,
+      generatedAt,
+      domainHighlights,
+      plan306090,
+      questionRows,
+      summaryText: `${getRigorNarrative(results, lead)} Os resultados indicam forca em ${domainHighlights.strongest
+        .map((item) => item.stage.label)
+        .join(' e ')} e maior atencao em ${domainHighlights.weakest
+        .map((item) => item.stage.label)
+        .join(' e ')}.`,
+    };
+  }
+
+  function computeResults() {
+    const leadContext = state.leadContext || buildLeadContext(state.profile);
+    const activeQuestions = getAssessmentQuestions();
+    const answeredQuestions = activeQuestions
+      .map((question) => {
+        const option = state.answers[question.id];
+        if (!option) return null;
+        const rawScore = OPTION_SCORES[option];
+        const answerRatio = getAnswerRatio(option);
+        return {
+          question,
+          option,
+          rawScore,
+          answerRatio,
+          gapValue: (1 - answerRatio) * question.peso * (leadContext.rigorNorm || 0.5),
+        };
+      })
+      .filter(Boolean);
+
+    const domainResults = Object.keys(STAGE_META).map((domainKey) =>
+      calculateDomainScore(
+        domainKey,
+        activeQuestions.filter((question) => question.categoria === domainKey),
+        state.answers,
+        leadContext.rigorNorm || 0.5
+      )
+    );
+
+    const totalFinalWeight = domainResults.reduce((sum, item) => sum + item.scoreFinal, 0);
+    const totalExpectedWeight = domainResults.reduce((sum, item) => sum + item.pesoEsperado, 0);
+    const overallWeightedPercent = totalExpectedWeight ? (totalFinalWeight / totalExpectedWeight) * 100 : 0;
+    const overallPercentRaw = overallWeightedPercent;
+
+    const score = Math.max(0, Math.min(4, overallPercentRaw / 25));
+    const percent = Math.round(overallPercentRaw);
+    const observedTier = getObservedTier(score);
+    const observedTierRank = Number(observedTier.rank ?? observedTier.level ?? 0);
+    const expectedTier = leadContext.expectedTier;
+    const gap = Math.max(expectedTier - observedTierRank, 0);
+    const topGaps = answeredQuestions.sort((a, b) => b.gapValue - a.gapValue);
+    const rankedServices = rankServices(domainResults, topGaps);
+    const topServices = rankedServices.slice(0, 3);
+    const recommendedServices = rankedServices.slice(0, 5);
+    const classification =
+      percent >= 80
+        ? 'Maduro'
+        : percent >= 60
+          ? 'Estruturado'
+          : percent >= 40
+            ? 'Funcional'
+            : percent >= 20
+              ? 'Inicial'
+              : 'Exposto';
+
+    const summary =
+      observedTierRank <= 1
+        ? 'Voce ainda depende de improviso em pontos que ja deveriam ter dono e rotina.'
+        : observedTierRank === 2
+          ? 'Voce ja tem base, mas ainda depende de esforco manual em pontos criticos.'
+          : observedTierRank === 3
+            ? 'Voce tem uma base mais consistente, mas ainda pode reduzir atrito e excecao em frentes importantes.'
+            : 'Voce ja mostra uma operacao mais estruturada, mas ainda vale consolidar o que sustenta crescimento com seguranca.';
+    const results = {
+      score,
+      percent,
+      observedTier,
+      expectedTier,
+      gap,
+      topGaps,
+      topServices,
+      recommendedServices,
+      primaryService: topServices[0] || null,
+      secondaryService: topServices[1] || topServices[0] || null,
+      strategicService: topServices[2] || topServices[1] || topServices[0] || null,
+      mainProblem: topGaps[0]?.question.pergunta || 'maturidade geral',
+      mainRiskTheme: getGapTheme(topGaps[0]),
+      domainResults,
+      overallWeightedPercent: Math.round(overallWeightedPercent || 0),
+      rigorValue: leadContext.rigorValue,
+      rigorNorm: leadContext.rigorNorm,
+      classification,
+      summary,
+    };
+    results.pdsiPlan = buildTier3Plan(results);
+    return results;
+  }
+
+  function startJourney() {
+    const totalQuestions = getAssessmentQuestionCount();
+    if (isLeadReady() && getAnsweredCount() >= totalQuestions) {
+      state.screen = 'results';
+      saveState();
+      render();
+      return;
+    }
+    if (isLeadReady() && getAnsweredCount() < totalQuestions) {
+      state.screen = 'questions';
+      state.startedAt = state.startedAt || Date.now();
+      saveState();
+      render();
+      return;
+    }
+    state.entryMode = 'lead';
+    updateLeadComputedState();
+    saveState();
+    render();
+  }
+
+  function nextQuestion() {
+    if (!getCurrentAnswer()) return;
+    const totalQuestions = getAssessmentQuestionCount();
+    if (state.currentIndex >= totalQuestions - 1) {
+      state.screen = 'results';
+      state.completedAt = Date.now();
+      saveState();
+      render();
+      emitEvent('assessment_complete', computeResults());
+      return;
+    }
+    state.currentIndex += 1;
+    state.tooltipOption = '';
+    saveState();
+    render();
+  }
+
+  function repairMojibake(value) {
+    const raw = String(value || '');
+    if (!/[ÃÂâ�]/.test(raw)) return raw;
+    try {
+      return decodeURIComponent(escape(raw));
+    } catch (error) {
+      return raw;
+    }
+  }
+
+  function escapeHtml(value) {
+    return repairMojibake(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function getQuestionExpectedAnswer() {
+    return 'Esta bem resolvido';
+  }
+
+  function getQuestionAnswerLabel(answerKey) {
+    if (!answerKey) return 'Nao respondida';
+    return getHumanOptionLabel(answerKey);
+  }
+
+  function renderQuestionScreen() {
+    const question = getCurrentQuestion();
+    const totalQuestions = getAssessmentQuestionCount();
+    if (!question) {
+      return `
+        <main class="app-shell app-shell--question">
+          <section class="question-screen">
+            <article class="question-card">
+              <div class="question-card__body">
+                <h1>Nenhuma pergunta disponivel no modo selecionado.</h1>
+              </div>
+            </article>
+          </section>
+        </main>
+      `;
+    }
+    const answer = getCurrentAnswer();
+    const stage = getStageMeta(question.categoria);
+
+    return `
+      <main class="app-shell app-shell--question">
+        <section class="question-screen">
+          <article class="question-card">
+            <div class="question-card__header">
+              <span class="question-card__step">Etapa ${stage.order} - ${escapeHtml(stage.label)}</span>
+            </div>
+
+            <div class="question-card__body">
+              <h1>${escapeHtml(question.pergunta)}</h1>
+              <p class="question-card__guide">Considere o que acontece na pratica, nao no ideal.</p>
+            </div>
+
+            <div class="question-card__choices">
+              ${OPTION_ORDER.map((key) => renderOptionCard(question, key, answer)).join('')}
+            </div>
+
+            <div class="question-card__actions">
+              <button class="primary-button primary-button--full-mobile" data-action="next-question" ${answer ? '' : 'disabled'}>
+                ${state.currentIndex === totalQuestions - 1 ? 'Ver resultado' : 'Proxima pergunta'}
+              </button>
+            </div>
+          </article>
+        </section>
+      </main>
+    `;
+  }
+
+  function renderExecutiveReportPreview() {
+    if (!state.reportPreviewOpen) return '';
+    const model = buildExecutiveReportModel();
+    const { lead, results, plan306090, questionRows, generatedAt } = model;
+
+    return `
+      <div class="modal-backdrop" data-action="close-report-preview">
+        <section class="modal-card modal-card--report" role="dialog" aria-modal="true" aria-labelledby="report-preview-title">
+          <div class="modal-card__header">
+            <div>
+              <span class="modal-card__eyebrow">Relatorio executivo</span>
+              <h2 id="report-preview-title">Relatorio de Seguranca da Informacao</h2>
+            </div>
+            <button class="link-button" data-action="close-report-preview">Fechar</button>
+          </div>
+
+          <article class="report-preview">
+            <section class="report-preview__cover">
+              <div class="report-preview__brandline">
+                <img src="${escapeHtml(content.meta.brandAssets.logoColor)}" alt="Active Solutions" class="report-preview__logo" />
+                <div>
+                  <span class="report-preview__brand">Active Solutions</span>
+                  <p>Relatorio executivo gerado pelo N.A.V.E.</p>
+                </div>
+              </div>
+              <h3>Relatorio de Seguranca da Informacao</h3>
+              <p>${escapeHtml(ACTIVE_SOLUTIONS_DESCRIPTION)}</p>
+              <div class="report-preview__meta">
+                <span>${escapeHtml(lead.company || 'Empresa avaliada')}</span>
+                <span>${escapeHtml(lead.segment || 'Setor informado')}</span>
+                <span>${escapeHtml(lead.size || 'Porte informado')}</span>
+                <span>${escapeHtml(new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(generatedAt))}</span>
+              </div>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Sumario executivo</h3>
+              <p>${escapeHtml(model.summaryText)}</p>
+              <ul>
+                <li>${escapeHtml(getRigorNarrative(results, lead))}</li>
+                <li>${escapeHtml(`Top 3 servicos recomendados: ${results.topServices.map((item) => item.name).join(', ')}.`)}</li>
+                <li>${escapeHtml('30 dias: eliminar riscos obvios. 60 dias: estabelecer monitoramento e resposta. 90 dias: consolidar controles e disciplina operacional.')}</li>
+                <li>Este relatorio e gerado automaticamente com base em autodeclaracoes e nao substitui auditoria tecnica.</li>
+              </ul>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Leitura de maturidade</h3>
+              <div class="report-preview__grid">
+                <article class="metric-card">
+                  <span>Score geral</span>
+                  <strong>${results.percent}%</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Nivel atual</span>
+                  <strong>${results.observedTier.level}</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Nivel esperado</span>
+                  <strong>${results.expectedTier}</strong>
+                </article>
+              </div>
+              <p><strong>Hoje, seu maior risco esta em:</strong> ${escapeHtml(results.mainRiskTheme)}</p>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Plano 30 / 60 / 90 dias</h3>
+              <div class="report-preview__grid report-preview__grid--three">
+                <article class="pdsi-card pdsi-card--now"><span class="pdsi-card__label">30 dias</span><p>${plan306090[30].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
+                <article class="pdsi-card pdsi-card--soon"><span class="pdsi-card__label">60 dias</span><p>${plan306090[60].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
+                <article class="pdsi-card pdsi-card--later"><span class="pdsi-card__label">90 dias</span><p>${plan306090[90].map((item) => `• ${escapeHtml(item)}`).join('<br/>')}</p></article>
+              </div>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Perguntas e respostas</h3>
+              <div class="report-table">
+                <div class="report-table__head">
+                  <span>Pergunta</span>
+                  <span>Voce</span>
+                  <span>Esperado</span>
+                </div>
+                ${questionRows
+                  .map(
+                    (row) => `
+                      <div class="report-table__row">
+                        <span>${escapeHtml(row.question)}</span>
+                        <span>${escapeHtml(row.answer)}</span>
+                        <span>${escapeHtml(row.expected)}</span>
+                      </div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            </section>
+
+            <section class="report-preview__footer">
+              <p>Este relatorio foi gerado automaticamente e nao substitui auditoria tecnica. Os dados fornecidos podem ser usados pela Active Solutions para comunicacao e marketing, com possibilidade de revogacao do consentimento a qualquer momento.</p>
+              <p>Data/Hora: ${escapeHtml(new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }).format(generatedAt))} / IP: ${escapeHtml(state.clientIp || 'nao disponivel')}</p>
+            </section>
+          </article>
+
+          <div class="results-actions">
+            <button class="secondary-button" data-action="print-report-preview">Imprimir / salvar em PDF</button>
+            <button class="primary-button" data-action="download-pdf">Baixar PDF</button>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderResultsScreen() {
+    const results = computeResults();
+    const lead = state.leadContext || buildLeadContext(state.profile);
+    const maturityTitle = `Nivel ${results.observedTier.level}`;
+    const intro = lead.firstName ? `${lead.firstName}, ` : '';
+
+    return `
+      <main class="app-shell app-shell--results">
+        <section class="results-screen">
+          <article class="results-hero">
+            <span class="results-hero__eyebrow">Resumo executivo</span>
+            <h1>${escapeHtml(maturityTitle)}</h1>
+            <p>${escapeHtml(results.summary)}</p>
+            <div class="results-hero__meta">
+              <span>Score geral: ${results.percent}%</span>
+              <span>Classificacao: ${escapeHtml(results.classification)}</span>
+              <span>Nivel esperado: ${results.expectedTier}</span>
+              ${state.rdQueue.length ? `<span>Envio pendente: ${state.rdQueue.length}</span>` : ''}
+            </div>
+          </article>
+
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Relatorio de maturidade</span>
+              <h2>O que esse diagnostico mostra agora</h2>
+            </div>
+            <div class="maturity-grid">
+              <article class="metric-card">
+                <span>Nivel atual</span>
+                <strong>${results.observedTier.level}</strong>
+              </article>
+              <article class="metric-card">
+                <span>Nivel esperado</span>
+                <strong>${results.expectedTier}</strong>
+              </article>
+              <article class="metric-card">
+                <span>Gap principal</span>
+                <strong>${results.gap > 0 ? `${results.gap} nivel${results.gap > 1 ? 'is' : ''}` : 'Sem defasagem relevante'}</strong>
+              </article>
+            </div>
+            <article class="risk-highlight">
+              <strong>Hoje, seu maior risco esta em: ${escapeHtml(results.mainRiskTheme)}</strong>
+              <p>${escapeHtml(`${intro}o ponto que mais pede atencao agora aparece em "${results.mainProblem}".`)}</p>
+            </article>
+          </section>
+
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Plano Diretor de Seguranca da Informacao</span>
+              <h2>O que fazer agora, depois e em seguida</h2>
+            </div>
+            <div class="pdsi-grid">
+              ${renderPdsiCard(results.pdsiPlan[0], 'now')}
+              ${renderPdsiCard(results.pdsiPlan[1], 'soon')}
+              ${renderPdsiCard(results.pdsiPlan[2], 'later')}
+            </div>
+          </section>
+
+          <section class="results-block">
+            <div class="results-block__head">
+              <span class="results-hero__eyebrow">Servicos recomendados</span>
+              <h2>O que faz mais sentido contratar primeiro</h2>
+            </div>
+            <div class="services-grid">
+              ${results.recommendedServices.map((service, index) => renderServiceRecommendation(service, index)).join('')}
+            </div>
+          </section>
+
+          <div class="results-actions">
+            <button class="secondary-button" data-action="back-to-questions">Voltar as perguntas</button>
+            <button class="secondary-button" data-action="open-report-preview">Visualizar relatorio executivo</button>
+            <button class="primary-button" data-action="download-pdf">Baixar PDF do relatorio</button>
+          </div>
+        </section>
+      </main>
+    `;
+  }
+
+  function createReportPdfDocument() {
+    const jsPDF = window.jspdf?.jsPDF;
+    if (!jsPDF) {
+      return null;
+    }
+
+    const model = buildExecutiveReportModel();
+    const { lead, results, plan306090, questionRows, domainHighlights, generatedAt } = model;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 48;
+    const contentWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    let y = 56;
+
+    const addParagraph = (text, options = {}) => {
+      const safeText = repairMojibake(text);
+      const fontSize = options.fontSize || 11;
+      const lineHeight = options.lineHeight || 17;
+      const color = options.color || [71, 85, 105];
+      const weight = options.weight || 'normal';
+      const spacingAfter = options.spacingAfter ?? 12;
+      const lines = doc.splitTextToSize(String(safeText || ''), contentWidth);
+
+      if (y + lines.length * lineHeight > pageHeight - 56) {
+        doc.addPage();
+        y = 56;
+      }
+
+      doc.setFont('helvetica', weight);
+      doc.setFontSize(fontSize);
+      doc.setTextColor(...color);
+      doc.text(lines, margin, y);
+      y += lines.length * lineHeight + spacingAfter;
+    };
+
+    const addRule = () => {
+      doc.setDrawColor(203, 213, 225);
+      doc.line(margin, y, margin + contentWidth, y);
+      y += 18;
+    };
+
+    doc.setFillColor(10, 26, 47);
+    doc.roundedRect(margin, 32, contentWidth, 140, 22, 22, 'F');
+    doc.setTextColor(248, 250, 252);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Active Solutions', margin + 20, 58);
+    doc.setFontSize(24);
+    doc.text('Relatorio de Seguranca da Informacao', margin + 20, 92);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(repairMojibake(ACTIVE_SOLUTIONS_DESCRIPTION), margin + 20, 118, { maxWidth: contentWidth - 40 });
+    doc.text(
+      repairMojibake(`${lead.company || 'Empresa avaliada'} - ${lead.segment || 'Setor informado'} - ${lead.size || 'Porte informado'}`),
+      margin + 20,
+      152,
+      { maxWidth: contentWidth - 40 }
+    );
+    y = 204;
+
+    addParagraph('Sumario executivo', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+    addParagraph(getRigorNarrative(results, lead), {
+      fontSize: 11,
+      lineHeight: 18,
+      spacingAfter: 10,
+    });
+    addParagraph(model.summaryText, {
+      fontSize: 11,
+      lineHeight: 18,
+      spacingAfter: 10,
+    });
+    addParagraph(`Score geral: ${results.percent}% | Score ajustado: ${results.overallWeightedPercent}% | Classificacao: ${results.classification}`, {
+      fontSize: 11,
+      weight: 'bold',
+      color: [0, 87, 231],
+      spacingAfter: 8,
+    });
+    addParagraph(`Top 3 servicos recomendados agora: ${results.topServices.map((item) => item.name).join(', ')}.`, {
+      fontSize: 11,
+      lineHeight: 18,
+      spacingAfter: 12,
+    });
+
+    addRule();
+
+    addParagraph('Plano 30 / 60 / 90 dias', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+    [['30', '30 dias'], ['60', '60 dias'], ['90', '90 dias']].forEach(([key, label]) => {
+      addParagraph(label, {
+        fontSize: 12,
+        weight: 'bold',
+        color: [10, 26, 47],
+        spacingAfter: 6,
+      });
+      (plan306090[key] || []).forEach((item) => {
+        addParagraph(`- ${item}`, {
+          fontSize: 11,
+          lineHeight: 17,
+          spacingAfter: 4,
+        });
+      });
+      y += 4;
+    });
+
+    addRule();
+
+    addParagraph('Leitura por dominio', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+    domainHighlights.strongest.forEach((item) => {
+      addParagraph(`Ponto forte: ${item.stage.label} (${Math.round(item.scorePercentual)}%)`, {
+        fontSize: 11,
+        lineHeight: 18,
+        spacingAfter: 4,
+        color: [89, 118, 108],
+      });
+    });
+    domainHighlights.weakest.forEach((item) => {
+      addParagraph(`Ponto fraco: ${item.stage.label} (${Math.round(item.scorePercentual)}%)`, {
+        fontSize: 11,
+        lineHeight: 18,
+        spacingAfter: 6,
+        color: [173, 9, 43],
+      });
+    });
+    addParagraph(`Hoje, seu maior risco esta em: ${results.mainRiskTheme}.`, {
+      fontSize: 11,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 12,
+    });
+
+    addRule();
+
+    addParagraph('Perguntas e respostas', {
+      fontSize: 16,
+      weight: 'bold',
+      color: [10, 26, 47],
+      spacingAfter: 10,
+    });
+    questionRows.forEach((row, index) => {
+      addParagraph(`${index + 1}. ${row.question}`, {
+        fontSize: 11,
+        weight: 'bold',
+        color: [10, 26, 47],
+        spacingAfter: 4,
+      });
+      addParagraph(`Voce: ${row.answer} | Esperado: ${row.expected} | Etapa: ${row.domain}`, {
+        fontSize: 10,
+        weight: 'bold',
+        color: [0, 87, 231],
+        spacingAfter: 10,
+      });
+    });
+
+    addRule();
+
+    addParagraph(
+      'Este relatorio foi gerado automaticamente e nao substitui auditoria tecnica. Os dados fornecidos podem ser usados pela Active Solutions para fins de comunicacao e marketing, conforme a Politica de Privacidade. O titular pode revogar o consentimento a qualquer momento.',
+      {
+        fontSize: 10,
+        lineHeight: 16,
+        spacingAfter: 8,
+      }
+    );
+    addParagraph(
+      `Data/Hora de geracao: ${new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }).format(generatedAt)} / IP: ${state.clientIp || 'nao disponivel'}`,
+      {
+        fontSize: 10,
+        lineHeight: 16,
+        color: [71, 85, 105],
+      }
+    );
+
+    return doc;
+  }
+
+  function renderExecutiveReportPreview() {
+    if (!state.reportPreviewOpen) return '';
+    const model = buildExecutiveReportModel();
+    const { lead, results, plan306090, questionRows, generatedAt } = model;
+    const renderPlan = (items = []) => items.map((item) => `- ${escapeHtml(item)}`).join('<br/>');
+
+    return `
+      <div class="modal-backdrop" data-action="close-report-preview">
+        <section class="modal-card modal-card--report" role="dialog" aria-modal="true" aria-labelledby="report-preview-title">
+          <div class="modal-card__header">
+            <div>
+              <span class="modal-card__eyebrow">Relatorio executivo</span>
+              <h2 id="report-preview-title">Relatorio de Seguranca da Informacao</h2>
+            </div>
+            <button class="link-button" data-action="close-report-preview">Fechar</button>
+          </div>
+
+          <article class="report-preview">
+            <section class="report-preview__cover">
+              <div class="report-preview__brandline">
+                <img src="${escapeHtml(content.meta.brandAssets.logoColor)}" alt="Active Solutions" class="report-preview__logo" />
+                <div>
+                  <span class="report-preview__brand">Active Solutions</span>
+                  <p>Relatorio executivo gerado pelo N.A.V.E.</p>
+                </div>
+              </div>
+              <h3>Relatorio de Seguranca da Informacao</h3>
+              <p>${escapeHtml(ACTIVE_SOLUTIONS_DESCRIPTION)}</p>
+              <div class="report-preview__meta">
+                <span>${escapeHtml(lead.company || 'Empresa avaliada')}</span>
+                <span>${escapeHtml(lead.segment || 'Setor informado')}</span>
+                <span>${escapeHtml(lead.size || 'Porte informado')}</span>
+                <span>${escapeHtml(new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(generatedAt))}</span>
+              </div>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Sumario executivo</h3>
+              <p>${escapeHtml(model.summaryText)}</p>
+              <ul>
+                <li>${escapeHtml(getRigorNarrative(results, lead))}</li>
+                <li>${escapeHtml(`Top 3 servicos recomendados: ${results.topServices.map((item) => item.name).join(', ')}.`)}</li>
+                <li>${escapeHtml('30 dias: eliminar riscos obvios. 60 dias: estabelecer monitoramento e resposta. 90 dias: consolidar controles e disciplina operacional.')}</li>
+                <li>Este relatorio e gerado automaticamente com base em autodeclaracoes e nao substitui auditoria tecnica.</li>
+              </ul>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Leitura de maturidade</h3>
+              <div class="report-preview__grid">
+                <article class="metric-card">
+                  <span>Score geral</span>
+                  <strong>${results.percent}%</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Nivel atual</span>
+                  <strong>${results.observedTier.level}</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Nivel esperado</span>
+                  <strong>${results.expectedTier}</strong>
+                </article>
+              </div>
+              <p><strong>Hoje, seu maior risco esta em:</strong> ${escapeHtml(results.mainRiskTheme)}</p>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Plano 30 / 60 / 90 dias</h3>
+              <div class="report-preview__grid report-preview__grid--three">
+                <article class="pdsi-card pdsi-card--now"><span class="pdsi-card__label">30 dias</span><p>${renderPlan(plan306090[30])}</p></article>
+                <article class="pdsi-card pdsi-card--soon"><span class="pdsi-card__label">60 dias</span><p>${renderPlan(plan306090[60])}</p></article>
+                <article class="pdsi-card pdsi-card--later"><span class="pdsi-card__label">90 dias</span><p>${renderPlan(plan306090[90])}</p></article>
+              </div>
+            </section>
+
+            <section class="report-preview__section">
+              <h3>Perguntas e respostas</h3>
+              <div class="report-table">
+                <div class="report-table__head">
+                  <span>Pergunta</span>
+                  <span>Voce</span>
+                  <span>Esperado</span>
+                </div>
+                ${questionRows
+                  .map(
+                    (row) => `
+                      <div class="report-table__row">
+                        <span>${escapeHtml(row.question)}</span>
+                        <span>${escapeHtml(row.answer)}</span>
+                        <span>${escapeHtml(row.expected)}</span>
+                      </div>
+                    `
+                  )
+                  .join('')}
+              </div>
+            </section>
+
+            <section class="report-preview__footer">
+              <p>Este relatorio foi gerado automaticamente e nao substitui auditoria tecnica. Os dados fornecidos podem ser usados pela Active Solutions para comunicacao e marketing, com possibilidade de revogacao do consentimento a qualquer momento.</p>
+              <p>Data/Hora: ${escapeHtml(new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'medium' }).format(generatedAt))} / IP: ${escapeHtml(state.clientIp || 'nao disponivel')}</p>
+            </section>
+          </article>
+
+          <div class="results-actions">
+            <button class="secondary-button" data-action="print-report-preview">Imprimir / salvar em PDF</button>
+            <button class="primary-button" data-action="download-pdf">Baixar PDF</button>
+          </div>
+        </section>
+      </div>
+    `;
   }
 })();
