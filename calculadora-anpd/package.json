@@ -1,0 +1,9 @@
+{
+  "name": "calculadora-anpd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Calculadora didática de dosimetria ANPD para estimativa técnica de multa administrativa.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
