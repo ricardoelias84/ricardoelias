@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora ANPD | Active Solutions</title>
+    <meta
+      name="description"
+      content="Simule uma estimativa técnica de multa administrativa pela metodologia de dosimetria da Resolução CD/ANPD nº 4/2023."
+    />
+    <meta name="theme-color" content="#0A1A2F" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      window.CALCULADORA_ANPD_CONFIG = window.CALCULADORA_ANPD_CONFIG || {
+        specialistWhatsApp: '5511991559361',
+        rdAdapterUrl: '',
+        rdStationToken: '',
+        rdStationEndpoint: 'https://api.rd.services/platform/contacts',
+        rdFieldsEndpoint: 'https://api.rd.services/platform/contacts/fields',
+        rdEnsureCustomFields: false,
+        sendExactRevenueToRd: false,
+        productEventHook: '',
+        appVersion: '1.0.0',
+      };
+    </script>
+    <script src="./src/lib/dosimetry.js" defer></script>
+    <script src="./src/app.js" defer></script>
+  </head>
+  <body>
+    <div id="calculator-root"></div>
+    <script
+      type="text/javascript"
+      async
+      src="https://d335luupugsy2.cloudfront.net/js/loader-scripts/82ca99f2-7497-4895-bf31-a34c50722113-loader.js"
+    ></script>
+  </body>
+</html>
