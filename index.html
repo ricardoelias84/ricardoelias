@@ -4,17 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Active Solutions | Ferramentas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        --navy: #002449;
-        --soft: #617188;
-        --paper: #f7f9fc;
+        --navy: #001e3d;
+        --soft: #65758b;
+        --paper: #fcfcfd;
         --white: #ffffff;
-        --line: #e3ebf3;
-        --line-strong: #b8c6d6;
-        --red: #b00f1a;
+        --line: #e1e7ef;
+        --line-strong: #aebdcc;
+        --red: #9f1d22;
         --green: #59766c;
-        --shadow: 0 22px 54px rgba(0, 36, 73, 0.08);
+        --shadow: 0 14px 30px rgba(0, 30, 61, 0.05);
       }
 
       * {
@@ -24,7 +30,7 @@
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: "Sora", Inter, sans-serif;
+        font-family: "Inter", sans-serif;
         color: var(--navy);
         background: var(--paper);
       }
@@ -41,9 +47,15 @@
         margin: 0;
       }
 
+      h1,
+      h2,
+      h3 {
+        font-family: "Instrument Sans", sans-serif;
+      }
+
       .topbar {
         border-bottom: 1px solid var(--line);
-        background: rgba(247, 249, 252, 0.94);
+        background: rgba(252, 252, 253, 0.94);
         backdrop-filter: blur(18px);
       }
 
@@ -147,7 +159,7 @@
         align-items: center;
         padding: clamp(1.2rem, 2vw, 1.65rem);
         border: 1px solid var(--line);
-        border-radius: 24px;
+        border-radius: 12px;
         background: var(--white);
         box-shadow: var(--shadow);
       }
@@ -229,7 +241,7 @@
         border-radius: 999px;
         color: var(--navy);
         background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 16px 34px rgba(0, 36, 73, 0.12);
+        box-shadow: 0 14px 30px rgba(0, 30, 61, 0.08);
         font-weight: 800;
       }
 

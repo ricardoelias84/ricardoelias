@@ -1,21 +1,23 @@
 :root {
-  --navy: #002449;
+  --font-body: "Inter", sans-serif;
+  --font-display: "Instrument Sans", sans-serif;
+  --navy: #001e3d;
   --navy-soft: #24415f;
-  --red: #b00f1a;
+  --red: #9f1d22;
   --blue: #0057e7;
   --green: #59766c;
-  --paper: #f7f9fc;
+  --paper: #fcfcfd;
   --white: #ffffff;
-  --line: #e3ebf3;
-  --line-strong: #b8c6d6;
-  --muted: #64748b;
-  --muted-strong: #52657d;
-  --danger: #ad092b;
+  --line: #e1e7ef;
+  --line-strong: #aebdcc;
+  --muted: #65758b;
+  --muted-strong: #65758b;
+  --danger: #c61022;
   --warning-bg: #fff7e8;
   --warning-text: #7a4a00;
-  --shadow-soft: 0 22px 54px rgba(0, 36, 73, 0.08);
-  --radius-lg: 24px;
-  --radius-md: 16px;
+  --shadow-soft: 0 14px 30px rgba(0, 30, 61, 0.05);
+  --radius-lg: 12px;
+  --radius-md: 12px;
   --radius-sm: 12px;
   --radius-pill: 999px;
   --container: 1088px;
@@ -34,7 +36,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: "Sora", Inter, sans-serif;
+  font-family: var(--font-body);
   color: var(--navy);
   overflow-x: hidden;
   background: var(--paper);
@@ -84,6 +86,12 @@ a {
 
 h1,
 h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+h1,
+h2,
 h3,
 p {
   margin: 0;
@@ -102,7 +110,7 @@ ul {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(247, 249, 252, 0.92);
+  background: rgba(252, 252, 253, 0.94);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(18px);
 }
@@ -126,7 +134,7 @@ ul {
 }
 
 .brand img {
-  width: 76px;
+  width: 78px;
   height: auto;
   object-fit: contain;
 }
@@ -191,9 +199,9 @@ ul {
 .page-intro h1 {
   max-width: 920px;
   color: var(--navy);
-  font-size: clamp(2.6rem, 1.45rem + 4.1vw, 5rem);
+  font-size: clamp(2.75rem, 1.48rem + 4.2vw, 5.1rem);
   line-height: 0.98;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.055em;
 }
 
 .page-intro p {
@@ -299,7 +307,7 @@ ul {
   color: var(--navy);
   font-size: clamp(1.85rem, 1.35rem + 1.5vw, 3rem);
   line-height: 1.03;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
 }
 
 .calculator-card__header p,
@@ -435,7 +443,7 @@ details p {
 .option-card.is-selected {
   background: var(--white);
   border-color: var(--navy);
-  box-shadow: 0 14px 30px rgba(0, 36, 73, 0.08);
+  box-shadow: 0 12px 24px rgba(0, 30, 61, 0.06);
 }
 
 .counter-grid,
