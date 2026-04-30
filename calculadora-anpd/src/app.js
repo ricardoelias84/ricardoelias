@@ -16,29 +16,29 @@
     ...(window.CALCULADORA_ANPD_CONFIG || {}),
   };
 
-  const STORAGE_KEY = 'calculadora-anpd-v1';
+  const STORAGE_KEY = 'calculadora-anpd-v2';
   const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
   const WHATSAPP_MESSAGE =
-    'Olá! Estou usando a calculadora de dosimetria da ANPD e gostaria de ajuda para entender melhor o resultado.';
+    'Olá! Estou usando a calculadora da ANPD e gostaria de ajuda para entender melhor o resultado.';
   const WHATSAPP_URL = `https://wa.me/${config.specialistWhatsApp}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
   const RD_CONTACTS_ENDPOINT = 'https://api.rd.services/platform/contacts';
   const RD_FIELDS_ENDPOINT = 'https://api.rd.services/platform/contacts/fields';
 
   const STEPS = [
-    { id: 'privacy', label: 'Aviso' },
-    { id: 'organization', label: 'Organização' },
-    { id: 'classification', label: 'Cenário' },
-    { id: 'damage', label: 'Dano' },
-    { id: 'aggravating', label: 'Agravantes' },
-    { id: 'mitigating', label: 'Atenuantes' },
+    { id: 'privacy', label: 'Antes' },
+    { id: 'organization', label: 'Perfil' },
+    { id: 'classification', label: 'Situação' },
+    { id: 'damage', label: 'Impacto' },
+    { id: 'aggravating', label: 'Aumenta' },
+    { id: 'mitigating', label: 'Reduz' },
     { id: 'lead', label: 'Contato' },
     { id: 'result', label: 'Resultado' },
   ];
 
   const ENTITY_LABELS = {
-    legal_with_revenue: 'Pessoa jurídica com faturamento',
-    natural_person: 'Pessoa natural',
-    legal_without_revenue: 'Pessoa jurídica sem faturamento',
+    legal_with_revenue: 'Empresa com faturamento',
+    natural_person: 'Pessoa física',
+    legal_without_revenue: 'Empresa sem faturamento',
   };
 
   const CLASSIFICATION_LABELS = {
@@ -313,21 +313,21 @@
     const sim = state.simulation;
 
     if (stepId === 'organization') {
-      if (!sim.assessedEntityType) errors.assessedEntityType = 'Selecione o tipo de organização avaliada.';
+      if (!sim.assessedEntityType) errors.assessedEntityType = 'Escolha quem está no cenário.';
       if (sim.assessedEntityType === 'legal_with_revenue') {
         if (toNumber(sim.revenue) <= 0) errors.revenue = 'Informe um faturamento aproximado maior que zero.';
         if (toNumber(sim.taxes) < 0) errors.taxes = 'Informe zero ou um valor positivo.';
-        if (toNumber(sim.taxes) > toNumber(sim.revenue)) errors.taxes = 'Os tributos não devem superar o faturamento informado.';
+        if (toNumber(sim.taxes) > toNumber(sim.revenue)) errors.taxes = 'Esse valor não deve ser maior que o faturamento.';
       }
       if (toNumber(sim.economicAdvantage) < 0) errors.economicAdvantage = 'Informe zero ou um valor positivo.';
     }
 
     if (stepId === 'classification' && !sim.scenarioClassification) {
-      errors.scenarioClassification = 'Selecione a classificação do cenário.';
+      errors.scenarioClassification = 'Escolha a gravidade mais próxima.';
     }
 
     if (stepId === 'damage' && !['0', '1', '2', '3', 0, 1, 2, 3].includes(sim.damageDegree)) {
-      errors.damageDegree = 'Selecione o grau do dano.';
+      errors.damageDegree = 'Escolha o nível de impacto.';
     }
 
     if (stepId === 'lead') {
@@ -650,13 +650,13 @@
       <header class="topbar">
         <div class="topbar__inner">
           <a class="brand" href="../" aria-label="Voltar para a central Active Solutions">
-            <img src="../nave/MVP1/assets/logo-active-negative.jpg" alt="" />
+            <img src="../nave/MVP1/assets/logo-active-color.jpg" alt="Active Solutions" />
             <span>
               <strong>Active Solutions</strong>
-              <small>Calculadora de dosimetria ANPD</small>
+              <small>Calculadora ANPD</small>
             </span>
           </a>
-          <a class="topbar__link" href="../">Voltar para a central</a>
+          <a class="topbar__link" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Conversar</a>
         </div>
       </header>
     `;
@@ -666,17 +666,17 @@
     return `
       <section class="page-intro">
         <div class="page-intro__copy">
-          <span class="eyebrow">Calculadora ANPD</span>
-          <h1>Estimativa técnica de multa administrativa.</h1>
+          <span class="eyebrow">Active Solutions</span>
+          <h1>Quanto uma multa da ANPD poderia custar?</h1>
           <p>
-            Simule um cenário com a metodologia de dosimetria da Resolução CD/ANPD nº 4/2023.
-            O cálculo é local, didático e baseado apenas nos dados informados por você.
+            Responda algumas perguntas simples e veja uma faixa estimada, com o caminho do cálculo
+            explicado em linguagem direta.
           </p>
         </div>
         <aside class="intro-note">
           <p>
-            Use dados aproximados ou simulados. Não insira informações pessoais de titulares nem
-            detalhes confidenciais de incidentes reais.
+            Use valores aproximados. Não coloque nomes de pessoas, documentos, dados sensíveis ou
+            detalhes confidenciais de um caso real.
           </p>
         </aside>
       </section>
@@ -733,21 +733,22 @@
         </div>
         <div class="privacy-copy">
           <p>
-            Esta calculadora realiza uma simulação estimativa de multa com base nos dados informados por você.
-            Para melhorar nosso atendimento e entender o interesse neste conteúdo, poderemos registrar seus
-            dados de contato, a origem da visita e um resumo do resultado da simulação no RD Station Marketing
-            da Active Solutions.
+            Esta ferramenta dá uma noção de valor com base no que você informar. Ela não acusa ninguém,
+            não decide nada e não substitui uma análise feita com calma.
           </p>
           <p>
-            Não informe dados pessoais sensíveis, dados reais de titulares, documentos pessoais ou detalhes
-            confidenciais de incidentes. Use valores aproximados ou cenários simulados sempre que possível.
+            Para entender o interesse neste conteúdo e ajudar caso você queira conversar, podemos registrar
+            seu contato, a origem da visita e um resumo do resultado no RD Station Marketing da Active Solutions.
           </p>
-          <p>Este resultado não substitui análise jurídica, parecer técnico ou decisão da ANPD.</p>
+          <p>
+            Não informe dados pessoais, dados sensíveis, documentos ou detalhes confidenciais. Trabalhe com
+            números aproximados ou com um cenário hipotético.
+          </p>
         </div>
         <div class="actions">
           <span></span>
           <div class="actions__right">
-            <a class="secondary-button" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Falar com um especialista</a>
+            <a class="secondary-button" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Conversar</a>
             <button class="primary-button" type="button" data-action="accept-privacy">Entendi e quero continuar</button>
           </div>
         </div>
@@ -761,30 +762,30 @@
     return `
       <section class="calculator-card" aria-labelledby="organization-title">
         ${renderCardHeader(
-          'Dados mínimos da organização avaliada',
-          'Informe os dados da organização avaliada',
-          'Esses campos existem apenas para calcular a estimativa e reduzir exposição desnecessária de dados.'
+          'Perfil do cenário',
+          'Comece pelo básico',
+          'Só pedimos o que muda o cálculo. Quanto menos detalhe sensível, melhor.'
         )}
         <div class="form-grid">
           <div class="field field--full ${state.errors.assessedEntityType ? 'has-error' : ''}">
-            <span class="field__label">Tipo de organização avaliada</span>
+            <span class="field__label">Quem está no cenário?</span>
             <div class="option-grid">
-              ${renderEntityOption('legal_with_revenue', 'Pessoa jurídica com faturamento', 'Usa faturamento bruto, tributos e alíquota-base.')}
-              ${renderEntityOption('natural_person', 'Pessoa natural', 'Usa a tabela de valores absolutos por classificação e dano.')}
-              ${renderEntityOption('legal_without_revenue', 'Pessoa jurídica sem faturamento', 'Usa a tabela de valores absolutos por classificação e dano.')}
+              ${renderEntityOption('legal_with_revenue', 'Empresa com faturamento', 'Quando existe receita anual para usar como referência.')}
+              ${renderEntityOption('natural_person', 'Pessoa física', 'Quando a simulação não envolve uma empresa.')}
+              ${renderEntityOption('legal_without_revenue', 'Empresa sem faturamento', 'Quando não há receita anual aplicável ao cálculo.')}
             </div>
             <span class="field__error">${escapeHtml(state.errors.assessedEntityType || '')}</span>
           </div>
 
-          ${isRevenueType ? renderCurrencyField('revenue', 'Faturamento bruto no último exercício', 'Informe valor aproximado. O valor exato fica no navegador e o RD recebe apenas a faixa de faturamento.') : ''}
-          ${isRevenueType ? renderCurrencyField('taxes', 'Tributos incidentes', 'Informe os tributos aproximados que devem ser excluídos da base de cálculo.') : ''}
-          ${renderCurrencyField('economicAdvantage', 'Vantagem econômica auferida ou pretendida, se estimável', 'Campo opcional. Use zero se não for possível estimar com segurança.')}
+          ${isRevenueType ? renderCurrencyField('revenue', 'Faturamento anual aproximado', 'Use uma aproximação. O envio ao RD usa apenas a faixa de faturamento.') : ''}
+          ${isRevenueType ? renderCurrencyField('taxes', 'Impostos/tributos a descontar', 'Se não souber, use uma estimativa conservadora ou informe zero.') : ''}
+          ${renderCurrencyField('economicAdvantage', 'Houve ganho financeiro estimável?', 'Opcional. Se não houver uma estimativa segura, deixe zero.')}
         </div>
         <details>
           <summary>Por que perguntamos isso?</summary>
           <p>
-            A metodologia usa caminhos diferentes para pessoa jurídica com faturamento e para cenários sem faturamento.
-            A vantagem econômica, quando estimável, pode elevar o limite mínimo da multa simulada.
+            O cálculo muda quando existe faturamento. Um possível ganho financeiro também pode elevar o
+            valor mínimo considerado na simulação.
           </p>
         </details>
         ${renderActions()}
@@ -796,7 +797,7 @@
     const selected = state.simulation.assessedEntityType === value;
     return `
       <button class="option-card ${selected ? 'is-selected' : ''}" type="button" data-action="select-entity" data-value="${value}">
-        <span>${selected ? 'Selecionado' : 'Opção'}</span>
+        <span>${selected ? 'Escolhido' : 'Opção'}</span>
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(description)}</p>
       </button>
@@ -831,18 +832,18 @@
     return `
       <section class="calculator-card" aria-labelledby="classification-title">
         ${renderCardHeader(
-          'Classifique o cenário',
-          'Classifique o cenário',
-          'Escolha a opção que melhor representa a situação analisada, usando linguagem simples e conservadora.'
+          'Situação analisada',
+          'Qual parece ser a gravidade?',
+          'Escolha a alternativa mais próxima. A ideia é orientar, não rotular.'
         )}
         <div class="field ${state.errors.scenarioClassification ? 'has-error' : ''}">
           <div class="option-grid">
-            ${renderClassificationOption('leve', 'Leve', 'Quando não houver enquadramento como média ou grave.')}
-            ${renderClassificationOption('media', 'Média', 'Quando puder afetar significativamente interesses e direitos fundamentais dos titulares.')}
+            ${renderClassificationOption('leve', 'Leve', 'Quando o cenário parece ter pouco impacto e não entra nas opções abaixo.')}
+            ${renderClassificationOption('media', 'Média', 'Quando pode afetar pessoas de forma relevante.')}
             ${renderClassificationOption(
               'grave',
               'Grave',
-              'Quando houver hipótese média com fator adicional, como larga escala, vantagem econômica, risco à vida, dados sensíveis, ausência de hipótese legal, efeitos discriminatórios, práticas irregulares sistemáticas ou obstrução à fiscalização.'
+              'Quando há fatores como muitos titulares, dados sensíveis, crianças, risco à vida, ganho econômico, discriminação ou dificuldade para fiscalização.'
             )}
           </div>
           <span class="field__error">${escapeHtml(state.errors.scenarioClassification || '')}</span>
@@ -850,7 +851,7 @@
         <details>
           <summary>Por que perguntamos isso?</summary>
           <p>
-            A classificação define a faixa de alíquota ou de valores absolutos usada no cálculo do valor-base.
+            Essa escolha define a faixa inicial usada pela calculadora antes dos demais ajustes.
           </p>
         </details>
         ${renderActions()}
@@ -862,7 +863,7 @@
     const selected = state.simulation.scenarioClassification === value;
     return `
       <button class="option-card ${selected ? 'is-selected' : ''}" type="button" data-action="select-classification" data-value="${value}">
-        <span>${selected ? 'Selecionado' : 'Cenário'}</span>
+        <span>${selected ? 'Escolhido' : 'Situação'}</span>
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(description)}</p>
       </button>
@@ -871,18 +872,18 @@
 
   function renderDamageStep() {
     const descriptions = {
-      0: 'Sem dano ou dano insignificante.',
-      1: 'Dano limitado, reversível ou de baixa repercussão.',
-      2: 'Dano relevante, material ou moral, sem se enquadrar nos graus 0, 1 ou 3.',
-      3: 'Dano grave, difícil reversão, discriminação, fraude, impacto à imagem, reputação, integridade ou obstrução relevante à atuação da ANPD.',
+      0: 'Sem impacto percebido ou impacto muito pequeno.',
+      1: 'Impacto limitado, reversível ou com baixa repercussão.',
+      2: 'Impacto relevante, mas sem sinais de gravidade máxima.',
+      3: 'Impacto alto, difícil de reverter, com fraude, discriminação, dano de imagem ou bloqueio relevante à apuração.',
     };
 
     return `
       <section class="calculator-card" aria-labelledby="damage-title">
         ${renderCardHeader(
-          'Simule o grau de dano',
-          'Simule o grau de dano',
-          'O grau do dano varia de 0 a 3 e movimenta a alíquota ou o valor-base dentro da faixa da classificação.'
+          'Impacto',
+          'Qual foi o tamanho do impacto?',
+          'Pense no efeito prático para as pessoas e para a organização.'
         )}
         <div class="field ${state.errors.damageDegree ? 'has-error' : ''}">
           <div class="option-grid option-grid--four">
@@ -895,7 +896,7 @@
         <details>
           <summary>Por que perguntamos isso?</summary>
           <p>
-            O grau do dano é aplicado diretamente nas fórmulas da Resolução para chegar ao valor-base.
+            O nível de impacto move o valor para baixo ou para cima dentro da faixa escolhida.
           </p>
         </details>
         ${renderActions()}
@@ -919,24 +920,24 @@
     return `
       <section class="calculator-card" aria-labelledby="aggravating-title">
         ${renderCardHeader(
-          'Agravantes',
-          'Informe agravantes, se existirem',
-          'Use quantidade zero quando o fator não se aplicar. Os limites por fator são aplicados automaticamente.'
+          'O que pode aumentar',
+          'Existe algo que pesa contra o cenário?',
+          'Se não se aplicar, mantenha zero. A calculadora respeita os limites automaticamente.'
         )}
         <div class="counter-grid">
-          ${renderCounter('aggravatingFactors.specificRecidivism', 'Reincidência específica', '+10% por caso, limite de 40%')}
-          ${renderCounter('aggravatingFactors.genericRecidivism', 'Reincidência genérica', '+5% por caso, limite de 20%')}
-          ${renderCounter('aggravatingFactors.orientationOrPreventiveMeasure', 'Medida de orientação ou preventiva descumprida', '+20% por medida, limite de 80%')}
-          ${renderCounter('aggravatingFactors.correctiveMeasure', 'Medida corretiva descumprida', '+30% por medida, limite de 90%')}
+          ${renderCounter('aggravatingFactors.specificRecidivism', 'Situação parecida repetida', '+10% por ocorrência, até 40%')}
+          ${renderCounter('aggravatingFactors.genericRecidivism', 'Outras repetições relevantes', '+5% por ocorrência, até 20%')}
+          ${renderCounter('aggravatingFactors.orientationOrPreventiveMeasure', 'Orientação ou prevenção não cumprida', '+20% por medida, até 80%')}
+          ${renderCounter('aggravatingFactors.correctiveMeasure', 'Correção determinada e não cumprida', '+30% por medida, até 90%')}
         </div>
         <div class="live-total">
-          <span>Total de agravantes</span>
+          <span>Aumento considerado</span>
           <strong>${formatPercent(total)}</strong>
         </div>
         <details>
           <summary>Por que perguntamos isso?</summary>
           <p>
-            A soma dos agravantes entra na fórmula como decimal. Por exemplo, 30% é usado como 0,30.
+            Alguns fatores podem aumentar o valor. Aqui você só informa a quantidade, e a calculadora aplica o limite.
           </p>
         </details>
         ${renderActions()}
@@ -966,42 +967,42 @@
     return `
       <section class="calculator-card" aria-labelledby="mitigating-title">
         ${renderCardHeader(
-          'Atenuantes',
-          'Selecione atenuantes, se existirem',
-          'Marque apenas fatores que façam sentido no cenário analisado. A soma entra no cálculo como percentual de redução.'
+          'O que pode reduzir',
+          'O que já foi feito para melhorar o cenário?',
+          'Marque apenas o que fizer sentido. Esses pontos reduzem o valor estimado.'
         )}
         <div class="checkbox-grid">
           <article class="checkbox-card">
-            <strong>Cessação da situação analisada</strong>
+            <strong>A situação já foi interrompida?</strong>
             <div class="radio-stack">
               ${renderRadio('mitigatingFactors.cessationMoment', 'none', 'Não considerar')}
-              ${renderRadio('mitigatingFactors.cessationMoment', 'before_preparatory', '75% se antes de procedimento preparatório pela ANPD')}
-              ${renderRadio('mitigatingFactors.cessationMoment', 'after_preparatory_before_sanctioning', '50% se após procedimento preparatório e até processo administrativo sancionador')}
-              ${renderRadio('mitigatingFactors.cessationMoment', 'after_sanctioning_before_first_decision', '30% se após processo administrativo sancionador e até decisão de primeira instância')}
+              ${renderRadio('mitigatingFactors.cessationMoment', 'before_preparatory', '75% se foi resolvida antes de uma apuração inicial')}
+              ${renderRadio('mitigatingFactors.cessationMoment', 'after_preparatory_before_sanctioning', '50% se foi resolvida durante uma apuração inicial')}
+              ${renderRadio('mitigatingFactors.cessationMoment', 'after_sanctioning_before_first_decision', '30% se foi resolvida antes da primeira decisão')}
             </div>
           </article>
           <article class="checkbox-card">
-            <strong>Governança e mitigação</strong>
+            <strong>Boas práticas e colaboração</strong>
             <div class="radio-stack">
-              ${renderCheckbox('mitigatingFactors.governanceProgram', '20% por política de boas práticas/governança ou mecanismos internos capazes de minimizar danos')}
-              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'none', 'Não considerar medidas de reversão ou mitigação')}
-              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'before_preparatory_or_sanctioning', '20% por medidas antes de procedimento preparatório ou processo administrativo sancionador')}
-              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'after_preparatory_before_sanctioning', '10% por medidas após procedimento preparatório e até processo administrativo sancionador')}
-              ${renderCheckbox('mitigatingFactors.cooperationOrGoodFaith', '5% por cooperação ou boa-fé')}
+              ${renderCheckbox('mitigatingFactors.governanceProgram', '20% se já existiam boas práticas capazes de reduzir danos')}
+              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'none', 'Não considerar medidas para reduzir efeitos')}
+              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'before_preparatory_or_sanctioning', '20% se as medidas vieram cedo')}
+              ${renderRadio('mitigatingFactors.mitigationMeasuresMoment', 'after_preparatory_before_sanctioning', '10% se as medidas vieram depois da apuração inicial')}
+              ${renderCheckbox('mitigatingFactors.cooperationOrGoodFaith', '5% por colaboração e boa-fé')}
             </div>
           </article>
         </div>
         <div class="live-total">
-          <span>Total de atenuantes</span>
+          <span>Redução considerada</span>
           <strong>${formatPercent(total)}</strong>
         </div>
         <details>
           <summary>Por que perguntamos isso?</summary>
           <p>
-            A soma das atenuantes reduz o valor-base ajustado. Se as reduções superarem o fator final, a calculadora zera o valor antes dos limites.
+            Ações de correção, prevenção e colaboração podem reduzir a estimativa. Se a redução ficar maior que o valor ajustado, a calculadora zera essa etapa antes dos limites.
           </p>
         </details>
-        ${renderActions('Calcular simulação')}
+        ${renderActions('Ver resultado')}
       </section>
     `;
   }
@@ -1030,7 +1031,7 @@
     if (!result) {
       return `
         <section class="calculator-card">
-          ${renderCardHeader('Quase lá', 'Revise os dados da simulação', 'Ainda faltam dados para calcular o cenário.')}
+          ${renderCardHeader('Quase lá', 'Revise as respostas', 'Ainda faltam dados para mostrar a estimativa.')}
           ${renderActions()}
         </section>
       `;
@@ -1039,9 +1040,9 @@
     return `
       <section class="calculator-card" aria-labelledby="lead-title">
         ${renderCardHeader(
-          'Dados de contato',
-          'Sua simulação está pronta',
-          'Preencha seus dados para visualizar a memória de cálculo completa e, se quiser, conversar com um especialista.'
+          'Contato',
+          'Seu resultado está pronto',
+          'Preencha seus dados para ver o detalhamento completo e, se quiser, conversar com um especialista.'
         )}
         <div class="lead-gate">
           ${renderCalculationSummary(result, false)}
@@ -1054,11 +1055,11 @@
             ${renderHiddenOriginFields()}
             <div class="field field--full">
               <span class="field__hint">
-                Use dados aproximados ou simulados. Não insira informações pessoais de titulares nem detalhes confidenciais de incidentes reais.
+                Não coloque dados de titulares, documentos ou detalhes confidenciais. Aqui pedimos só o básico para contato.
               </span>
             </div>
             <div class="field field--full">
-              <button class="primary-button" type="submit">Visualizar memória de cálculo</button>
+              <button class="primary-button" type="submit">Ver detalhamento</button>
             </div>
           </form>
         </div>
@@ -1106,16 +1107,16 @@
         ${renderWarnings(result)}
         ${renderFormulaBreakdown(result)}
         <article class="disclaimer-card">
-          <h3>Aviso de limitação</h3>
+          <h3>Importante</h3>
           <p>
-            Este resultado é uma estimativa técnica baseada nos dados informados. A aplicação concreta de sanções depende de processo administrativo,
-            contraditório, ampla defesa e decisão fundamentada da ANPD.
+            Este número é uma estimativa baseada nas suas respostas. Na vida real, qualquer decisão depende de análise do caso,
+            manifestação das partes e avaliação da ANPD.
           </p>
         </article>
         <div class="actions">
-          <button class="secondary-button secondary-button--dark" type="button" data-action="restart">Nova simulação</button>
+          <button class="secondary-button secondary-button--dark" type="button" data-action="restart">Fazer nova simulação</button>
           <div class="actions__right">
-            <a class="secondary-button secondary-button--dark" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Falar com especialista</a>
+            <a class="secondary-button secondary-button--dark" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Conversar</a>
           </div>
         </div>
       </section>
@@ -1126,17 +1127,17 @@
     return `
       <article class="summary-card" aria-labelledby="result-title">
         <div>
-          <span class="summary-card__label">Resultado estimado da multa</span>
+          <span class="summary-card__label">Estimativa</span>
           <h2 id="result-title" class="summary-card__value">${formatCurrency(result.estimatedFine)}</h2>
         </div>
-        <p>Esta simulação considera os dados informados por você.</p>
+        <p>Este é o valor aproximado a partir das respostas informadas.</p>
         <div class="summary-grid">
           <article class="metric-card">
-            <span>Valor-base</span>
+            <span>Ponto de partida</span>
             <strong>${formatCurrency(result.baseValue)}</strong>
           </article>
           <article class="metric-card">
-            <span>Valor antes dos limites</span>
+            <span>Depois dos ajustes</span>
             <strong>${formatCurrency(result.rawFine)}</strong>
           </article>
           <article class="metric-card">
@@ -1144,21 +1145,21 @@
             <strong>${escapeHtml(appliedLimitLabel(result.appliedLimit))}</strong>
           </article>
           <article class="metric-card">
-            <span>Limite mínimo aplicado</span>
+            <span>Valor mínimo considerado</span>
             <strong>${formatCurrency(result.minFine)}</strong>
           </article>
           <article class="metric-card">
-            <span>Limite máximo aplicado</span>
+            <span>Valor máximo considerado</span>
             <strong>${formatCurrency(result.maxFine)}</strong>
           </article>
           <article class="metric-card">
-            <span>Agravantes / atenuantes</span>
+            <span>Aumentos / reduções</span>
             <strong>${formatPercent(result.aggravatingPercentage)} / ${formatPercent(result.mitigatingPercentage)}</strong>
           </article>
         </div>
         ${
           full
-            ? `<span class="status-pill">${escapeHtml(state.rdStatus || 'Resumo preparado para integração RD Station.')}</span>`
+            ? `<span class="status-pill">${escapeHtml(state.rdStatus || 'Resumo pronto para envio ao RD Station.')}</span>`
             : ''
         }
       </article>
@@ -1174,13 +1175,13 @@
   function renderWarnings(result) {
     const warnings = [];
     if (result.warnings.adjustmentBelowZero) {
-      warnings.push('As atenuantes superaram os agravantes e tornaram o fator final menor que zero. O valor antes dos limites foi considerado como zero.');
+      warnings.push('As reduções ficaram maiores que os aumentos. Por isso, esta etapa do cálculo foi zerada antes dos limites.');
     }
     if (result.warnings.taxesExceedRevenue) {
-      warnings.push('Os tributos informados superam o faturamento. A base líquida foi considerada como zero.');
+      warnings.push('O valor a descontar ficou maior que o faturamento. A calculadora considerou a base como zero.');
     }
     if (result.warnings.boundsInconsistent) {
-      warnings.push('O limite mínimo calculado ficou acima do limite máximo. Revise os valores informados antes de usar a estimativa.');
+      warnings.push('O valor mínimo ficou acima do máximo. Vale revisar os números antes de usar esta estimativa.');
     }
     if (!warnings.length) return '';
 
@@ -1196,18 +1197,19 @@
     return `
       <div class="formula-grid">
         <article class="formula-card">
-          <span class="formula-card__label">Memória de cálculo</span>
-          <h3>Valor-base</h3>
+          <span class="formula-card__label">Como chegamos lá</span>
+          <h3>Ponto de partida</h3>
+          <p>Esta parte mostra a conta completa para quem quiser auditar o resultado.</p>
           <ul class="formula-list">
             <li><code>Tipo</code>: ${escapeHtml(entityTypeLabel(result.assessedEntityType))}</li>
-            <li><code>Classificação</code>: ${escapeHtml(classificationLabel(result.scenarioClassification))}</li>
-            <li><code>GD</code>: ${escapeHtml(result.damageDegree)}</li>
+            <li><code>Gravidade</code>: ${escapeHtml(classificationLabel(result.scenarioClassification))}</li>
+            <li><code>Impacto</code>: ${escapeHtml(result.damageDegree)}</li>
             ${
               hasRevenue
                 ? `
                   <li><code>A1 / A2</code>: ${formatAliquot(result.aliquotRange.a1)} / ${formatAliquot(result.aliquotRange.a2)}</li>
                   <li><code>A_base = ((A2 - A1) / 3) * GD + A1</code>: ${formatAliquot(result.baseAliquot)}</li>
-                  <li><code>Faturamento - tributos</code>: ${formatCurrency(result.netRevenue)}</li>
+                  <li><code>Faturamento após descontos</code>: ${formatCurrency(result.netRevenue)}</li>
                   <li><code>V_base = A_base * (Faturamento - Tributos)</code>: ${formatCurrency(result.baseValue)}</li>
                 `
                 : `
@@ -1218,15 +1220,15 @@
           </ul>
         </article>
         <article class="formula-card">
-          <span class="formula-card__label">Ajustes e limites</span>
-          <h3>Valor final</h3>
+          <span class="formula-card__label">Ajustes</span>
+          <h3>Resultado final</h3>
           <ul class="formula-list">
-            <li><code>Agravantes</code>: ${formatPercent(result.aggravatingPercentage)} (${formatPercent(result.aggravatingPercentage, 0).replace('%', '')} / 100)</li>
-            <li><code>Atenuantes</code>: ${formatPercent(result.mitigatingPercentage)} (${formatPercent(result.mitigatingPercentage, 0).replace('%', '')} / 100)</li>
-            <li><code>V_multa = V_base * (1 + Agravantes - Atenuantes)</code>: ${formatCurrency(result.rawFine)}</li>
-            <li><code>V_min</code>: ${formatCurrency(result.minFine)}</li>
-            <li><code>V_max</code>: ${formatCurrency(result.maxFine)}</li>
-            <li><code>V_final</code>: ${formatCurrency(result.estimatedFine)}</li>
+            <li><code>Aumentos</code>: ${formatPercent(result.aggravatingPercentage)} (${formatPercent(result.aggravatingPercentage, 0).replace('%', '')} / 100)</li>
+            <li><code>Reduções</code>: ${formatPercent(result.mitigatingPercentage)} (${formatPercent(result.mitigatingPercentage, 0).replace('%', '')} / 100)</li>
+            <li><code>Valor ajustado = ponto de partida * (1 + aumentos - reduções)</code>: ${formatCurrency(result.rawFine)}</li>
+            <li><code>Mínimo</code>: ${formatCurrency(result.minFine)}</li>
+            <li><code>Máximo</code>: ${formatCurrency(result.maxFine)}</li>
+            <li><code>Estimativa final</code>: ${formatCurrency(result.estimatedFine)}</li>
           </ul>
         </article>
       </div>
