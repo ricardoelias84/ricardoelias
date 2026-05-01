@@ -3,15 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>N.A.V.E. | Em reorganizacao</title>
+    <title>N.A.V.E. | Active Solutions</title>
+    <meta
+      name="description"
+      content="N.A.V.E. é uma jornada guiada da Active Solutions para entender maturidade, riscos e próximos passos."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        --bg: #071321;
-        --panel: rgba(248, 250, 252, 0.96);
-        --text: #0f172a;
-        --soft: #475569;
-        --blue: #0057e7;
-        --line: rgba(148, 163, 184, 0.18);
+        --navy: #001e3d;
+        --soft: #65758b;
+        --paper: #fcfcfd;
+        --white: #ffffff;
+        --line: #e1e7ef;
+        --line-strong: #aebdcc;
+        --red: #9f1d22;
+        --shadow: 0 14px 30px rgba(0, 30, 61, 0.05);
       }
 
       * {
@@ -21,109 +33,246 @@
       body {
         margin: 0;
         min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        font-family: "Sora", Inter, sans-serif;
-        background:
-          radial-gradient(circle at top, rgba(96, 165, 250, 0.18), transparent 32%),
-          var(--bg);
+        font-family: "Inter", sans-serif;
+        color: var(--navy);
+        background: var(--paper);
       }
 
-      .card {
-        width: min(760px, 100%);
-        padding: 32px;
-        border-radius: 32px;
-        background: var(--panel);
-        box-shadow: 0 28px 80px rgba(2, 6, 23, 0.32);
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Instrument Sans", sans-serif;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--line);
+        background: rgba(252, 252, 253, 0.94);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar__inner,
+      main {
+        width: min(100%, 1088px);
+        margin: 0 auto;
+      }
+
+      .topbar__inner {
+        min-height: 88px;
+        padding: 1rem 1.15rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .logo {
+        width: 78px;
+        height: auto;
+        display: block;
+      }
+
+      .talk {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1.25rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        color: var(--navy);
+        font-weight: 700;
+      }
+
+      main {
+        padding: 7.8rem 1.15rem 5rem;
+      }
+
+      .hero {
+        display: grid;
+        justify-items: center;
+        gap: 1.15rem;
+        text-align: center;
+        padding-bottom: 6.8rem;
+        border-bottom: 1px solid var(--line);
       }
 
       .eyebrow {
-        display: inline-flex;
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(0, 87, 231, 0.1);
-        color: var(--blue);
-        font-size: 12px;
+        color: var(--red);
+        font-size: 0.78rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.28em;
         text-transform: uppercase;
       }
 
       h1 {
-        margin: 18px 0 14px;
-        font-size: clamp(2rem, 1.7rem + 1vw, 3.5rem);
+        max-width: 920px;
+        font-size: 4.6rem;
         line-height: 0.98;
-        letter-spacing: -0.05em;
-        color: var(--text);
+        letter-spacing: 0;
       }
 
-      p {
-        margin: 0;
+      .hero p {
+        max-width: 720px;
         color: var(--soft);
-        line-height: 1.75;
+        font-size: 1.18rem;
+        line-height: 1.55;
       }
 
-      .note {
-        margin-top: 18px;
-        padding: 18px 20px;
-        border-radius: 22px;
-        background: rgba(15, 23, 42, 0.04);
-        box-shadow: inset 0 0 0 1px var(--line);
+      .card {
+        margin-top: 4rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.25rem;
+        align-items: center;
+        padding: clamp(1.2rem, 2vw, 1.65rem);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--white);
+        box-shadow: var(--shadow);
+      }
+
+      .card h2 {
+        margin-bottom: 0.55rem;
+        font-size: 1.75rem;
+        line-height: 1.1;
+        letter-spacing: 0;
+      }
+
+      .card p {
+        max-width: 720px;
+        color: var(--soft);
+        line-height: 1.7;
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 24px;
-      }
-
-      a {
-        text-decoration: none;
+        justify-content: flex-end;
+        gap: 0.7rem;
       }
 
       .primary,
       .secondary {
+        min-height: 48px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 48px;
-        padding: 0 18px;
+        padding: 0 1.1rem;
         border-radius: 999px;
-        font-weight: 700;
+        font-weight: 800;
+        white-space: nowrap;
       }
 
       .primary {
-        background: linear-gradient(135deg, #0057e7, #60a5fa);
-        color: #fff;
+        color: var(--white);
+        background: var(--navy);
+        border: 1px solid var(--navy);
       }
 
       .secondary {
-        background: rgba(15, 23, 42, 0.04);
-        color: var(--text);
-        box-shadow: inset 0 0 0 1px var(--line);
+        color: var(--navy);
+        border: 1px solid var(--line-strong);
+      }
+
+      @media (max-width: 840px) {
+        main {
+          padding-top: 4rem;
+        }
+
+        .hero {
+          padding-bottom: 4rem;
+        }
+
+        h1 {
+          font-size: 2.6rem;
+          line-height: 1.03;
+        }
+
+        .hero p {
+          font-size: 1.05rem;
+        }
+
+        .card h2 {
+          font-size: 1.45rem;
+        }
+
+        .card {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar__inner {
+          min-height: 74px;
+        }
+
+        .logo {
+          width: 64px;
+        }
+
+        .primary,
+        .secondary,
+        .talk {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
-    <article class="card">
-      <span class="eyebrow">N.A.V.E.</span>
-      <h1>Entrada temporaria enquanto a segunda fase e organizada.</h1>
-      <p>
-        A solucao foi separada em camadas para deixar a evolucao mais limpa: uma entrada
-        institucional aqui e o MVP atual dentro da pasta <strong>MVP1</strong>.
-      </p>
-      <div class="note">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a href="../" aria-label="Voltar para a central Active Solutions">
+          <img class="logo" src="./MVP1/assets/logo-active-color.jpg" alt="Active Solutions" />
+        </a>
+        <a
+          class="talk"
+          href="https://wa.me/5511991559361?text=Ol%C3%A1%21%20Gostaria%20de%20conversar%20com%20a%20Active%20Solutions."
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Conversar
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <span class="eyebrow">N.A.V.E.</span>
+        <h1>Clareza para entender maturidade, riscos e próximos passos.</h1>
         <p>
-          Se voce quer abrir a versao em uso agora, entre pelo link abaixo. Esta pagina fica
-          como porta de transicao para os proximos ciclos da N.A.V.E.
+          Uma jornada guiada da Active Solutions para transformar respostas simples em uma leitura
+          prática sobre segurança, prioridade e evolução.
         </p>
-      </div>
-      <div class="actions">
-        <a class="primary" href="./MVP1/">Abrir MVP1 da N.A.V.E.</a>
-        <a class="secondary" href="../">Voltar para a central</a>
-      </div>
-    </article>
+      </section>
+
+      <article class="card">
+        <div>
+          <span class="eyebrow">Ferramenta disponível</span>
+          <h2>Acesse a versão atual da N.A.V.E.</h2>
+          <p>
+            O MVP atual reúne a avaliação, o diagnóstico executivo e as recomendações de serviços em
+            uma experiência única.
+          </p>
+        </div>
+        <div class="actions">
+          <a class="primary" href="./MVP1/">Abrir N.A.V.E.</a>
+          <a class="secondary" href="../">Voltar para a central</a>
+        </div>
+      </article>
+    </main>
   </body>
 </html>

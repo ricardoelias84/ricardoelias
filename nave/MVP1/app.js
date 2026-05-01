@@ -2171,8 +2171,12 @@
     return `
       <header class="topbar">
         <div class="topbar__inner">
-          <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada">
-            <span class="brand__name">${escapeHtml(content.meta.name)}</span>
+          <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada da N.A.V.E.">
+            <img class="brand__logo" src="${escapeHtml(content.meta.brandAssets.logoColor)}" alt="Active Solutions" />
+            <span class="brand__text">
+              <span class="brand__name">${escapeHtml(content.meta.name)}</span>
+              <span class="brand__subtitle">Active Solutions</span>
+            </span>
           </button>
           ${showProgress ? `<span class="topbar__progress">${escapeHtml(progressLabel)}</span>` : ''}
         </div>
@@ -4099,8 +4103,12 @@
     return `
       <header class="topbar">
         <div class="topbar__inner">
-          <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada">
-            <span class="brand__name">${escapeHtml(content.meta.name)}</span>
+          <button class="brand" data-action="go-entry" aria-label="Voltar para a entrada da N.A.V.E.">
+            <img class="brand__logo" src="${escapeHtml(content.meta.brandAssets.logoColor)}" alt="Active Solutions" />
+            <span class="brand__text">
+              <span class="brand__name">${escapeHtml(content.meta.name)}</span>
+              <span class="brand__subtitle">Active Solutions</span>
+            </span>
           </button>
           ${showProgress ? `<span class="topbar__progress">${escapeHtml(progressLabel)}</span>` : ''}
         </div>
