@@ -40,6 +40,14 @@
         text-decoration: none;
       }
 
+      button {
+        font: inherit;
+      }
+
+      body.modal-open {
+        overflow: hidden;
+      }
+
       p,
       h1,
       h2,
@@ -117,7 +125,7 @@
         max-width: 920px;
         font-size: clamp(2.65rem, 1.5rem + 4.2vw, 5rem);
         line-height: 0.98;
-        letter-spacing: -0.055em;
+        letter-spacing: 0;
       }
 
       .hero p {
@@ -138,7 +146,7 @@
         max-width: 470px;
         font-size: clamp(2rem, 1.35rem + 1.8vw, 3rem);
         line-height: 1.05;
-        letter-spacing: -0.04em;
+        letter-spacing: 0;
       }
 
       .solutions-intro p {
@@ -171,7 +179,7 @@
       .solution-card h3 {
         margin-bottom: 0.55rem;
         font-size: clamp(1.35rem, 1.1rem + 0.65vw, 1.9rem);
-        letter-spacing: -0.035em;
+        letter-spacing: 0;
       }
 
       .solution-card p {
@@ -252,6 +260,99 @@
         background: var(--green);
       }
 
+      .calculator-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(0.75rem, 2vw, 1.5rem);
+        background: rgba(0, 30, 61, 0.42);
+      }
+
+      .calculator-modal.is-open {
+        display: flex;
+      }
+
+      .calculator-modal__panel {
+        width: min(100%, 1040px);
+        height: min(92vh, 880px);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+        box-shadow: 0 22px 56px rgba(0, 30, 61, 0.18);
+      }
+
+      .calculator-modal__header {
+        min-height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--line);
+        background: rgba(252, 252, 253, 0.96);
+      }
+
+      .calculator-modal__title {
+        display: grid;
+        gap: 0.1rem;
+      }
+
+      .calculator-modal__title strong {
+        font-family: "Instrument Sans", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+
+      .calculator-modal__title span {
+        color: var(--soft);
+        font-size: 0.86rem;
+      }
+
+      .calculator-modal__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .calculator-modal__open {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 0.95rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        color: var(--navy);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .calculator-modal__close {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+        color: var(--navy);
+        background: var(--white);
+        cursor: pointer;
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .calculator-modal__frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: var(--paper);
+      }
+
       @media (max-width: 840px) {
         main {
           padding-top: 4rem;
@@ -293,6 +394,24 @@
         .whatsapp {
           left: 0.9rem;
           right: 0.9rem;
+        }
+
+        .calculator-modal {
+          padding: 0;
+        }
+
+        .calculator-modal__panel {
+          height: 100dvh;
+          border-radius: 0;
+        }
+
+        .calculator-modal__header {
+          align-items: flex-start;
+        }
+
+        .calculator-modal__title span,
+        .calculator-modal__open {
+          display: none;
         }
       }
     </style>
@@ -344,7 +463,7 @@
             </p>
           </div>
           <div class="actions">
-            <a class="primary" href="./calculadora-anpd/">Abrir calculadora</a>
+            <a class="primary" href="./calculadora-anpd/?popup=1" data-calculator-popup>Abrir calculadora</a>
           </div>
         </article>
 
@@ -377,5 +496,95 @@
       <span></span>
       Conversar
     </a>
+
+    <div class="calculator-modal" data-calculator-modal hidden>
+      <section
+        class="calculator-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="calculator-modal-title"
+      >
+        <header class="calculator-modal__header">
+          <div class="calculator-modal__title">
+            <strong id="calculator-modal-title">Calculadora ANPD</strong>
+            <span>Simule o valor sem sair da pagina.</span>
+          </div>
+          <div class="calculator-modal__actions">
+            <a
+              class="calculator-modal__open"
+              href="./calculadora-anpd/?popup=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-calculator-modal-open-new
+            >
+              Abrir em nova aba
+            </a>
+            <button class="calculator-modal__close" type="button" data-calculator-modal-close aria-label="Fechar calculadora">
+              &times;
+            </button>
+          </div>
+        </header>
+        <iframe
+          class="calculator-modal__frame"
+          title="Calculadora ANPD"
+          data-calculator-frame
+          loading="lazy"
+        ></iframe>
+      </section>
+    </div>
+
+    <script>
+      (() => {
+        const modal = document.querySelector('[data-calculator-modal]');
+        const frame = document.querySelector('[data-calculator-frame]');
+        const closeButton = document.querySelector('[data-calculator-modal-close]');
+        const openInNewTab = document.querySelector('[data-calculator-modal-open-new]');
+        const openers = Array.from(document.querySelectorAll('[data-calculator-popup]'));
+        const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        let lastOpener = null;
+
+        if (!modal || !frame || !closeButton || openers.length === 0) return;
+
+        const buildCalculatorUrl = (href) => {
+          const url = new URL(href || './calculadora-anpd/', window.location.href);
+          const currentParams = new URLSearchParams(window.location.search || '');
+          url.searchParams.set('popup', '1');
+          utmKeys.forEach((key) => {
+            const value = currentParams.get(key);
+            if (value) url.searchParams.set(key, value);
+          });
+          return url.href;
+        };
+
+        const openModal = (event) => {
+          event.preventDefault();
+          lastOpener = event.currentTarget;
+          const calculatorUrl = buildCalculatorUrl(lastOpener.getAttribute('href'));
+          frame.src = calculatorUrl;
+          if (openInNewTab) openInNewTab.href = calculatorUrl;
+          modal.hidden = false;
+          modal.classList.add('is-open');
+          document.body.classList.add('modal-open');
+          closeButton.focus({ preventScroll: true });
+        };
+
+        const closeModal = () => {
+          modal.classList.remove('is-open');
+          modal.hidden = true;
+          frame.removeAttribute('src');
+          document.body.classList.remove('modal-open');
+          if (lastOpener) lastOpener.focus({ preventScroll: true });
+        };
+
+        openers.forEach((opener) => opener.addEventListener('click', openModal));
+        closeButton.addEventListener('click', closeModal);
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && !modal.hidden) closeModal();
+        });
+      })();
+    </script>
   </body>
 </html>

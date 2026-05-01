@@ -31,6 +31,16 @@ Depois acesse:
 http://localhost:8080/calculadora-anpd/
 ```
 
+## Modo popup
+
+Para usar a calculadora dentro de modal, popup ou iframe, abra a URL com `?popup=1`:
+
+```text
+http://localhost:8080/calculadora-anpd/?popup=1
+```
+
+Nesse modo, a calculadora remove o cabeçalho, o bloco inicial grande e o botão flutuante interno de WhatsApp, mantendo apenas o fluxo da simulação. A home do projeto já usa esse modo ao abrir a calculadora em modal e repassa automaticamente os parâmetros UTM presentes na URL principal.
+
 Testes:
 
 ```bash

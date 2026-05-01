@@ -106,6 +106,14 @@ ul {
   min-height: 100vh;
 }
 
+body.is-popup-mode {
+  background: transparent;
+}
+
+body.is-popup-mode #calculator-root {
+  min-height: 100%;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -201,7 +209,7 @@ ul {
   color: var(--navy);
   font-size: clamp(2.75rem, 1.48rem + 4.2vw, 5.1rem);
   line-height: 0.98;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .page-intro p {
@@ -307,7 +315,7 @@ ul {
   color: var(--navy);
   font-size: clamp(1.85rem, 1.35rem + 1.5vw, 3rem);
   line-height: 1.03;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .calculator-card__header p,
@@ -633,7 +641,7 @@ details p {
   color: var(--navy);
   font-size: clamp(2.1rem, 1.45rem + 2vw, 3.6rem);
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .summary-grid {
@@ -734,7 +742,42 @@ details p {
   color: var(--navy);
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--line-strong);
-  box-shadow: 0 16px 34px rgba(0, 36, 73, 0.12);
+  box-shadow: 0 14px 30px rgba(0, 30, 61, 0.08);
+}
+
+.is-popup-mode .app-shell {
+  width: 100%;
+  max-width: none;
+  padding: 1rem;
+}
+
+.is-popup-mode .stepper {
+  margin-bottom: 0.85rem;
+}
+
+.is-popup-mode .calculator-card,
+.is-popup-mode .summary-card,
+.is-popup-mode .formula-card,
+.is-popup-mode .disclaimer-card {
+  box-shadow: none;
+}
+
+.is-popup-mode .calculator-card {
+  padding: clamp(1rem, 2vw, 1.6rem);
+}
+
+.is-popup-mode .calculator-card__header {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.is-popup-mode .calculator-card__header h2 {
+  font-size: clamp(1.55rem, 1.1rem + 2vw, 2.2rem);
+  line-height: 1.08;
+}
+
+.is-popup-mode .option-card {
+  min-height: auto;
 }
 
 .floating-whatsapp svg {

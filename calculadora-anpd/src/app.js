@@ -23,6 +23,9 @@
   const WHATSAPP_URL = `https://wa.me/${config.specialistWhatsApp}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
   const RD_CONTACTS_ENDPOINT = 'https://api.rd.services/platform/contacts';
   const RD_FIELDS_ENDPOINT = 'https://api.rd.services/platform/contacts/fields';
+  const isPopupMode = detectPopupMode();
+
+  document.body.classList.toggle('is-popup-mode', isPopupMode);
 
   const STEPS = [
     { id: 'privacy', label: 'Antes' },
@@ -180,6 +183,25 @@
       referrer: sanitizeInlineText(document.referrer || ''),
       page_url: sanitizeInlineText(pageUrl),
     };
+  }
+
+  function detectPopupMode() {
+    const params = new URLSearchParams(window.location.search || '');
+    const explicitMode = ['popup', 'embed', 'modal'].some((key) => {
+      const value = String(params.get(key) || '').toLowerCase();
+      return ['1', 'true', 'yes'].includes(value);
+    });
+
+    let framed = false;
+    let openedByWindow = false;
+    try {
+      framed = window.self !== window.top;
+      openedByWindow = Boolean(window.opener);
+    } catch (error) {
+      framed = true;
+    }
+
+    return explicitMode || framed || openedByWindow;
   }
 
   function sanitizeInlineText(value) {
@@ -635,13 +657,13 @@
   function render() {
     const result = getSimulationResultOrNull();
     root.innerHTML = `
-      ${renderHeader()}
+      ${isPopupMode ? '' : renderHeader()}
       <main class="app-shell">
         ${renderIntro()}
         ${renderStepper()}
         ${renderCurrentStep(result)}
       </main>
-      ${renderFloatingWhatsAppButton()}
+      ${isPopupMode ? '' : renderFloatingWhatsAppButton()}
     `;
   }
 
@@ -663,6 +685,8 @@
   }
 
   function renderIntro() {
+    if (isPopupMode) return '';
+
     return `
       <section class="page-intro">
         <div class="page-intro__copy">
